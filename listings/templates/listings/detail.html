@@ -49,7 +49,7 @@
 {% if listing.latitude %}
 <script>
   const map = L.map("map").setView([{{ listing.latitude }}, {{ listing.longitude }}], 15);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"}).addTo(map);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"}).addTo(map);
   L.marker([{{ listing.latitude }}, {{ listing.longitude }}]).addTo(map);
 </script>
 {% endif %}

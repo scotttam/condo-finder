@@ -58,3 +58,10 @@ def test_set_status_keeps_notes(client):
 def test_set_status_rejects_invalid(client):
     listing = good_listing()
     assert client.post(f"/listing/{listing.pk}/status/", {"status": "bogus"}).status_code == 400
+
+
+def test_pages_send_referrer_to_map_tile_server(client):
+    # OpenStreetMap blocks tile requests that arrive without a Referer header.
+    response = client.get("/")
+    assert response["Referrer-Policy"] == "strict-origin-when-cross-origin"
+    assert b"https://tile.openstreetmap.org/{z}/{x}/{y}.png" in response.content

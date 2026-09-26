@@ -14,6 +14,9 @@ def env_list(name, default):
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-change-me")
 DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 ALLOWED_HOSTS = ["*"]  # LAN-only app
+# Map tiles from tile.openstreetmap.org are refused without a Referer header,
+# which Django's default "same-origin" policy suppresses.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
