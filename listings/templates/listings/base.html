@@ -60,6 +60,10 @@
     .listing-table .thumb { width:88px; height:60px; object-fit:cover; border-radius:6px; background:#ddd; display:block; }
     .listing-table .status-controls { flex-wrap:wrap; }
     .nowrap { white-space:nowrap; }
+    .pagination { display:flex; justify-content:center; align-items:center; gap:18px; margin:20px 0 8px; }
+    .pagination a, .pagination .disabled { padding:6px 14px; border:1px solid var(--line); border-radius:8px; background:var(--card); text-decoration:none; }
+    .pagination .disabled { color:var(--muted); opacity:.5; }
+    #results.htmx-request { opacity:.55; transition:opacity .15s; }
     @media (max-width: 800px) { .layout, .detail { grid-template-columns:1fr; } .filters { position:static; } }
   </style>
 </head>
