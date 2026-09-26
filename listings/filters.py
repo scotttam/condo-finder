@@ -22,6 +22,8 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(city__in=data["cities"])
     if data.get("neighborhood"):
         queryset = queryset.filter(neighborhood__icontains=data["neighborhood"])
+    if data.get("sources"):
+        queryset = queryset.filter(source_listings__source__key__in=data["sources"]).distinct()
     if data.get("types"):
         queryset = queryset.filter(property_type__in=data["types"])
     if data.get("statuses"):

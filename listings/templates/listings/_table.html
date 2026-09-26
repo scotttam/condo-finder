@@ -1,0 +1,33 @@
+{% load humanize %}
+<div class="table-wrap">
+<table class="listing-table">
+  <thead>
+    <tr><th></th><th>Price</th><th>Bd / Ba</th><th>Sqft</th><th>Parking</th><th>Features</th><th>Type</th><th>Address</th><th>Sources</th><th>Listed</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+  {% for listing in listings %}
+    <tr>
+      <td><a href="{{ listing.get_absolute_url }}">{% if listing.photo_url %}<img class="thumb" src="{{ listing.photo_url }}" alt="" loading="lazy">{% else %}<span class="thumb"></span>{% endif %}</a></td>
+      <td class="nowrap"><strong>{% if listing.price %}${{ listing.price|intcomma }}{% else %}?{% endif %}</strong>
+        {% if not listing.is_active %}<div class="offmarket">Off market</div>{% endif %}</td>
+      <td class="nowrap">{{ listing.beds }} / {{ listing.baths|floatformat:"-1" }}</td>
+      <td>{{ listing.sqft|intcomma|default:"?" }}</td>
+      <td>{% if listing.parking_spaces is None %}?{% else %}{{ listing.parking_spaces }}{% endif %}</td>
+      <td class="nowrap">
+        {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
+        {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
+        {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
+      </td>
+      <td>{{ listing.get_property_type_display }}</td>
+      <td><a href="{{ listing.get_absolute_url }}">{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}</a>
+        <div class="muted">{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %}</div></td>
+      <td>{% include "listings/_sources.html" %}</td>
+      <td class="nowrap">{{ listing.days_on_market }}d</td>
+      <td>{% include "listings/_status.html" %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="11">No listings match. Try loosening the filters.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>

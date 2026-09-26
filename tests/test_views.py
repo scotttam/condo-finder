@@ -65,3 +65,47 @@ def test_pages_send_referrer_to_map_tile_server(client):
     response = client.get("/")
     assert response["Referrer-Policy"] == "strict-origin-when-cross-origin"
     assert b"https://tile.openstreetmap.org/{z}/{x}/{y}.png" in response.content
+
+
+def with_source(listing, key="zillow", name="Zillow"):
+    from listings.models import Source, SourceListing
+
+    source = Source.objects.get_or_create(key=key, defaults={"name": name, "platform": key})[0]
+    SourceListing.objects.create(listing=listing, source=source, external_id=f"{key}-{listing.pk}", url="https://x.example/")
+    return listing
+
+
+def test_map_view_is_default_and_cards_show_source_badges(client):
+    with_source(good_listing())
+    content = client.get("/").content.decode()
+    assert 'id="map"' in content
+    assert 'class="source-badge">Zillow<' in content
+    assert 'class="listing-table"' not in content
+
+
+def test_list_view_uses_default_filters_and_renders_table(client):
+    with_source(good_listing())
+    make_listing(address_key="one-bed", street="1 One Bed St", beds=1, price=2000)
+    response = client.get("/?view=list")
+    content = response.content.decode()
+    assert response.context["view"] == "list"
+    assert 'class="listing-table"' in content
+    assert 'id="map"' not in content
+    assert "937 NW Glisan Street" in content and "1 One Bed St" not in content
+    assert 'class="source-badge">Zillow<' in content
+
+
+def test_view_toggle_links_keep_filters(client):
+    good_listing()
+    response = client.get("/?min_beds=3&sort=newest")
+    assert "min_beds=3" in response.context["list_url"] and "view=list" in response.context["list_url"]
+    assert 'name="view" value="map"' in response.content.decode()
+
+
+def test_filter_by_source_from_query(client):
+    with_source(good_listing(), key="pearl", name="Pearl")
+    other = with_source(make_listing(address_key="z", street="2 Zillow Way", price=3000, beds=2, baths=Decimal("2"),
+                                     parking_spaces=2, property_type="condo"))
+    content = client.get("/?view=list&sources=zillow&min_beds=2").content.decode()
+    assert "2 Zillow Way" in content and "937 NW Glisan Street" not in content
+    assert other.pk
