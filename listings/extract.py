@@ -6,13 +6,17 @@ from .models import PropertyType
 from .parsing import WORD_NUMBERS
 
 _NUM = r"(\d|one|two|three|four|single|double)"
-_QUALIFIER = r"(?:(?:reserved|assigned|deeded|covered|secured?|garage|off[\s-]street|underground|dedicated|private|tandem)\s+)"
+_QUALIFIER = (
+    r"(?:(?:reserved|assigned|designated|deeded|covered|secured?|garage|off[\s-]street|underground"
+    r"|dedicated|private|tandem)\s+)"
+)
 _PARKING_COUNT_PATTERNS = [
     rf"\b{_NUM}[\s-]*(?:car|vehicle)\s+(?:attached\s+|detached\s+|tandem\s+)?(?:garage|parking|carport)",
     rf"\b{_NUM}\s+garage\b",
     rf"\b{_NUM}\s+{_QUALIFIER}*parking\b",
     rf"\b{_NUM}\s+{_QUALIFIER}+(?:spaces?|spots?|stalls?)\b",
     rf"\bparking\s+for\s+{_NUM}\b",
+    rf"\b(an?)\s+{_QUALIFIER}+(?:parking\s+)?(?:spaces?|spots?|stalls?)\b",
 ]
 _PARKING_POSITIVE = (
     r"\b(?:garage|carport|driveway|w/\s?parking|with parking"
@@ -57,6 +61,8 @@ _TYPE_TEXT_RULES = [
 
 
 def _to_int(word):
+    if word in ("a", "an"):
+        return 1
     return int(word) if word.isdigit() else WORD_NUMBERS[word]
 
 
@@ -69,8 +75,10 @@ def extract_parking(text):
         return max(counts)
     if re.search(_PARKING_NONE, lowered):
         return 0
+    if re.search(r"\bgarage\b", lowered) and re.search(r"\bdriveway\b", lowered):
+        return 2
     if re.search(_PARKING_POSITIVE, lowered):
-        return 1
+        return None  # parking exists but the count isn't stated
     if re.search(r"\bstreet parking\b", lowered):  # checked after "off-street parking"
         return 0
     return None
