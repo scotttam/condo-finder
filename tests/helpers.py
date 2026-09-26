@@ -39,3 +39,29 @@ def make_listing(**overrides):
     )
     fields.update(overrides)
     return Listing.objects.create(**fields)
+
+
+def scraped(**overrides):
+    from decimal import Decimal
+
+    from listings.scrapers.base import ScrapedListing
+
+    fields = dict(
+        external_id="a1",
+        url="https://example.com/a1",
+        address="937 NW Glisan Street #435, Portland, OR 97209",
+        price=2800,
+        beds=2,
+        baths=Decimal("2"),
+        sqft=1105,
+        title="Pearl condo",
+        description="2 bed 2 bath condo. 1 reserved parking space. In-unit washer/dryer. Balcony.",
+    )
+    fields.update(overrides)
+    return ScrapedListing(**fields)
+
+
+def make_source(key="pearl"):
+    from listings.models import Source
+
+    return Source.objects.get_or_create(key=key, defaults={"name": key.title(), "platform": "appfolio"})[0]
