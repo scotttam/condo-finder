@@ -49,7 +49,8 @@ _TYPE_HINTS = [
     ("other", PropertyType.OTHER),
 ]
 _TYPE_TEXT_RULES = [
-    (r"\bcondo(?:minium)?s?\b|\bhoa\b", PropertyType.CONDO),
+    # Not "HOA": boilerplate like "this home may have an HOA" appears on houses too.
+    (r"\bcondo(?:minium)?s?\b", PropertyType.CONDO),
     (r"\btown\s?(?:home|house)s?\b", PropertyType.TOWNHOME),
     (
         r"leasing office|apartment homes|apartment community|our community|resident portal"
