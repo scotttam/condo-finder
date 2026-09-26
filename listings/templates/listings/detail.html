@@ -1,0 +1,56 @@
+{% extends "listings/base.html" %}
+{% load humanize %}
+{% block title %}{{ listing.street }} · Condo Finder{% endblock %}
+{% block content %}
+<p><a href="{% url 'listing_list' %}">← Back to listings</a></p>
+<div class="detail">
+  <section>
+    {% if listing.photo_url %}<img class="hero" src="{{ listing.photo_url }}" alt="">{% endif %}
+    <h1>{{ listing.address }}</h1>
+    {% if listing.title %}<h3>{{ listing.title }}</h3>{% endif %}
+    <p class="price">{% if listing.price %}${{ listing.price|intcomma }}/mo{% else %}Price ?{% endif %}
+      {% if not listing.is_active %}<span class="offmarket">Off market</span>{% endif %}</p>
+    <div class="panel">
+      <table>
+        <tr><th>Beds / Baths</th><td>{{ listing.beds }} / {{ listing.baths|floatformat:"-1" }}</td></tr>
+        <tr><th>Square feet</th><td>{{ listing.sqft|default:"?" }}{% if listing.price_per_sqft %} (${{ listing.price_per_sqft }}/sqft){% endif %}</td></tr>
+        <tr><th>Parking</th><td>{% if listing.parking_spaces is None %}Unknown{% else %}{{ listing.parking_spaces }}{% endif %}</td></tr>
+        <tr><th>Type</th><td>{{ listing.get_property_type_display }}</td></tr>
+        <tr><th>Available</th><td>{{ listing.available|default:"?" }}</td></tr>
+        <tr><th>Location</th><td>{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %}</td></tr>
+        <tr><th>Listed</th><td>{{ listing.first_seen_at|naturalday }} ({{ listing.days_on_market }} days)</td></tr>
+        <tr><th>Features</th><td>
+          {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
+          {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
+          {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
+        </td></tr>
+      </table>
+    </div>
+    <div class="panel description">{{ listing.description }}</div>
+  </section>
+  <aside>
+    <div class="panel"><h3>Our notes</h3>{% include "listings/_tracking.html" %}</div>
+    <div class="panel"><h3>Sources</h3>
+      <ul>{% for sl in listing.source_listings.all %}
+        <li><a href="{{ sl.url }}" target="_blank" rel="noopener">{{ sl.source.name }}</a>{% if not sl.is_active %} <span class="muted">(gone)</span>{% endif %}</li>
+      {% endfor %}</ul>
+    </div>
+    <div class="panel"><h3>Price history</h3>
+      <table>{% for change in listing.price_changes.all %}
+        <tr><td>{{ change.seen_at|date:"M j, Y" }}</td><td>${{ change.price|intcomma }}</td></tr>
+      {% endfor %}</table>
+    </div>
+    {% if listing.latitude %}<div id="map" style="height:260px"></div>{% endif %}
+    <p><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+{% if listing.latitude %}
+<script>
+  const map = L.map("map").setView([{{ listing.latitude }}, {{ listing.longitude }}], 15);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"}).addTo(map);
+  L.marker([{{ listing.latitude }}, {{ listing.longitude }}]).addTo(map);
+</script>
+{% endif %}
+{% endblock %}
