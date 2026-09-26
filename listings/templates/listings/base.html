@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Condo Finder{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+  <style>
+    :root { --bg:#f7f7f5; --card:#fff; --ink:#1f2328; --muted:#667085; --line:#e4e4e0; --accent:#2f6f5e;
+            --yes:#1f7a4d; --no:#b42318; --unk:#8a6d00; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+    header { display:flex; align-items:center; gap:24px; padding:12px 20px; background:var(--card); border-bottom:1px solid var(--line); }
+    header .brand { font-weight:700; color:var(--accent); text-decoration:none; font-size:18px; }
+    header nav a { margin-right:16px; color:var(--ink); text-decoration:none; }
+    main { padding:20px; max-width:1400px; margin:0 auto; }
+    a { color:var(--accent); }
+    .messages { list-style:none; margin:12px 20px 0; padding:10px 14px; background:#eaf4ef; border-radius:8px; }
+    .layout { display:grid; grid-template-columns:260px 1fr; gap:20px; align-items:start; }
+    .filters { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; position:sticky; top:12px; }
+    .filters label { display:block; font-size:13px; color:var(--muted); margin-top:8px; }
+    .filters input[type=number], .filters input[type=text], .filters select { width:100%; padding:5px 7px; }
+    .filters ul { list-style:none; padding:0; margin:2px 0; } .filters ul label { color:var(--ink); margin:0; }
+    .filters button { margin-top:12px; width:100%; padding:8px; background:var(--accent); color:#fff; border:0; border-radius:6px; cursor:pointer; }
+    #map { height:380px; border-radius:10px; border:1px solid var(--line); margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+    .card img { width:100%; height:180px; object-fit:cover; background:#ddd; }
+    .card .body { padding:12px; display:flex; flex-direction:column; gap:6px; flex:1; }
+    .price { font-size:20px; font-weight:700; }
+    .muted { color:var(--muted); font-size:13px; }
+    .feat { display:inline-block; font-size:12px; padding:1px 7px; border-radius:10px; margin:0 4px 4px 0; border:1px solid currentColor; }
+    .feat.yes { color:var(--yes); } .feat.no { color:var(--no); } .feat.unk { color:var(--unk); }
+    .status { font-size:12px; padding:2px 8px; border-radius:10px; background:#eef; }
+    .status-interested { background:#e3f5ea; } .status-rejected { background:#fde8e7; } .status-toured, .status-applied { background:#fff4d6; }
+    .status-controls { display:flex; gap:6px; align-items:center; margin-top:auto; }
+    .status-controls button { font-size:12px; padding:3px 8px; border:1px solid var(--line); background:#fff; border-radius:6px; cursor:pointer; }
+    .offmarket { color:var(--no); font-weight:600; font-size:12px; }
+    table { border-collapse:collapse; width:100%; background:var(--card); }
+    th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top; }
+    .detail { display:grid; grid-template-columns:1fr 360px; gap:24px; }
+    .detail img.hero { width:100%; max-height:420px; object-fit:cover; border-radius:10px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
+    .description { white-space:pre-line; }
+    .saved { color:var(--yes); margin-left:8px; }
+    @media (max-width: 800px) { .layout, .detail { grid-template-columns:1fr; } .filters { position:static; } }
+  </style>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <header>
+    <a class="brand" href="{% url 'listing_list' %}">Condo Finder</a>
+    <nav>
+      <a href="{% url 'listing_list' %}">Listings</a>
+      <a href="{% url 'sources' %}">Sources</a>
+      <a href="/admin/">Admin</a>
+    </nav>
+  </header>
+  {% if messages %}<ul class="messages">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
+  <main>{% block content %}{% endblock %}</main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

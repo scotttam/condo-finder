@@ -1,0 +1,40 @@
+{% extends "listings/base.html" %}
+{% load humanize %}
+{% block title %}Sources · Condo Finder{% endblock %}
+{% block content %}
+<h1>Sources</h1>
+<form method="post" action="{% url 'scrape_now' %}" style="margin-bottom:16px">
+  {% csrf_token %}
+  <button type="submit" {% if running %}disabled{% endif %}>{% if running %}Scrape running…{% else %}Scrape now{% endif %}</button>
+  {% if next_run %}<span class="muted">Next scheduled scrape: {{ next_run|date:"D M j, g:i A" }}</span>{% endif %}
+</form>
+<table>
+  <tr><th>Source</th><th>Platform</th><th>Last success</th><th>Listings</th><th>Failures in a row</th><th>Last error</th></tr>
+  {% for source in sources %}
+  <tr>
+    <td>{{ source.name }}</td>
+    <td>{{ source.platform }}</td>
+    <td>{{ source.last_success_at|naturaltime|default:"never" }}</td>
+    <td>{{ source.last_count|default_if_none:"–" }}</td>
+    <td>{% if source.consecutive_failures %}<strong class="offmarket">{{ source.consecutive_failures }}</strong>{% else %}0{% endif %}</td>
+    <td class="muted">{% if source.last_error %}{{ source.last_error_at|naturaltime }}: {{ source.last_error|truncatechars:160 }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+<h2>Recent runs</h2>
+<table>
+  <tr><th>Started</th><th>Source</th><th>Result</th><th>Listings</th><th>New</th><th>Error</th></tr>
+  {% for run in runs %}
+  <tr>
+    <td>{{ run.started_at|date:"M j g:i A" }}</td>
+    <td>{{ run.source.name }}</td>
+    <td>{% if run.ok %}ok{% elif run.finished_at %}<span class="offmarket">failed</span>{% else %}running{% endif %}</td>
+    <td>{{ run.count }}</td>
+    <td>{{ run.new_count }}</td>
+    <td class="muted">{{ run.error|truncatechars:200 }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6">No runs yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

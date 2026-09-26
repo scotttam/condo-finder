@@ -1,0 +1,6 @@
+<form id="tracking" method="post" action="{% url 'update_tracking' listing.pk %}"
+      hx-post="{% url 'update_tracking' listing.pk %}" hx-target="#tracking" hx-swap="outerHTML">
+  {% csrf_token %}
+  {{ tracking_form.as_p }}
+  <button type="submit">Save</button>{% if saved %}<span class="saved">Saved ✓</span>{% endif %}
+</form>

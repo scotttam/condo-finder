@@ -1,0 +1,7 @@
+<form class="status-controls" id="status-{{ listing.pk }}" method="post" action="{% url 'set_status' listing.pk %}"
+      hx-post="{% url 'set_status' listing.pk %}" hx-target="#status-{{ listing.pk }}" hx-swap="outerHTML">
+  {% csrf_token %}
+  <span class="status status-{{ listing.status }}">{{ listing.get_status_display }}</span>
+  <button type="submit" name="status" value="interested">♥ Interested</button>
+  <button type="submit" name="status" value="rejected">✗ Reject</button>
+</form>
