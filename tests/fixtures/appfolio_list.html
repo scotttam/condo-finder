@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<!--[if IE 8 ]><html class="ie ie8"><![endif]-->
+<!--[if IE 9 ]><html class="ie ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+      
+<script
+  src="https://www.datadoghq-browser-agent.com/us1/v6/datadog-rum.js"
+  type="text/javascript">
+</script>
+
+
+<script>
+  window.DD_RUM && window.DD_RUM.init({
+    clientToken: 'pub9f3f4ad4c7295c18cbcaf3c8dc5e1ac5',
+    applicationId: 'f9265575-7008-4dd5-8a3e-00761ebfb44a',
+    site: 'datadoghq.com',
+    service: 'listings',
+    env: 'production',
+    version: 'cd_live-b1e9749c69fc2d7c7e2b27759f117a306cbc4138',
+    sessionSampleRate: 25,
+    sessionReplaySampleRate: 2.0,
+    trackUserInteractions: true,
+    trackResources: true,
+    trackLongTasks: true,
+    traceSampleRate: 100,
+    traceContextInjection: 'all',
+    defaultPrivacyLevel: 'mask',
+    allowedTracingUrls: [/https:\/\/.*\.appfolio\.com/, /https:\/\/(?!snowplow-collector\.).*\.appf\.io/, /https:\/\/.*\.appfolioinc\.com/, /https:\/\/.*\.foliospace\.com/],
+  });
+  window.DD_RUM && window.DD_RUM.setGlobalContextProperty('team', 'vacancy-marketing');
+  window.DD_RUM && window.DD_RUM.setGlobalContextProperty('slice', 'p1403c');
+</script>
+
+
+    <script>
+  let AfObservability = (function () {
+    if (!window.DD_RUM) {
+      console.error("AfObservability: window.DD_RUM is not available.");
+      return {};
+    }
+
+    function createFacadeFunction(ddFuncName) {
+      return function () {
+        window.DD_RUM[ddFuncName].apply(window.DD_RUM, arguments);
+      };
+    }
+
+    let facade = {};
+
+    for (let ddFuncName in window.DD_RUM) {
+      if (typeof window.DD_RUM[ddFuncName] === 'function') {
+        facade[ddFuncName] = createFacadeFunction(ddFuncName);
+      }
+    }
+
+    return facade;
+  })();
+</script>
+
+
+  <script>
+  const attributes = {"uuid":"cde195e4-308a-4dec-bde4-54ea18bef9c8"}
+  window.__USER_ATTRIBUTES__ = attributes;
+  window.optimizely = window.optimizely || [];
+  window.optimizely.push({
+    type: 'user',
+    attributes
+  });
+</script>
+
+  <script async type="text/javascript" src='https://h.online-metrix.net/fp/tags.js?org_id=5kfca2gp&amp;session_id=02586ea7-95a6-43d2-9d11-d59508e786f8'></script>
+
+  <script src="https://public.cdn.appfolio.com/public/assets/scripts/ios12-array-reverse-fix-polyfill.js"></script>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N443R47');</script>
+
+
+  <meta charset="utf-8">
+  <title>Rental Listings</title>
+
+  <meta name="description" content="">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scaleProfileSnapshotClientTest=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="cleartype" content="on">
+
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="">
+
+  <meta name="msapplication-config" content="none" />
+
+  <link rel="icon" type="image/x-icon" href="https://public.cdn.appfolio.com/public/favicons/favicon.ico" sizes="16x16 24x24 32x32 48x48 64x64" /><link rel="apple-touch-icon-precomposed" type="image/x-icon" href="https://listings.cdn.appfolio.com/listings/assets/listings/appfolio_touch-90fc6855d75f24e7ec2e1b36f2ff871a6ff2e70d4b5faf28c861363994b44ae8.png" /><link rel="apple-touch-startup-image" type="image/x-icon" href="https://listings.cdn.appfolio.com/listings/assets/listings/appfolio_startup-d9243797170560b61e4ad09679cfb1c2fab7410ebc95c245b9e1dff89a3fac82.png" />
+
+  <link rel="stylesheet" href="https://listings.cdn.appfolio.com/listings/assets/listings/application2-09f63b334c5546fef4434a8f82f83bca70ea2b084017614422be88418b52adfc.css" media="all" />
+
+  <link rel="stylesheet" href="https://public.cdn.appfolio.com/bootstrap-coastline/6.5.2/bootstrap-coastline.min.css" />
+  <link rel="stylesheet" href="https://public.cdn.appfolio.com/public/icons/font-awesome/6.2.0/css/all.min.css" />
+
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+
+  <style type="text/css">
+
+    .theme-color {
+      background-color: #676767 !important;
+    }
+
+    .theme-color-text {
+      color: #676767 !important;
+    }
+
+    .corner-tag:before {
+      border-bottom-color: #676767 !important;
+    }
+
+    .theme-color-border {
+      border-color: #676767 !important;
+    }
+
+    .theme-color--actionable:hover, .theme-color--actionable:focus, .theme-color--actionable:active {
+      background-color: #525252 !important;
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://listings.cdn.appfolio.com/listings/assets/listings/listings/listings_index-f8582b53f6b4ba9d06ff924c4c4d2e92191176fa45763f6ac05d90b271d0470f.css" />
+
+
+  <!--[if lt IE 9]>
+    <script src="https://listings.cdn.appfolio.com/listings/assets/listings/ie-shims-853f0010aec4ce921280d2353e71b099d0fc0d074b3c87c7838b7203290d5ffc.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="GTM-N443R47"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+
+  <noscript>
+  <iframe style="width: 100px; height: 100px; border: 0; position: absolute; top: -5000px;" src='https://h.online-metrix.net/fp/tags?org_id=5kfca2gp&amp;session_id=02586ea7-95a6-43d2-9d11-d59508e786f8'></iframe>
+</noscript>
+
+    <script>
+    (
+      function (p, l, o, w, i, n, g) {
+        if (!p[i]) {
+          p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+          p.GlobalSnowplowNamespace.push(i);
+          p[i] = function () {
+            (p[i].q = p[i].q || []).push(arguments)
+          };
+          p[i].q = p[i].q || [];
+          n = l.createElement(o);
+          g = l.getElementsByTagName(o)[0];
+          n.async = 1;
+          n.crossOrigin = 'anonymous';
+          n.src = w;
+          g.parentNode.insertBefore(n, g)
+        }
+      }(window,document,"script","https://public.cdn.appfolio.com/public/assets/scripts/snowfolio/4.3.1/snowfolio.js","snowplow")
+    );
+    const collector_url = 'https://snowplow-collector.dataplatform.appfolio.net';
+    const pageAccessedByReload = (
+      (window.performance.navigation && window.performance.navigation.type === 1) ||
+        window.performance
+          .getEntriesByType('navigation')
+          .map((nav) => nav.type)
+          .includes('reload')
+    );
+    window.snowplow('newTracker', 'listingsTracker', collector_url, {
+      appId: 'listings',
+      postPath: '/io.augur.snowplow/1-0-0'
+    });
+    //TODO: How to identify a user and their attributes? Is there some sort of UUID and email address we can use from Listings App?
+    // window.snowplow('setUserId', user.uuid);
+    window.snowplow('addGlobalContexts', [{
+      schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+      data: {
+        email: null,
+        role: null,
+        vhost_id: 'listings',
+        vhost_name: 'listings',
+        isPmSession: false,
+        is_page_reload: pageAccessedByReload
+      }
+    }]);
+    window.snowplow('enableActivityTracking', {
+      minimumVisitLength: 60,
+      heartbeatDelay: 60
+    });
+    window.snowplow('trackPageView');
+    let windowUrl = window.location.pathname;
+    /*
+     * Adds a click event listener to an iframe identified by its name.
+     *
+     * @param {string} name - The name attribute of the iframe to which the event listener is to be added.
+     * @param {function} listener - The event listener function to be added to the iframe.
+     */
+    function addEventListenerToIframe(name, listener) {
+      // Get all iframes with the given name. It returns a NodeList.
+      const iframes = document.getElementsByName(name);
+
+      // Check if there's at least one iframe with the given name.
+      if (iframes.length > 0) {
+        // Check if the contentWindow and document properties exist on the first iframe.
+        if (iframes[0].contentWindow && iframes[0].contentWindow.document) {
+          // Add a click event listener to the document within the iframe's contentWindow.
+          iframes[0].contentWindow.document.addEventListener('click', listener, true);
+        }
+      }
+    }
+    function on_click_plow_page () {
+      const newUrl = window.location.pathname;
+      if (windowUrl !== newUrl) {
+          window.snowplow('trackPageView');
+          windowUrl = newUrl;
+        }
+      // Add a click event listener to the iframe with name 'intercom-launcher-frame' using the on_click_plow function.
+      addEventListenerToIframe('intercom-launcher-frame', on_click_plow);
+      
+      // Add a click event listener to the iframe with name 'intercom-messenger-frame' using the on_click_plow function.
+      addEventListenerToIframe('intercom-messenger-frame', on_click_plow);
+    }
+    const targetNode = document;
+    const observerOptions = {
+      childList: true,
+      attributes: true,
+      subtree: true
+    };
+    const observer = new MutationObserver(on_click_plow_page);
+    observer.observe(targetNode, observerOptions);
+
+    function getParents(e){
+      /*
+        Traverse upwards and adds each parent node to the nodes array as it goes
+        Once it runs into an undefined parent node or the current node is the document, exit the loop
+        At each element upwards, grab the label(s)' text contents, the id value and the classes (that don't start with 'supports')
+        Return the three separate arrays of Ids, Labels, Classes packed into a single array
+      */
+      var element = e.target;
+      const allParentElementIds = []; // Array to hold all parent node element IDs
+      const allParentElementLabels = []; // Array to hold all parent node labels
+      const allParentClasses = []; // Array to hold all parent node element classes
+      let isSearch = false;
+      let searchDataPosition = null;
+      while(element && element !== document) {
+        if (element.id) {
+          if (element.id === 'apm-global-search') {
+            isSearch = true;
+          }
+          allParentElementIds.push(element.id);
+        }
+        if (element.getAttribute('data-position') !== null) {
+          searchDataPosition = element.getAttribute('data-position');
+        }
+        if (element.labels) {
+          element.labels.forEach((label) => {
+            if (label.textContent) {
+              allParentElementLabels.push(label.textContent);
+            }
+          });
+        }
+        element.classList.forEach((classes) => {
+          if (classes && !classes.startsWith('supports')) {
+              allParentClasses.push(classes);
+            }
+        });
+        element = element.parentNode;
+      }
+      return [allParentElementIds, allParentClasses, allParentElementLabels, isSearch, searchDataPosition];
+    }
+    function isDataPairClick(e) {
+      var classes = [...e.target.classList];
+      return classes.includes('datapair__value'); // just returning whether it was a datapair__value element that was clicked, True if yes, False if no.
+    }
+    function on_click_plow(e) {
+      if ( isDataPairClick(e) ) { // check if the click happened on a datapair__value element (often contain PII/Sensitive data) and skip it if so.
+        return false
+      }
+      const parentResults = getParents(e); // retrieve parent element Ids, classes and labels arrays
+      const allElementIds = parentResults[0]; // retrieve allParentElementIds array into allElementIds
+      const allParentClasses = parentResults[1]; // retrieve allParentClasses array into allElementIds
+      const allParentLabels = parentResults[2] // retrieve allParentElementLabels array into allElementIds
+      const search = parentResults[3];
+      const pageUrlComponents = window.location.pathname.split("/").filter(a => a); // parse the pathname into each individual element separated by "/"
+      let searchTerm = null;
+      let searchResponseUuid;
+      const searchPosition = parentResults[4];
+      /*
+        targetUrl is a REQUIRED field in the final payload
+        First, attempt to set the targetURL variable to be the href attribute of the clicked element
+        If that results in an empty string or an undefined value for targetURL variable, set the targetURL variable to be the current page URL
+      */
+      var targetURL = e.target.getAttribute('href');
+      var parentTargetURL = 'N/A';
+      if (typeof e.target.parentNode?.getAttribute == 'function') {
+        parentTargetURL = e.target.parentNode.getAttribute('href');
+      }
+      if (!targetURL) {
+        if(parentTargetURL) {
+          targetURL = parentTargetURL;
+        } else {
+          targetURL = 'N/A';
+        }
+      }
+      if (search==true) {
+        searchTerm = document.getElementById('global-search-input').getAttribute('value');
+        searchResponseUuid = document.getElementById('global-search-container').getAttribute('data-search-response-uuid');
+      }
+      /*
+        parse attribute name/values into key/value pair json blob for ease of querying final event structure
+      */
+      const getAllAttributes = {};
+      let attributesList;
+      if (e.target.attributes instanceof Array) {
+        attributesList = e.target.attributes; // if the attributes are an array, we can just use them as is
+      } else {
+        attributesList = [...e.target.attributes]; // otherwise, they need to be put into an array so we can use them to build out the attribute json blob
+      }
+      attributesList.forEach((element) => {
+        // Do not record `src` attribute
+        if (element.name === 'src') {
+          return;
+        }
+
+        // Check if the attribute is 'value' or contains 'cache'
+        const isPossiblySensitive = element.name == 'value' || element.name.toLowerCase().includes('cache');
+
+        // Check if 'snowplow-allow-value' is present in the element attribute values or in the list of parent classes
+        const isWhitelisted = Object.values(attributesList).includes('snowplow-allow-value') || allParentClasses.includes('snowplow-allow-value');
+
+        // If the attribute is not sensitive, or is whitelisted, record the attribute
+        if (!isPossiblySensitive || isWhitelisted) {
+          getAllAttributes[element.name] = element.value;
+        }
+      });
+      /*
+        send trackLinkClick event to the snowplow event collector
+      */
+      window.snowplow('trackLinkClick', {
+        targetUrl: targetURL,
+        elementId: e.target.id,
+        elementClasses: [...e.target.classList],
+        elementContent: e.target.innerText,
+        context: [{
+          schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+          data: {
+            elementType: e.target.tagName,
+            elementAttributes: getAllAttributes,
+            pageURLComponents: pageUrlComponents,
+            elementParentClasses: allParentClasses,
+            elementParentElementIds: allElementIds,
+            elementParentLabels: allParentLabels,
+            isGlobalSearch: search,
+            globalSearchTerm: searchTerm,
+            searchPositionIndex: searchPosition,
+            searchResponseUuid: searchResponseUuid
+          }
+        }]
+      });
+    }
+    document.addEventListener("click", on_click_plow, true);
+    // Add a click event listener to the iframe with name 'intercom-launcher-frame' using the on_click_plow function.
+    addEventListenerToIframe('intercom-launcher-frame', on_click_plow);    
+    // Add a click event listener to the iframe with name 'intercom-messenger-frame' using the on_click_plow function.
+    addEventListenerToIframe('intercom-messenger-frame', on_click_plow);
+  </script>
+
+
+  <main>
+    
+
+
+<form id="filters" class="form js-filter-form form--stacked form--full-width hand-hidden" autocomplete="off" novalidate="novalidate" action="/listings/listings" accept-charset="UTF-8" data-remote="true" method="get">
+
+  <div class="topbar theme-color js-top-bar">
+  <div class="u-float-left">
+    <label class="topbar__sort-by__label mb-0" for="filters_order_by">Sort By</label>
+    <select include_blank="false" class="topbar__sort-by" name="filters[order_by]" id="filters_order_by"><option selected="selected" value="date_posted">Most Recent</option>
+<option value="rent_asc">Rent (Low to High)</option>
+<option value="rent_desc">Rent (High to Low)</option>
+<option value="bedrooms">Bedrooms</option></select>
+  </div>
+
+  <div class="u-float-right">
+    <ul class="topbar__options mb-0">
+      <li class="topbar__item theme-color theme-color--actionable hand-hidden">
+        <a href="#" class="text-white js-toggle-map-button"><span class="fa-solid fa-location-dot"></span> Show Map</a>
+      </li>
+      <li class="topbar__item theme-color theme-color--actionable">
+        <a href="#" class="text-white js-filter-button"><span class="fa-solid fa-filter"></span> Filter</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+  <input autocomplete="off" type="hidden" name="filters[property_list]" id="filters_property_list" />
+
+  <div class="filter-menu">
+    <div class="grid">
+      <div class="grid__6">
+        <div class="form__row">
+          <label class="form__row__label">Price Range</label>
+
+          <div class="form__row__body">
+            <div class="form__row__field-wrapper">
+              <ul class="grid grid--no-gutters p-0 mb-0">
+                <li class="grid__5"><select include_blank="false" name="filters[market_rent_from]" id="filters_market_rent_from"><option value="">No Min.</option>
+<option value="1300">$1,300</option>
+<option value="1400">$1,400</option>
+<option value="1500">$1,500</option>
+<option value="1600">$1,600</option>
+<option value="1700">$1,700</option>
+<option value="1800">$1,800</option>
+<option value="1900">$1,900</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option></select></li>
+                <li class="grid__2 u-text-center" style="line-height: 2em;">to</li>
+                <li class="grid__5"><select include_blank="false" name="filters[market_rent_to]" id="filters_market_rent_to"><option value="">No Max.</option>
+<option value="1300">$1,300</option>
+<option value="1400">$1,400</option>
+<option value="1500">$1,500</option>
+<option value="1600">$1,600</option>
+<option value="1700">$1,700</option>
+<option value="1800">$1,800</option>
+<option value="1900">$1,900</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option></select></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="grid__6">
+          <div class="grid">
+            <div class="form__row grid__6"><label class="form__row__label" for="filters_bedrooms">Bedrooms</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[bedrooms]" id="filters_bedrooms"><option value="">0+</option>
+<option value="1">1+</option>
+<option value="2">2+</option></select></div></div></div>
+            <div class="form__row grid__6"><label class="form__row__label" for="filters_bathrooms">Bathrooms</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[bathrooms]" id="filters_bathrooms"><option value="">0+</option>
+<option value="1">1+</option>
+<option value="2">2+</option></select></div></div></div>
+          </div>
+        </div>
+
+    </div>
+
+    <div class="grid">
+      <div class="grid__6">
+        <div class="form__row"><label class="form__row__label" for="filters_cities">Cities</label><div class="form__row__body"><div class="form__row__field-wrapper"><input name="filters[cities][]" type="hidden" value="" autocomplete="off" /><select multiple="multiple" size="5" class="filter-menu__multi-select" name="filters[cities][]" id="filters_cities"><option value="All Cities">All Cities</option>
+<option value="Portland">Portland</option></select></div></div></div>
+      </div>
+      <div class="grid__6">
+        <div class="form__row"><label class="form__row__label" for="filters_postal_codes">Zip Codes</label><div class="form__row__body"><div class="form__row__field-wrapper"><input name="filters[postal_codes][]" type="hidden" value="" autocomplete="off" /><select multiple="multiple" size="5" class="filter-menu__multi-select" name="filters[postal_codes][]" id="filters_postal_codes"><option value="All Zip Codes">All Zip Codes</option>
+<option value="97201">97201</option>
+<option value="97209">97209</option>
+<option value="97239">97239</option></select></div></div></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="grid__6">
+      <div class="form__row"><label class="form__row__label" for="filters_cats">Cats Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[cats]" id="filters_cats"><option value="" label=" "></option>
+<option value="Cats allowed">Yes</option>
+<option value="Cats not allowed">No</option></select></div></div></div>
+      </div>
+      <div class="grid__6">
+      <div class="form__row"><label class="form__row__label" for="filters_dogs">Dogs Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[dogs]" id="filters_dogs"><option value="" label=" "></option>
+<option value="Dogs allowed">Large</option>
+<option value="Small dogs allowed">Small</option>
+<option value="Dogs not allowed">None</option></select></div></div></div>
+      </div>
+      <div class="grid__5">
+        <div class="form__row">
+          <div class="form__row__body">
+            <div class="form__row__field-wrapper">
+              <ul class="grid grid--no-gutters p-0">
+                <div class="form__row"><label class="form__row__label" for="filters_desired_move_in">Desired Move In</label><div class="form__row__body"><div class="form__row__field-wrapper"><div class="js-gears-date input-add-on"><input class="js-datepicker" type="text" name="filters[desired_move_in]" id="filters_desired_move_in" /><span class="js-datepicker-trigger input-add-on__append button"><span class="icon icon-calendar"></span></span></div></div></div></div>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="u-text-center">
+      <input type="submit" name="commit" value="Filter" class="filter-form-button btn btn-primary theme-color theme-color--actionable theme-color-border" data-disable-with="Filter" />
+    </div>
+  </div>
+</form>
+<form id="mobile_filters" class="form js-mobile-filter-form form--stacked form--full-width desk-hidden tablet-hidden" autocomplete="off" novalidate="novalidate" action="/listings/listings" accept-charset="UTF-8" data-remote="true" method="get">
+
+  <div class="topbar theme-color js-top-bar">
+  <div class="u-float-left">
+    <label class="topbar__sort-by__label mb-0" for="mobile_filters_order_by">Sort By</label>
+    <select include_blank="false" class="topbar__sort-by" name="filters[order_by]" id="mobile_filters_order_by"><option selected="selected" value="date_posted">Most Recent</option>
+<option value="rent_asc">Rent (Low to High)</option>
+<option value="rent_desc">Rent (High to Low)</option>
+<option value="bedrooms">Bedrooms</option></select>
+  </div>
+
+  <div class="u-float-right">
+    <ul class="topbar__options mb-0">
+      <li class="topbar__item theme-color theme-color--actionable hand-hidden">
+        <a href="#" class="text-white js-toggle-map-button"><span class="fa-solid fa-location-dot"></span> Show Map</a>
+      </li>
+      <li class="topbar__item theme-color theme-color--actionable">
+        <a href="#" class="text-white js-filter-button"><span class="fa-solid fa-filter"></span> Filter</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+  <input autocomplete="off" type="hidden" name="filters[property_list]" id="mobile_filters_property_list" />
+
+  <div class="filter-menu">
+    <div class="grid">
+      <div class="grid__12">
+        <div class="form__row">
+          <div class="form__row__body">
+            <div class="form__row__field-wrapper">
+              <ul class="grid grid--no-gutters p-0">
+                <li class="grid__5 u-text-left" style="line-height: 2em; font-weight: bold">
+                  <label>Price Range</label>
+                </li>
+                <li class="grid__3"><select include_blank="false" name="filters[market_rent_from]" id="mobile_filters_market_rent_from"><option value="">No Min.</option>
+<option value="1300">$1,300</option>
+<option value="1400">$1,400</option>
+<option value="1500">$1,500</option>
+<option value="1600">$1,600</option>
+<option value="1700">$1,700</option>
+<option value="1800">$1,800</option>
+<option value="1900">$1,900</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option></select></li>
+                <li class="grid__1">&nbsp;</li>
+                <li class="grid__3"><select include_blank="false" name="filters[market_rent_to]" id="mobile_filters_market_rent_to"><option value="">No Max.</option>
+<option value="1300">$1,300</option>
+<option value="1400">$1,400</option>
+<option value="1500">$1,500</option>
+<option value="1600">$1,600</option>
+<option value="1700">$1,700</option>
+<option value="1800">$1,800</option>
+<option value="1900">$1,900</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option></select></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="grid__12">
+          <div class="form__row"><label class="form__row__label" for="mobile_filters_bedrooms">Bedrooms</label><div class="form__row__body"><div class="form__row__field-wrapper">
+            <div class="radio_block mobile_filters_bedrooms"><input type="hidden" name="filters[bedrooms]" value="" autocomplete="off" /><span><input type="radio" value="" checked="checked" name="filters[bedrooms]" id="mobile_filters_bedrooms_" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_">0+</label></span><span><input type="radio" value="1" name="filters[bedrooms]" id="mobile_filters_bedrooms_1" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_1">1+</label></span><span><input type="radio" value="2" name="filters[bedrooms]" id="mobile_filters_bedrooms_2" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_2">2+</label></span><span><input type="radio" value="3" name="filters[bedrooms]" id="mobile_filters_bedrooms_3" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_3">3+</label></span><span><input type="radio" value="4" name="filters[bedrooms]" id="mobile_filters_bedrooms_4" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_4">4+</label></span><span><input type="radio" value="5" name="filters[bedrooms]" id="mobile_filters_bedrooms_5" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_5">5+</label></span></div>
+</div></div></div>        </div>
+        <div class="grid__12">
+          <div class="form__row"><label class="form__row__label" for="mobile_filters_bathrooms">Bathrooms</label><div class="form__row__body"><div class="form__row__field-wrapper">
+            <div class="radio_block mobile_filters_bathrooms"><input type="hidden" name="filters[bathrooms]" value="" autocomplete="off" /><span><input type="radio" value="" checked="checked" name="filters[bathrooms]" id="mobile_filters_bathrooms_" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_">0+</label></span><span><input type="radio" value="1" name="filters[bathrooms]" id="mobile_filters_bathrooms_1" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_1">1+</label></span><span><input type="radio" value="2" name="filters[bathrooms]" id="mobile_filters_bathrooms_2" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_2">2+</label></span><span><input type="radio" value="3" name="filters[bathrooms]" id="mobile_filters_bathrooms_3" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_3">3+</label></span><span><input type="radio" value="4" name="filters[bathrooms]" id="mobile_filters_bathrooms_4" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_4">4+</label></span><span><input type="radio" value="5" name="filters[bathrooms]" id="mobile_filters_bathrooms_5" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_5">5+</label></span></div>
+</div></div></div>        </div>
+
+      <div class="grid__12">
+        <div class="form__row multiselect_box mobile_filters_cities"><label class="form__row__label">Cities</label><div class="form__row__body"><div class="form__row__field-wrapper"><input type="hidden" name="filters[cities][]" value="" autocomplete="off" /><span class="form__row__control"><label for="mobile_filters_cities_all_cities"><input type="checkbox" value="All Cities" name="filters[cities][]" id="mobile_filters_cities_all_cities" />All Cities</label></span><span class="form__row__control"><label for="mobile_filters_cities_portland"><input type="checkbox" value="Portland" name="filters[cities][]" id="mobile_filters_cities_portland" />Portland</label></span></div></div></div>
+      </div>
+      <div class="grid__12">
+        <div class="form__row multiselect_box mobile_filters_postal_codes"><label class="form__row__label">Zip Codes</label><div class="form__row__body"><div class="form__row__field-wrapper"><input type="hidden" name="filters[postal_codes][]" value="" autocomplete="off" /><span class="form__row__control"><label for="mobile_filters_postal_codes_all_zip_codes"><input type="checkbox" value="All Zip Codes" name="filters[postal_codes][]" id="mobile_filters_postal_codes_all_zip_codes" />All Zip Codes</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97201"><input type="checkbox" value="97201" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97201" />97201</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97209"><input type="checkbox" value="97209" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97209" />97209</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97239"><input type="checkbox" value="97239" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97239" />97239</label></span></div></div></div>
+      </div>
+
+      <div class="grid__12">
+        <div class="form__row"><label class="form__row__label" for="mobile_filters_cats">Cats Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[cats]" id="mobile_filters_cats"><option value="" label=" "></option>
+<option value="Cats allowed">Yes</option>
+<option value="Cats not allowed">No</option></select></div></div></div>
+      </div>
+      <div class="grid__12">
+        <div class="form__row"><label class="form__row__label" for="mobile_filters_dogs">Dogs Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[dogs]" id="mobile_filters_dogs"><option value="" label=" "></option>
+<option value="Dogs allowed">Large</option>
+<option value="Small dogs allowed">Small</option>
+<option value="Dogs not allowed">None</option></select></div></div></div>
+        <div class="form__row"><label class="form__row__label" for="mobile_filters_desired_move_in">Desired Move In</label><div class="form__row__body"><div class="form__row__field-wrapper"><ul class="grid grid--half-gutters"><li class="grid__12"><div class="js-gears-date input-add-on"><input class="js-datepicker" type="text" name="filters[desired_move_in]" id="mobile_filters_desired_move_in" /><span class="js-datepicker-trigger input-add-on__append button"><span class="icon icon-calendar"></span></span></div></li></ul></div></div></div>
+      </div>
+    </div>
+    <div class="u-text-center">
+      <input type="submit" name="commit" value="Filter" class="filter-form-button btn btn-primary theme-color theme-color--actionable theme-color-border" data-disable-with="Filter" />
+    </div>
+  </div>
+</form>
+
+
+  <div class="map-panel js-listing-map hand-hidden u-hidden">
+    <div id="googlemap" class="map-panel__googlemap"></div>
+    <div class="map-panel__bottom-button u-text-center">
+      <a href="#" class="map-panel__bottom-button__link u-hidden js-exit-streetview-button">Exit Street View</a>
+      <a href="#" class="map-panel__bottom-button__link js-reset-map-button">Reset Map</a>
+    </div>
+  </div>
+
+
+<h1 class="text-center mt-4">Current Listings</h1>
+<p class="js-topbar-title listings__filters-title text-center m-auto">Showing all available listings</p>
+
+<div id='result_container' class="listings js-listings-container">
+  <div class="listing-item result js-listing-item" id="listing_534">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/320665de-4759-4508-afa2-bb7567932ef4" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/f531a934-9b31-4002-ba25-a5012d0ea255/medium.jpg" alt="937 NW Glisan Street #435, Portland, OR 97209" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $2,800
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  2 bd / 2 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$2,800</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,105</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">2 bd / 2 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/320665de-4759-4508-afa2-bb7567932ef4" target="_blank">937 Condos - South Facing 2 bed/2 bath w/parking/storage/concierge/all utilities except electricity (PEARL DISTRICT)</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">937 NW Glisan Street #435, Portland, OR 97209</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="534"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,105</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">**THIS UNIT IS UNFURNISHED - FURNITURE FOR STAGING ONLY**<br /><br />1,105 square foot, 4th floor, south facing 2 bedroom, 2 bath condo in the Pearl District<br /><br />Architecture that maximizes light - 9 foot ceilings/floor-to-ceiling/wall-to-wall windows<br />High efficiency heating &amp; cooling systems<br />LEED certified building<br />LEED compliant windows<br />LEED rated appliances<br />Externally-vented kitchens<br />Leibherr 3...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> 1 Reserved Parking Space, Concierge, Bike Storage, 1 Stroage Unit
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer/Garbage/Gas/Internet
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Disposal, Gas Cooktop, Microwave, Oven, Refrigerator, Washer/Dryer
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/320665de-4759-4508-afa2-bb7567932ef4">View Details</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_536">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/9e1307c5-2429-4e9d-ac01-86e89096b334" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/3c9433bf-cc91-48fb-9957-98e49336e94f/medium.jpg" alt="255 SW Harrison Street #12G, Portland, OR 97201" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $1,350
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  1 bd / 1 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$1,350</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">600</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">1 bd / 1 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/9e1307c5-2429-4e9d-ac01-86e89096b334" target="_blank">Harrison West Condos - 1 bed/1 bath w/balcony/parking/free laundry/pool (DOWNTOWN/PSU/OHSU)</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">255 SW Harrison Street #12G, Portland, OR 97201</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="536"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 600</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Nestled amongst beautiful natural scenery, enjoy downtown luxury high rise living with easy access to Portland Streetcar, MAX, Tri-Met, Portland State, Farmers Market, The Riverfront, Keller Auditorium, OHSU, parks, shops and restaurants.<br /><br />One bedroom, one bath east facing condo features luxury finishes including stainless appliances, granite countertops, kitchen island, new wood flooring and...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> 1 Reserved Parking Space, On-Site Free Laundry, Seasonal Outdoor Pool, BBQ Patio
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer/Garbage
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Dispoasl, Microwave, Refrigerator, Oven
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/9e1307c5-2429-4e9d-ac01-86e89096b334">View Details</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_315">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/f0757f68-940c-4f7f-aec4-9c78a56633df" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/5f505fe9-d879-4a45-885c-09c2e55c3876/medium.jpg" alt="841 S Gaines Street #305, Portland, OR 97239" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $4,000
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  2 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$4,000</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,900</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">2 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/f0757f68-940c-4f7f-aec4-9c78a56633df" target="_blank">Atwater Place - 2 bed/2.5 bath + office/den South Waterfront condo w/2 parking spaces/storage/most utilities/concierge/river views</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">841 S Gaines Street #305, Portland, OR 97239</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="315"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,900</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">1,900 square foot, 2-bedroom plus office/den, 2 ½ baths, condominium, located in the vibrant South Waterfront neighborhood. <br /><br />Walls of floor-to-ceiling windows overlooking the Willamette River and private community courtyard.<br /><br />Two bedroom suites, each with full bath &amp; walk-in closet.<br /><br />Gourmet kitchen with oversized island opens to great room with fireplace &amp; dining room. Beautifully appoi...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Concierge, Clubhouse/Garden, 1 Storage Unit, Meeting Room, 2 Reserved Parking Spaces (Tandem)
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer/Garbage/Gas/Internet
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Disposal, Gas Fireplace, Gas Range, Microwave, Sub-Zero Refrigerator, Washer/Dryer, Wine Refrigerator
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/f0757f68-940c-4f7f-aec4-9c78a56633df">View Details</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_305">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/a46d567c-61c9-4cdb-842b-4cc350f3f08c" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/1370ddf2-a5e4-4695-9ae6-19033bcd2470/medium.jpg" alt="3570 S River Parkway, #305, Portland, OR 97239" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $1,600
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  Studio / 1 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$1,600</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">700</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">Studio / 1 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/a46d567c-61c9-4cdb-842b-4cc350f3f08c" target="_blank">**ONE MONTH FREE** Meriwether West - North facing studio with river/bridge views/parking/amenities/utilities</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">3570 S River Parkway, #305, Portland, OR 97239</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="305"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 700</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">700 square foot 3rd floor studio condo at Meriwether West in the south waterfront district features 1 reserved parking space, washer/dryer and views of the Willamette River and multiple bridges.<br /><br />A large L-shaped open floor plan with cherry cabinets, granite countertops, tile backsplash, stainless appliances and built-in clothes wardrobe.<br /><br />Building features include concierge service, clubho...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> 1 Reserved Parking Space, Concierge, Clubhouse/Garden, Guest Suite
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Disposal, Gas Range, Microwave, Refrigerator, Washer/Dryer
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Small dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/a46d567c-61c9-4cdb-842b-4cc350f3f08c">View Details</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_491">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/5ccc04c1-d4b1-441c-b79c-43a6ee3baf1c" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/32e8f957-9698-416f-a58e-7f21b9c7113f/medium.jpg" alt="1310 NW Naito Parkway #601, Portland, OR 97209" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $4,000
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  2 bd / 2 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$4,000</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,600</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">2 bd / 2 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">10/1/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/5ccc04c1-d4b1-441c-b79c-43a6ee3baf1c" target="_blank">FULLY FURNISHED Waterfront Pearl Condo w/most utilities/2 parking spaces/most utilities</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">1310 NW Naito Parkway #601, Portland, OR 97209</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="491"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,600</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 10/1/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">* FULLY FURNISHED<br />* 1,600 square foot, 6th floor, 2 bed/2 bath condo overlooking the Willamette River<br />* Hardwood floors throughout <br />* Open kitchen/living room/dining room<br />* Primary bath with marble top vanity, large soaking tub, separate shower and radiant heat floor<br />* Large walk-in closet with custom built-ins<br />* Second bath has shower stall &amp; access to the second bedroom<br />* Kitchen has s...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Concierge, BBQ patio, Water feature, Fitness room w/sauna
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer/Garbage/Gas/Internet
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwaser, Dispsoal, Gas Cooktop, Microwave, Oven, Refrigerator, Washer/Dryer
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/5ccc04c1-d4b1-441c-b79c-43a6ee3baf1c">View Details</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_444">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/6c558f3e-ca6a-463e-8196-6154a7024de1" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/856ffba1-c032-442f-8575-5ac06168b9b4/medium.jpg" alt="3601 S River Parkway #816, Portland, OR 97239" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $1,500
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  Studio / 1 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$1,500</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">640</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">Studio / 1 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">10/7/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/6c558f3e-ca6a-463e-8196-6154a7024de1" target="_blank">John Ross - 8th floor south waterfront studio w/parking/most utilities/concierge</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">3601 S River Parkway #816, Portland, OR 97239</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="444"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 640</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 10/7/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Enjoy views to the SE and partial Willamette River from this 640 square foot, 8th floor studio in the LEED certified John Ross condominiums.<br /><br />Unit features beautiful wood finishes, stainless appliances, hardwood floors, large bathroom, washer/dryer, multiple closets &amp; window coverings. <br /><br />Pictured wall unit contains a queen sized bed - resident to provide their own mattress.<br /><br />Building amen...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Community Room, 1 Reserved Parking Space, Concierge, Rooftop BBQ Patio
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer/Garbage/Gas
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Disposal, Gas Cooktop/Oven, Microwave, Refrigerator, Washer/Dryer
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/6c558f3e-ca6a-463e-8196-6154a7024de1">View Details</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_533">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/55059c6e-93fd-45f8-a6f1-8401e40213c8" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/pearlpropertymanagement/images/14527d15-dd75-43a4-b4bd-320e477a5063/medium.jpg" alt="1205 SW Cardinell Drive #102, Portland, OR 97201" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $1,550
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  1 bd / 1 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$1,550</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">580</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">1 bd / 1 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/55059c6e-93fd-45f8-a6f1-8401e40213c8" target="_blank">Cardinell View Lofts - cozy 1 bedroom nestled amongst the trees above PSU/Downtown/most utilities included</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">1205 SW Cardinell Drive #102, Portland, OR 97201</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="533"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 580</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">**UNFURNISHED - FURNITURE IN PHOTOS FOR STAGING ONLY**<br /><br />* 580 square foot, 1 bed/1 bath SE corner unit with private entrance<br />* Dark wood flooring<br />* Full size dishwasher, oven &amp; refrigerator<br />* Gas cooktop/oven<br />* Granite countertops<br />* Bedroom w/closet &amp; east facing window<br />* Utility/stoage closet w/washer &amp; dryer<br />* Door from utility closet into lobby for mail/package retrieval<br />* Window c...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer/Garbage/Gas
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Gas Cooktop, Microwave, Oven, Refrigerator, Washer/Dryer
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/55059c6e-93fd-45f8-a6f1-8401e40213c8">View Details</a>
+  </div>
+</div>
+
+<div class='listings__page-buttons'>
+  
+</div>
+
+
+<div class='no_vacancies u-hidden listings__no-vacancies'>No vacancies found matching your search criteria.</div>
+
+
+</div>
+
+  </main>
+
+  <script src="https://listings.cdn.appfolio.com/listings/assets/listings/application2-b0f197292ab612d566f03b2fce507933939f13cd8dab7bb1c4befcee8f024506.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://maps.googleapis.com/maps/api/js?client=gme-appfolio&amp;v=3.37"></script>
+  <script type="text/javascript">
+    window.PARENTIFRAMEID = "noframe";
+    window.googleMap = new GoogleMap({
+      container: 'googlemap',
+      markers: [{"latitude":45.5268824,"longitude":-122.680529,"address":"937 NW Glisan Street #435, Portland, OR 97209","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/f531a934-9b31-4002-ba25-a5012d0ea255/large.jpg","rent_range":"$2,800","unit_specs":"2 bd, 2 ba, 1,105 Sq. Ft.","listing_id":534,"detail_page_url":"/listings/detail/320665de-4759-4508-afa2-bb7567932ef4","zoomed_in":false},{"latitude":45.5106415,"longitude":-122.6793073,"address":"255 SW Harrison Street #12G, Portland, OR 97201","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/3c9433bf-cc91-48fb-9957-98e49336e94f/large.jpg","rent_range":"$1,350","unit_specs":"1 bd, 1 ba, 600 Sq. Ft.","listing_id":536,"detail_page_url":"/listings/detail/9e1307c5-2429-4e9d-ac01-86e89096b334","zoomed_in":false},{"latitude":45.4970327,"longitude":-122.668585,"address":"841 S Gaines Street #305, Portland, OR 97239","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/5f505fe9-d879-4a45-885c-09c2e55c3876/large.jpg","rent_range":"$4,000","unit_specs":"2 bd, 2.5 ba, 1,900 Sq. Ft.","listing_id":315,"detail_page_url":"/listings/detail/f0757f68-940c-4f7f-aec4-9c78a56633df","zoomed_in":false},{"latitude":45.4974465,"longitude":-122.6693548,"address":"3570 S River Parkway, #305, Portland, OR 97239","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/1370ddf2-a5e4-4695-9ae6-19033bcd2470/large.jpg","rent_range":"$1,600","unit_specs":"Studio, 1 ba, 700 Sq. Ft.","listing_id":305,"detail_page_url":"/listings/detail/a46d567c-61c9-4cdb-842b-4cc350f3f08c","zoomed_in":false},{"latitude":45.5326748,"longitude":-122.678528,"address":"1310 NW Naito Parkway #601, Portland, OR 97209","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/32e8f957-9698-416f-a58e-7f21b9c7113f/large.jpg","rent_range":"$4,000","unit_specs":"2 bd, 2 ba, 1,600 Sq. Ft.","listing_id":491,"detail_page_url":"/listings/detail/5ccc04c1-d4b1-441c-b79c-43a6ee3baf1c","zoomed_in":false},{"latitude":45.4970156,"longitude":-122.6700202,"address":"3601 S River Parkway #816, Portland, OR 97239","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/856ffba1-c032-442f-8575-5ac06168b9b4/large.jpg","rent_range":"$1,500","unit_specs":"Studio, 1 ba, 640 Sq. Ft.","listing_id":444,"detail_page_url":"/listings/detail/6c558f3e-ca6a-463e-8196-6154a7024de1","zoomed_in":false},{"latitude":45.5111297,"longitude":-122.6895306,"address":"1205 SW Cardinell Drive #102, Portland, OR 97201","default_photo_url":"https://images.cdn.appfolio.com/pearlpropertymanagement/images/14527d15-dd75-43a4-b4bd-320e477a5063/large.jpg","rent_range":"$1,550","unit_specs":"1 bd, 1 ba, 580 Sq. Ft.","listing_id":533,"detail_page_url":"/listings/detail/55059c6e-93fd-45f8-a6f1-8401e40213c8","zoomed_in":false}],
+      infoWindowTemplate:  _.template('<div class=\'map-popup\' id=\'map-popup-<%= listing_id %>\'>\n\n  <div class=\"map-popup-thumbnail\">\n    <a href=\"<%= detail_page_url %>\" target=\"_blank\"><img src=\'<%= default_photo_url %>\' width=\'144\'/><\/a>\n  <\/div>\n\n  <div class=\"map-popup-info\">\n    <p class=\"map-zoom-link-container\"><a href=\'#\' class=<%= zoomed_in ? \'js-map-zoom-out-link\' : \'js-map-zoom-in-link\' %> listing-id=\"<%= listing_id%>\"><%= zoomed_in ? \'Zoom Out\' : \'Zoom In\'%><\/a><\/p>\n    <h3 class=\"map-popup-rent\"><%= rent_range %><\/h3>\n    <p class=\"map-popup-specs\"><%= unit_specs %><\/p>\n    <p class=\"map-popup-address\"><%= address %><\/p>\n\n    <p>\n      <a href=\"<%= detail_page_url %>\" target=\"_blank\" class=\"btn btn-secondary btn-sm pt-1 pb-1\">Details<\/a>\n      <a href=\'#\' class=\'btn btn-secondary btn-sm pt-1 pb-1 js-street-view-link\' latitude=\'<%= latitude %>\' longitude=<%= longitude %>>Street View<\/a>\n      <a href=\'https://maps.google.com/maps?daddr=<%= address %>&saddr=\' target=\'_blank\' class=\'btn btn-secondary btn-sm pt-1 pb-1 directions-link\'>Directions<\/a>\n    <\/p>\n  <\/div>\n<\/div>\n'),
+      onChange: ListingIndexMap.filterListings,
+      onMarkerClick: ListingIndexMap.expandMapAndMoveListingToTop
+    });
+
+    listingManagerInstance = new listings.listingsManager('.js-listings-container', '.js-filter-form', '#filters_order_by');
+    listingManagerInstanceMobile = new listings.listingsManager('.js-listings-container', '.js-mobile-filter-form', '#mobile_filters_order_by');
+    
+    // Initialize popovers
+    $(document).ready(function() {
+      $('.js-popover').each(function() {
+        new Gears.ui.Popover(this);
+      });
+    });
+  </script>
+
+
+  <script src="https://public.cdn.appfolio.com/public/assets/scripts/bootstrap/5.3.1/bootstrap.bundle.min.js"></script>
+
+  <footer id="footer" class="cross-section footer">
+    <div class="cross-section__aside">
+  <figure class="footer__powered-by hand-hidden tablet-hidden"></figure>
+</div>
+<div class="cross-section__main">
+  <div class="footer__inner">
+    <span class="hand-hidden tablet-hidden footer__equal-housing"></span>
+    <div class="footer__privacy-policy">
+      All information provided will be treated in accordance with our <a target="_blank" href="https://www.appfolio.com/privacy">Privacy Policy</a> and <a target="_blank" href="https://www.appfolio.com/terms/listings">Terms of Service</a>.
+    </div>
+    <span class="desk-hidden footer__equal-housing"></span>
+    <span class="desk-hidden footer__powered-by"></span>
+  </div>
+</div>
+
+  </footer>
+
+</body>
+</html>
