@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from .geocode import geocode_pending
 from .ingest import ingest
-from .models import Source, SourceRun
+from .models import Source, SourceListing, SourceRun
 from .notify import alert_new_listings, alert_price_drops, send_push
 from .scrapers.registry import SOURCES, build_scraper
 
@@ -36,7 +36,13 @@ def run_source(config, fetcher=None):
     source = _source_for(config)
     run = SourceRun.objects.create(source=source)
     try:
-        items = build_scraper(config, fetcher=fetcher).scrape()
+        scraper = build_scraper(config, fetcher=fetcher)
+        scraper.known_ids = set(
+            SourceListing.objects.filter(source=source)
+            .exclude(listing__description="")
+            .values_list("external_id", flat=True)
+        )
+        items = scraper.scrape()
         if not items:
             raise EmptyScrape("scraper returned 0 listings")
         result = ingest(source, items)
