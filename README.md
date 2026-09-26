@@ -1,6 +1,6 @@
 # Condo Finder
 
-Aggregates Portland / Lake Oswego / Beaverton rental listings from local property managers into one
+Aggregates Portland / Lake Oswego / Beaverton rental listings from local property managers, Redfin, Zillow, and Craigslist into one
 browsable database with a map, filters, shared status + notes, and push alerts.
 
 ## Develop
@@ -35,6 +35,10 @@ scrapers that keep failing.
 
 If their listings page is AppFolio (`<name>.appfolio.com/listings`) or Nesthub (`/_system/listings/...`
 links), add one entry to `SOURCES` in `listings/scrapers/registry.py`.
+
+Portal sources (Redfin, Zillow, Craigslist) fetch detail pages only for listings not yet described,
+capped per run (`max_detail_fetches` in the registry), so the first few runs fill in details gradually.
+Realtor.com isn't scraped: it's protected by Kasada bot protection.
 
 ## Correcting data
 
