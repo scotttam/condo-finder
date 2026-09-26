@@ -8,6 +8,7 @@ from .filters import apply_filters
 from .forms import ListingFilterForm, TrackingForm, default_filter_data
 from .models import Listing, Source, SourceRun, Status
 from .runner import is_running, run_all_in_background, sync_sources
+from .scheduler import next_run_time
 
 MAX_RESULTS = 500
 
@@ -73,6 +74,7 @@ def sources(request):
         "sources": Source.objects.all(),
         "runs": SourceRun.objects.select_related("source")[:40],
         "running": is_running(),
+        "next_run": next_run_time(),
     })
 
 
