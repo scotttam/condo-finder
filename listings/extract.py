@@ -27,10 +27,13 @@ _PARKING_NONE = r"\bno (?:off[\s-]street )?parking\b|\bparking (?:is )?not inclu
 
 _WD_NONE = r"\bno (?:in[\s-]unit )?(?:washer|w/d|laundry)"
 _WD_YES = (
-    r"in[\s-](?:unit|home)\s+(?:washer|laundry|w/d)|washer\s*(?:/|&|and|-)\s*dryer"
-    r"|\bw/d\b|laundry in (?:unit|home)|stackable"
+    r"in[\s-](?:unit|home)\s+(?:washer|laundry|w/d)|washer\s*(?:/|&|and|-|,\s*(?:and|&)?)\s*dryer"
+    r"|\bw/d\b|laundry in (?:unit|home)|laundry:\s*(?:in[\s-]?unit|hookups)|stackable"
 )
-_WD_SHARED = r"(?:shared|coin[\s-]op(?:erated)?|common|on[\s-]?site|community) laundry|laundry (?:room|facilities|facility)"
+_WD_SHARED = (
+    r"(?:shared|coin[\s-]op(?:erated)?|common|on[\s-]?site|community) laundry"
+    r"|laundry (?:room|facilities|facility|on[\s-]?site|in (?:bldg|building))"
+)
 
 _AC_NONE = r"\bno (?:air[\s-]conditioning|a/c|ac)\b"
 _AC_YES = r"air[\s-]condition|\ba/c\b|\bac\b|central air|ductless|mini[\s-]splits?|heat pump|cooling"
@@ -80,8 +83,18 @@ def extract_parking(text):
         return 2
     if re.search(_PARKING_POSITIVE, lowered):
         return None  # parking exists but the count isn't stated
-    if re.search(r"\bstreet parking\b", lowered):  # checked after "off-street parking"
+    if re.search(r"\bstreet parking\b|\bparking:\s*street\b", lowered):  # after "off-street parking"
         return 0
+    return None
+
+
+def has_parking(text):
+    """Whether any off-street parking comes with the unit, even when the number of spaces isn't stated."""
+    spaces = extract_parking(text)
+    if spaces is not None:
+        return spaces > 0
+    if re.search(_PARKING_POSITIVE, (text or "").lower()):
+        return True
     return None
 
 

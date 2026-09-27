@@ -3,6 +3,7 @@ import pytest
 from listings.extract import (
     classify_property_type,
     extract_parking,
+    has_parking,
     has_ac,
     has_outdoor_space,
     has_washer_dryer,
@@ -28,6 +29,8 @@ from listings.extract import (
         ("A dedicated off-street parking space", 1),
         ("One garage space", 1),
         ("Ample street parking", 0),
+        ("Parking: Street", 0),
+        ("Parking: Private shared road access. Parking Garage Access.", None),
         ("No parking available", 0),
         ("Beautiful 2 bedroom unit with 2 bathrooms", None),
     ],
@@ -44,6 +47,13 @@ def test_extract_parking(text, expected):
         ("W/D included", True),
         ("Washer and dryer in unit", True),
         ("Shared laundry on site", False),
+        # Phrasings found in stored listings (2026-09-27 audit)
+        ("Pets: Cats Parking: Attached garage Laundry: In Unit Deposit & fees", True),
+        ("Laundry: Hookups", True),
+        ("Appliances: Gas Oven/Range, Dishwasher, Microwave, Refrigerator, Washer, and Dryer", True),
+        ("Refrigerator, stove, oven, dishwasher, washer, & dryer", True),
+        ("Laundry: laundry in bldg", False),
+        ("Laundry on site. Outdoor space included", False),
         ("No washer or dryer", False),
         ("Hardwood floors", None),
     ],
@@ -103,3 +113,23 @@ def test_has_outdoor_space(text, expected):
 )
 def test_classify_property_type(hint, text, expected):
     assert classify_property_type(hint, text) == expected
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("Parking: Private shared road access. Parking Garage Access.", True),
+        ("Parking: Attached garage", True),
+        ("Off-street parking", True),
+        ("Garage or carport included", True),
+        ("Attached 2-car garage", True),
+        ("1 Reserved Parking Space", True),
+        ("Ample street parking", False),
+        ("Parking: Street", False),
+        ("No parking available", False),
+        ("Parking: Contact manager", None),
+        ("Hardwood floors", None),
+    ],
+)
+def test_has_parking(text, expected):
+    assert has_parking(text) is expected

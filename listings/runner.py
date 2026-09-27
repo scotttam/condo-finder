@@ -6,7 +6,7 @@ from django.db import close_old_connections
 from django.utils import timezone
 
 from .geocode import geocode_pending
-from .ingest import ingest
+from .ingest import ingest, reextract_all
 from .models import Source, SourceListing, SourceRun
 from .notify import alert_new_listings, alert_price_drops, send_push
 from .scrapers.registry import SOURCES, build_scraper
@@ -102,6 +102,12 @@ def run_all(keys=None, geocode=True):
         return []
     try:
         runs = [run_source(config) for config in SOURCES if keys is None or config["key"] in keys]
+        # Re-run feature detection on stored text so rule fixes reach listings already saved
+        # (known listings aren't re-fetched in detail).
+        try:
+            log.info("Re-detection updated %d listings", reextract_all())
+        except Exception:
+            log.exception("Re-detection pass failed")
         if geocode:
             try:
                 geocode_pending()

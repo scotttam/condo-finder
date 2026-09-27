@@ -5,11 +5,18 @@ from django.db import transaction
 from django.utils import timezone
 
 from .address import is_target_city, parse_address, portland_quadrant
-from .extract import classify_property_type, extract_parking, has_ac, has_outdoor_space, has_washer_dryer
+from .extract import (
+    classify_property_type,
+    extract_parking,
+    has_ac,
+    has_outdoor_space,
+    has_parking,
+    has_washer_dryer,
+)
 from .models import Listing, PriceChange, PropertyType, SourceListing
 
 OVERRIDABLE_FIELDS = {
-    "price", "beds", "baths", "sqft", "parking_spaces", "has_washer_dryer", "has_ac",
+    "price", "beds", "baths", "sqft", "parking_spaces", "has_parking", "has_washer_dryer", "has_ac",
     "has_outdoor_space", "property_type", "neighborhood", "quadrant", "available", "title",
 }
 
@@ -54,9 +61,7 @@ def _upsert_listing(address, item, now):
         listing = Listing(address_key=address.key, first_seen_at=now)
     old_price = listing.price
     _apply_scraped(listing, address, item)
-    for name, value in (listing.overrides or {}).items():
-        if name in OVERRIDABLE_FIELDS:
-            setattr(listing, name, value)
+    _apply_overrides(listing)
     listing.is_active = True
     listing.last_seen_at = now
     listing.save()
@@ -81,8 +86,14 @@ def _apply_scraped(listing, address, item):
         value = getattr(item, name)
         if value is not None:
             setattr(listing, name, value)
+    _apply_extracted(listing, text, item.property_type_hint)
+
+
+def _apply_extracted(listing, text, hint=""):
+    """Set features detected in text; a source that doesn't mention a feature never erases it."""
     extracted = {
         "parking_spaces": extract_parking(text),
+        "has_parking": has_parking(text),
         "has_washer_dryer": has_washer_dryer(text),
         "has_ac": has_ac(text),
         "has_outdoor_space": has_outdoor_space(text),
@@ -90,9 +101,31 @@ def _apply_scraped(listing, address, item):
     for name, value in extracted.items():
         if value is not None:
             setattr(listing, name, value)
-    property_type = classify_property_type(item.property_type_hint, text)
+    property_type = classify_property_type(hint, text)
     if property_type != PropertyType.UNKNOWN:
         listing.property_type = property_type
+
+
+def _apply_overrides(listing):
+    for name, value in (listing.overrides or {}).items():
+        if name in OVERRIDABLE_FIELDS:
+            setattr(listing, name, value)
+
+
+REEXTRACTED_FIELDS = ["parking_spaces", "has_parking", "has_washer_dryer", "has_ac", "has_outdoor_space", "property_type"]
+
+
+def reextract_all():
+    """Re-run feature detection on stored text (after the rules improve). Returns listings changed."""
+    changed = 0
+    for listing in Listing.objects.exclude(description=""):
+        before = [getattr(listing, name) for name in REEXTRACTED_FIELDS]
+        _apply_extracted(listing, f"{listing.title}\n{listing.description}")
+        _apply_overrides(listing)
+        if [getattr(listing, name) for name in REEXTRACTED_FIELDS] != before:
+            listing.save(update_fields=[*REEXTRACTED_FIELDS, "updated_at"])
+            changed += 1
+    return changed
 
 
 def _upsert_source_listing(source, listing, item, now):

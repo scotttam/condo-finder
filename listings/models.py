@@ -81,6 +81,7 @@ class Listing(models.Model):
     baths = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     sqft = models.IntegerField(null=True, blank=True)
     parking_spaces = models.IntegerField(null=True, blank=True)
+    has_parking = models.BooleanField(null=True, blank=True)  # known even when the space count isn't
     has_washer_dryer = models.BooleanField(null=True, blank=True)
     has_ac = models.BooleanField(null=True, blank=True)
     has_outdoor_space = models.BooleanField(null=True, blank=True)
