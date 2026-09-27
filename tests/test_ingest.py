@@ -161,3 +161,28 @@ def test_reextract_updates_stored_listings_and_keeps_overrides():
     main = Listing.objects.get(street="100 SW Main St")
     assert (pearl.has_washer_dryer, pearl.has_parking) == (True, True)
     assert main.has_washer_dryer is False  # manual override wins
+
+
+def test_site_coordinates_are_stored_and_win_over_geocoding():
+    source = make_source()
+    ingest(source, [scraped(latitude=45.5194, longitude=-122.531)])
+    listing = Listing.objects.get()
+    assert (listing.latitude, listing.longitude) == (45.5194, -122.531)
+    assert listing.geocoded_at is None  # neighborhood still to be looked up
+    Listing.objects.update(latitude=45.0, longitude=-122.0)  # e.g. an earlier geocoding guess
+    ingest(source, [scraped(latitude=45.5194, longitude=-122.531)])
+    assert Listing.objects.values_list("latitude", "longitude").get() == (45.5194, -122.531)
+
+
+def test_source_without_coordinates_keeps_existing_ones():
+    ingest(make_source("redfin"), [scraped(latitude=45.5194, longitude=-122.531)])
+    ingest(make_source("pearl"), [scraped(external_id="p1")])
+    assert Listing.objects.values_list("latitude", "longitude").get() == (45.5194, -122.531)
+
+
+def test_coordinate_override_wins():
+    source = make_source()
+    ingest(source, [scraped(latitude=45.5194, longitude=-122.531)])
+    Listing.objects.update(overrides={"latitude": 45.6, "longitude": -122.7})
+    ingest(source, [scraped(latitude=45.5194, longitude=-122.531)])
+    assert Listing.objects.values_list("latitude", "longitude").get() == (45.6, -122.7)

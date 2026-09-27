@@ -63,6 +63,8 @@ def parse_results(data):
                 title=building if building != street else "",
                 property_type_hint=_type_label(home_type),
                 photo_url=result.get("imgSrc") or "",
+                latitude=(result.get("latLong") or {}).get("latitude"),
+                longitude=(result.get("latLong") or {}).get("longitude"),
             )
         )
     return items, category["searchList"].get("totalPages") or 1

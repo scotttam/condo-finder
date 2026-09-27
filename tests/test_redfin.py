@@ -44,3 +44,8 @@ def test_scraper_queries_each_region_with_filters():
     params = [kwargs["params"] for _, _, kwargs in fetcher.calls]
     assert [p["region_id"] for p in params] == [30772, 1432]
     assert all(p["num_beds"] == 2 and p["num_baths"] == 2 and p["isRentals"] == "true" for p in params)
+
+
+def test_coordinates_come_from_centroid():
+    item = items_by_address()["12859 SE Stark St Unit A28, Portland, OR 97233"]
+    assert (item.latitude, item.longitude) == (45.5194678, -122.5310872)

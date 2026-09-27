@@ -205,3 +205,10 @@ def test_parking_present_without_count_is_labeled(client):
     assert "parking (spaces ?)" in client.get("/").content.decode()
     assert "Yes (spaces ?)" in client.get("/?view=list").content.decode()
     assert "Yes, number of spaces not stated" in client.get(f"/listing/{listing.pk}/").content.decode()
+
+
+def test_detail_without_coordinates_explains_missing_map(client):
+    listing = good_listing(latitude=None, longitude=None)
+    content = client.get(f"/listing/{listing.pk}/").content.decode()
+    assert "Map will appear once this address is located" in content
+    assert 'id="map"' not in content

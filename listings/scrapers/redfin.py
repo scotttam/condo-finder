@@ -28,6 +28,7 @@ def parse_rentals(data):
             continue
         baths = (rental.get("bathRange") or {}).get("min")
         is_complex = bool(rental.get("propertyName")) and (rental.get("numAvailableUnits") or 0) > 1
+        centroid = (address.get("centroid") or {}).get("centroid") or {}
         items.append(
             ScrapedListing(
                 external_id=rental["rentalId"],
@@ -41,6 +42,8 @@ def parse_rentals(data):
                 description=rental.get("description") or "",
                 property_type_hint="Apartment" if is_complex else PROPERTY_TYPES.get(info.get("propertyType"), ""),
                 photo_url=_photo_url(rental["rentalId"], info.get("photosInfo")),
+                latitude=centroid.get("latitude"),
+                longitude=centroid.get("longitude"),
             )
         )
     return items

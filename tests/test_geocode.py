@@ -58,3 +58,63 @@ def test_geocode_pending_http_error_retries_later():
     assert geocode_pending(client=client_returning({}, status=503), sleep=lambda s: None) == 0
     listing.refresh_from_db()
     assert listing.geocoded_at is None
+
+
+@pytest.mark.parametrize(
+    "street,expected",
+    [
+        ("9038 NE Humboldt Street - NEW PROPERTY", "9038 NE Humboldt Street"),
+        ("2725 SE Stark Avenue, Lower Unit", "2725 SE Stark Avenue"),
+        ("937 NW Glisan Street", "937 NW Glisan Street"),
+    ],
+)
+def test_clean_street(street, expected):
+    from listings.geocode import clean_street
+
+    assert clean_street(street) == expected
+
+
+def routed_client(routes, seen):
+    """routes: list of (predicate(request) -> bool, payload); first match wins, else []."""
+    def handler(request):
+        seen.append(request)
+        for predicate, payload in routes:
+            if predicate(request):
+                return httpx.Response(200, json=payload)
+        return httpx.Response(200, json=[])
+    return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+@pytest.mark.django_db
+def test_geocode_retries_without_city_for_unincorporated_portland_addresses():
+    listing = make_listing(street="4300 NW Chanticleer Dr - NEW PROPERTY", zip_code="97229")
+    seen, sleeps = [], []
+    client = routed_client([(lambda r: "Portland" not in r.url.params.get("q", ""), NOMINATIM_HIT)], seen)
+    geocode_pending(client=client, sleep=sleeps.append)
+    listing.refresh_from_db()
+    assert [r.url.params["q"] for r in seen] == [
+        "4300 NW Chanticleer Dr, Portland, OR 97229",
+        "4300 NW Chanticleer Dr, OR 97229",
+    ]
+    assert (listing.latitude, listing.longitude) == (45.5268, -122.6795)
+    assert len(sleeps) == 2  # one pause per Nominatim request
+
+
+@pytest.mark.django_db
+def test_listing_with_site_coordinates_only_looks_up_neighborhood():
+    listing = make_listing(latitude=45.49, longitude=-122.67)
+    seen = []
+    client = routed_client([(lambda r: r.url.path == "/reverse", {"address": {"neighbourhood": "Hillsdale"}})], seen)
+    assert geocode_pending(client=client, sleep=lambda s: None) == 1
+    listing.refresh_from_db()
+    assert [r.url.path for r in seen] == ["/reverse"]
+    assert seen[0].url.params["lat"] == "45.49" and seen[0].url.params["lon"] == "-122.67"
+    assert (listing.latitude, listing.longitude, listing.neighborhood) == (45.49, -122.67, "Hillsdale")
+    assert listing.geocoded_at is not None
+
+
+@pytest.mark.django_db
+def test_geocode_batch_is_200_per_run():
+    import inspect
+
+    assert inspect.signature(geocode_pending).parameters["limit"].default == 200
