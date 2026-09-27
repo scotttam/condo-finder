@@ -1,6 +1,7 @@
 {% load humanize %}
 <article class="card">
-  <a href="{{ listing.get_absolute_url }}">
+  <a class="card-photo" href="{{ listing.get_absolute_url }}">
+    <div class="source-badges">{% include "listings/_sources.html" %}</div>
     {% if listing.photo_url %}<img src="{{ listing.photo_url }}" alt="" loading="lazy">{% else %}<img alt="">{% endif %}
   </a>
   <div class="body">

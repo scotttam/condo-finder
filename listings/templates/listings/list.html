@@ -2,21 +2,33 @@
 {% block content %}
 <div class="layout">
   <form class="filters" method="get">
+    <input type="hidden" name="view" value="{{ view }}">
     {{ form.as_div }}
     <button type="submit">Apply filters</button>
     <p class="muted"><a href="{% url 'listing_list' %}">Reset to defaults</a></p>
   </form>
   <section>
-    <p class="muted">{{ listings|length }} listing{{ listings|length|pluralize }}{% if listings|length == 500 %} (showing first 500){% endif %}</p>
-    <div id="map"></div>
-    <div class="grid">
-      {% for listing in listings %}{% include "listings/_card.html" %}{% empty %}<p>No listings match. Try loosening the filters.</p>{% endfor %}
+    <div class="results-bar">
+      <p class="muted">{{ listings|length }} listing{{ listings|length|pluralize }}{% if listings|length == 500 %} (showing first 500){% endif %}</p>
+      <nav class="view-toggle" aria-label="Results view">
+        <a href="{{ map_url }}"{% if view == "map" %} class="active" aria-current="page"{% endif %}>Map</a>
+        <a href="{{ list_url }}"{% if view == "list" %} class="active" aria-current="page"{% endif %}>List</a>
+      </nav>
     </div>
+    {% if view == "list" %}
+      {% include "listings/_table.html" %}
+    {% else %}
+      <div id="map"></div>
+      <div class="grid">
+        {% for listing in listings %}{% include "listings/_card.html" %}{% empty %}<p>No listings match. Try loosening the filters.</p>{% endfor %}
+      </div>
+    {% endif %}
   </section>
 </div>
-{{ map_points|json_script:"map-points" }}
+{% if view == "map" %}{{ map_points|json_script:"map-points" }}{% endif %}
 {% endblock %}
 {% block scripts %}
+{% if view == "map" %}
 <script>
   const points = JSON.parse(document.getElementById("map-points").textContent);
   const map = L.map("map").setView([45.515, -122.68], 11);
@@ -33,4 +45,5 @@
   });
   if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.1));
 </script>
+{% endif %}
 {% endblock %}

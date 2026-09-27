@@ -63,3 +63,27 @@ def test_sort_by_price_per_sqft():
     assert form.is_valid()
     keys = list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True))
     assert keys == ["cheap-per-sqft", "pricey-per-sqft"]
+
+
+def test_filter_by_source_includes_multi_source_listing_once():
+    from listings.models import SourceListing
+    from tests.helpers import make_source
+
+    pearl, zillow = make_source("pearl"), make_source("zillow")
+    only_pearl, both = listing("only-pearl"), listing("both")
+    SourceListing.objects.create(listing=only_pearl, source=pearl, external_id="p1", url="https://p.example/1")
+    SourceListing.objects.create(listing=both, source=pearl, external_id="p2", url="https://p.example/2")
+    SourceListing.objects.create(listing=both, source=zillow, external_id="z2", url="https://z.example/2")
+    form = ListingFilterForm(default_filter_data() | {"sources": ["zillow"]})
+    assert form.is_valid(), form.errors
+    keys = list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True))
+    assert keys == ["both"]
+    assert filtered(default_filter_data() | {"sources": ["pearl", "zillow"]}) == {"only-pearl", "both"}
+
+
+def test_source_choices_come_from_sources_table():
+    from tests.helpers import make_source
+
+    make_source("zillow")
+    make_source("pearl")
+    assert [key for key, _ in ListingFilterForm().fields["sources"].choices] == ["pearl", "zillow"]

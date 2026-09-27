@@ -11,15 +11,18 @@ from .runner import is_running, run_all_in_background, sync_sources
 from .scheduler import next_run_time
 
 MAX_RESULTS = 500
+VIEWS = ("map", "list")
 
 
 def listing_list(request):
-    form = ListingFilterForm(request.GET or default_filter_data())
-    queryset = Listing.objects.all()
+    view = request.GET.get("view") if request.GET.get("view") in VIEWS else "map"
+    has_filters = any(key != "view" for key in request.GET)
+    form = ListingFilterForm(request.GET if has_filters else default_filter_data())
+    queryset = Listing.objects.prefetch_related("source_listings__source")
     if form.is_valid():
         queryset = apply_filters(queryset, form.cleaned_data)
     listings = list(queryset[:MAX_RESULTS])
-    map_points = [
+    map_points = [] if view != "map" else [
         {
             "id": listing.pk,
             "lat": listing.latitude,
@@ -30,7 +33,20 @@ def listing_list(request):
         for listing in listings
         if listing.latitude is not None
     ]
-    return render(request, "listings/list.html", {"form": form, "listings": listings, "map_points": map_points})
+    return render(request, "listings/list.html", {
+        "form": form,
+        "listings": listings,
+        "map_points": map_points,
+        "view": view,
+        "map_url": _with_view(request, "map"),
+        "list_url": _with_view(request, "list"),
+    })
+
+
+def _with_view(request, view):
+    query = request.GET.copy()
+    query["view"] = view
+    return f"?{query.urlencode()}"
 
 
 def listing_detail(request, pk):

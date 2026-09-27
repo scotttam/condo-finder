@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 
-from .models import Listing, PropertyType, Status
+from .models import Listing, PropertyType, Source, Status
 
 FEATURE_CHOICES = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
@@ -31,6 +31,7 @@ class ListingFilterForm(forms.Form):
     max_price = forms.IntegerField(required=False, min_value=0, label="Max price")
     cities = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     neighborhood = forms.CharField(required=False)
+    sources = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     types = forms.MultipleChoiceField(required=False, choices=PropertyType.choices, widget=forms.CheckboxSelectMultiple)
     statuses = forms.MultipleChoiceField(required=False, choices=Status.choices, widget=forms.CheckboxSelectMultiple)
     wd = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="In-unit W/D")
@@ -42,6 +43,7 @@ class ListingFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["cities"].choices = [(city, city) for city in settings.TARGET_CITIES]
+        self.fields["sources"].choices = list(Source.objects.order_by("name").values_list("key", "name"))
 
 
 class TrackingForm(forms.ModelForm):
