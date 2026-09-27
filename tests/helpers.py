@@ -9,21 +9,39 @@ def load_fixture(name):
     return (FIXTURES / name).read_text(encoding="utf-8")
 
 
+class FakeResponse:
+    def __init__(self, text):
+        self.text = text
+
+    def json(self):
+        import json
+
+        return json.loads(self.text)
+
+
 class FakeFetcher:
-    """Stands in for scrapers.base.Fetcher; serves canned HTML by URL."""
+    """Stands in for scrapers.base.Fetcher; serves canned bodies by URL."""
 
     def __init__(self, pages, default=None):
         self.pages = pages
         self.default = default
         self.requested = []
+        self.calls = []
 
-    def get(self, url):
+    def request(self, method, url, **kwargs):
         self.requested.append(url)
+        self.calls.append((method, url, kwargs))
         if url in self.pages:
-            return self.pages[url]
+            return FakeResponse(self.pages[url])
         if self.default is not None:
-            return self.default
+            return FakeResponse(self.default)
         raise httpx.HTTPError(f"no fake page for {url}")
+
+    def get(self, url, **kwargs):
+        return self.request("GET", url, **kwargs).text
+
+    def get_json(self, url, **kwargs):
+        return self.request("GET", url, **kwargs).json()
 
 
 def make_listing(**overrides):

@@ -28,6 +28,8 @@ def ingest(source, items, now=None):
     seen_ids = set()
     for item in items:
         address = parse_address(item.address)
+        if address is None and _refresh_known(source, item, now, result, seen_ids):
+            continue
         if address is None or not is_target_city(address.city) or item.beds is None or item.beds < 2:
             result.skipped += 1
             continue
@@ -106,6 +108,31 @@ def _upsert_source_listing(source, listing, item, now):
         source_listing.last_seen_at = now
         source_listing.save()
     return source_listing
+
+
+def _refresh_known(source, item, now, result, seen_ids):
+    """A listing we already stored, seen again without its address (detail page skipped)."""
+    source_listing = (
+        SourceListing.objects.select_related("listing").filter(source=source, external_id=item.external_id).first()
+    )
+    if source_listing is None:
+        return False
+    listing = source_listing.listing
+    old_price = listing.price
+    with transaction.atomic():
+        if item.price is not None and "price" not in (listing.overrides or {}):
+            listing.price = item.price
+        listing.is_active = True
+        listing.last_seen_at = now
+        listing.save()
+        if listing.price is not None and listing.price != old_price:
+            PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now)
+        _upsert_source_listing(source, listing, item, now)
+    seen_ids.add(source_listing.pk)
+    result.seen += 1
+    if old_price is not None and listing.price is not None and listing.price < old_price:
+        result.price_drops.append((listing, old_price, listing.price))
+    return True
 
 
 def _mark_missing(source, seen_ids):
