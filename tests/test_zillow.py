@@ -92,3 +92,71 @@ def test_coordinates_come_from_latlong():
 
 def test_building_summary_latlong_ids_never_become_items():
     assert all(not item.external_id.count("--") for item in results()[0].values())
+
+
+def detail_html(prop):
+    cache = {'ForRentShopperPlatformFullRenderQuery{"zpid":1}': {"property": prop}}
+    data = {"props": {"pageProps": {"componentProps": {"gdpClientCache": json.dumps(cache)}}}}
+    return f'<script id="__NEXT_DATA__" type="application/json">{json.dumps(data)}</script>'
+
+
+# Values from 9505 SW 47th Ave (zpid 53982162), 2026-09-27.
+TOWNHOUSE_2_5_BATH = {
+    "homeType": "TOWNHOUSE",
+    "bathrooms": 3,
+    "description": "3 Bedrooms, 2 1/2 bath home features Vaulted Formal Living Room.",
+    "resoFacts": {
+        "bathroomsFull": 2,
+        "bathroomsHalf": 1,
+        "atAGlanceFacts": [
+            {"factLabel": "Date available", "factValue": "Available Now"},
+            {"factLabel": "Laundry", "factValue": "In Unit"},
+        ],
+        "interiorFeatures": ["Vaulted Ceiling(s)", "Walk In Closet"],
+        "exteriorFeatures": ["Landscaping Included", "Stainless Appliances"],
+        "flooring": ["Hardwood"],
+        "patioAndPorchFeatures": ["Deck"],
+    },
+}
+
+
+def test_detail_counts_half_baths():
+    assert parse_detail(detail_html(TOWNHOUSE_2_5_BATH))["baths"] == Decimal("2.5")
+
+
+def test_detail_without_bath_split_has_no_baths():
+    assert parse_detail(detail_html({"resoFacts": {}}))["baths"] is None
+
+
+def test_detail_available_and_extra_features():
+    detail = parse_detail(detail_html(TOWNHOUSE_2_5_BATH))
+    assert detail["available"] == "Available Now"
+    assert "Interior: Vaulted Ceiling(s), Walk In Closet" in detail["amenities"]
+    assert "Exterior: Landscaping Included, Stainless Appliances" in detail["amenities"]
+    assert "Flooring: Hardwood" in detail["amenities"]
+
+
+def test_scraper_applies_detail_baths_and_available():
+    fake = FakeFetcher(
+        {PORTLAND: load_fixture("zillow_search_page.html"), SEARCH_API: load_fixture("zillow_api_page.json")},
+        default=detail_html(TOWNHOUSE_2_5_BATH),
+    )
+    items = {i.external_id: i for i in ZillowScraper(key="zillow", name="Zillow", fetcher=fake,
+                                                      city_slugs=["portland-or"]).scrape()}
+    assert (items["54003809"].baths, items["54003809"].available) == (Decimal("2.5"), "Available Now")
+
+
+def test_details_fetched_for_listings_matching_default_filters_first():
+    page = json.loads(load_fixture("zillow_api_page.json"))
+    page["cat1"]["searchResults"]["listResults"].reverse()  # the $1,650 condo now comes first
+    fake = FakeFetcher({PORTLAND: load_fixture("zillow_search_page.html"), SEARCH_API: json.dumps(page)},
+                       default=load_fixture("zillow_detail.html"))
+    scraper = ZillowScraper(key="zillow", name="Zillow", fetcher=fake, city_slugs=["portland-or"], max_detail_fetches=3)
+    scraper.scrape()
+    fetched = [url.split("/")[4] for _, url, _ in fake.calls[2:]]
+    # Listings in the $2,000-$5,000 default range go first (search order kept); the $1,650 condo waits.
+    assert fetched == [
+        "14318-SE-Stark-St-2-Portland-OR-97233",
+        "1534-N-Blandena-St-Portland-OR-97217",
+        "5720-SE-Duke-St-Portland-OR-97206",
+    ]

@@ -10,7 +10,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from ..parsing import parse_beds_baths, parse_int, parse_price
-from .base import ScrapedListing, Scraper, is_candidate
+from .base import ScrapedListing, Scraper, detail_priority, is_candidate
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class CraigslistScraper(Scraper):
     def scrape(self):
         items = parse_search(self.fetcher.get(self.options["search_url"]))
         fetched = 0
-        for item in items:
+        for item in sorted(items, key=detail_priority):
             if not is_candidate(item) or not self.should_fetch_detail(item, fetched):
                 continue
             fetched += 1

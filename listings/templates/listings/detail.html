@@ -26,7 +26,11 @@
         </td></tr>
       </table>
     </div>
-    <div class="panel description">{{ listing.description }}</div>
+    {% if listing.description %}
+      <div class="panel description">{{ listing.description }}</div>
+    {% else %}
+      <div class="panel muted">Full details haven't been fetched from the listing site yet. They're filled in over the next few scrapes, starting with listings that match the default filters. Until then, use the source link.</div>
+    {% endif %}
   </section>
   <aside>
     <div class="panel"><h3>Our notes</h3>{% include "listings/_tracking.html" %}</div>

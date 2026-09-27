@@ -90,6 +90,13 @@ class Scraper:
         return self.max_detail_fetches is None or fetched_so_far < self.max_detail_fetches
 
 
+def detail_priority(item):
+    """Sort key: listings the default filters would show get their detail pages fetched first."""
+    looks_like_apartment = "apartment" in (item.property_type_hint or "").lower()
+    in_budget = item.price is None or settings.DEFAULT_MIN_PRICE <= item.price <= settings.DEFAULT_MAX_PRICE
+    return (looks_like_apartment, not in_budget)
+
+
 def is_candidate(item):
     """Worth a detail-page fetch and storing: target city and 2+ beds (or beds unknown)."""
     parsed = parse_address(item.address)
