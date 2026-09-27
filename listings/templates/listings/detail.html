@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block title %}{{ listing.street }} · Condo Finder{% endblock %}
 {% block content %}
-<p><a href="{% url 'listing_list' %}">← Back to listings</a></p>
+<p><a href="{{ listings_url }}">← Back to listings</a></p>
 <div class="detail">
   <section>
     {% if listing.photo_url %}<img class="hero" src="{{ listing.photo_url }}" alt="">{% endif %}

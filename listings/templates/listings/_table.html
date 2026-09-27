@@ -2,7 +2,7 @@
 <div class="table-wrap">
 <table class="listing-table">
   <thead>
-    <tr><th></th><th>Price</th><th>Bd / Ba</th><th>Sqft</th><th>Parking</th><th>Features</th><th>Type</th><th>Address</th><th>Sources</th><th>Listed</th><th>Status</th></tr>
+    <tr><th></th><th>Price</th><th>Bd / Ba</th><th>Sqft</th><th>Parking</th><th>Features</th><th>Type</th><th>Quadrant</th><th>Address</th><th>Sources</th><th>Listed</th><th>Status</th></tr>
   </thead>
   <tbody>
   {% for listing in listings %}
@@ -19,14 +19,15 @@
         {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
       </td>
       <td>{{ listing.get_property_type_display }}</td>
+      <td class="quadrant">{{ listing.quadrant|default:"–" }}</td>
       <td><a href="{{ listing.get_absolute_url }}">{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}</a>
-        <div class="muted">{{ listing.location_label }}</div></td>
+        <div class="muted">{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %}</div></td>
       <td>{% include "listings/_sources.html" %}</td>
       <td class="nowrap">{{ listing.days_on_market }}d</td>
       <td>{% include "listings/_status.html" %}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="11">No listings match. Try loosening the filters.</td></tr>
+    <tr><td colspan="12">No listings match. Try loosening the filters.</td></tr>
   {% endfor %}
   </tbody>
 </table>

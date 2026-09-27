@@ -161,7 +161,6 @@ def test_filters_apply_on_change_without_button(client):
 def test_quadrant_shown_on_card_table_and_detail(client):
     listing = good_listing(quadrant="NW", neighborhood="Pearl District")
     assert "Portland · NW · Pearl District" in client.get("/").content.decode()
-    assert "Portland · NW · Pearl District" in client.get("/?view=list").content.decode()
     assert "Portland · NW · Pearl District" in client.get(f"/listing/{listing.pk}/").content.decode()
 
 
@@ -169,3 +168,33 @@ def test_quadrant_filter_in_sidebar(client):
     content = client.get("/").content.decode()
     for value in ("NW", "NE", "SE", "SW", "N", "S"):
         assert f'name="quadrants" value="{value}"' in content
+
+
+def test_list_view_has_quadrant_column(client):
+    good_listing(quadrant="NW", neighborhood="Pearl District")
+    content = client.get("/?view=list").content.decode()
+    assert "<th>Quadrant</th>" in content
+    assert '<td class="quadrant">NW</td>' in content
+    assert "Portland · Pearl District" in content  # quadrant has its own column, so not repeated here
+
+
+def test_back_link_returns_to_last_view_filters_and_page(client):
+    listing = good_listing()
+    client.get("/?view=list&min_beds=2&sort=newest&page=1")
+    content = client.get(f"/listing/{listing.pk}/").content.decode()
+    assert 'href="/?view=list&amp;min_beds=2&amp;sort=newest&amp;page=1">← Back to listings' in content
+    assert 'href="/?view=list&amp;min_beds=2&amp;sort=newest&amp;page=1">Listings</a>' in content
+
+
+def test_bare_url_reopens_last_used_view(client):
+    good_listing()
+    assert client.get("/").context["view"] == "map"
+    client.get("/?view=list")
+    assert client.get("/").context["view"] == "list"
+    client.get("/?view=map")
+    assert client.get("/").context["view"] == "map"
+
+
+def test_back_link_defaults_to_listings_home(client):
+    listing = good_listing()
+    assert 'href="/">← Back to listings' in client.get(f"/listing/{listing.pk}/").content.decode()

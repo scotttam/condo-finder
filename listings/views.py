@@ -19,7 +19,10 @@ NON_FILTER_PARAMS = {"view", "page"}
 
 
 def listing_list(request):
-    view = request.GET.get("view") if request.GET.get("view") in VIEWS else "map"
+    requested = request.GET.get("view")
+    view = requested if requested in VIEWS else request.session.get("listing_view", "map")
+    request.session["listing_view"] = view
+    request.session["listing_query"] = f"?{request.GET.urlencode()}" if request.GET else ""
     has_filters = any(key not in NON_FILTER_PARAMS for key in request.GET)
     form = ListingFilterForm(request.GET if has_filters else default_filter_data())
     queryset = Listing.objects.all()

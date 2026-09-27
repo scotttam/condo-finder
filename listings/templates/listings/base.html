@@ -71,7 +71,7 @@
   <header>
     <a class="brand" href="{% url 'listing_list' %}">Condo Finder</a>
     <nav>
-      <a href="{% url 'listing_list' %}">Listings</a>
+      <a href="{{ listings_url }}">Listings</a>
       <a href="{% url 'sources' %}">Sources</a>
       <a href="/admin/">Admin</a>
     </nav>
