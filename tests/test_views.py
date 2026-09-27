@@ -198,3 +198,17 @@ def test_bare_url_reopens_last_used_view(client):
 def test_back_link_defaults_to_listings_home(client):
     listing = good_listing()
     assert 'href="/">← Back to listings' in client.get(f"/listing/{listing.pk}/").content.decode()
+
+
+def test_parking_present_without_count_is_labeled(client):
+    listing = good_listing(parking_spaces=None, has_parking=True)
+    assert "parking (spaces ?)" in client.get("/").content.decode()
+    assert "Yes (spaces ?)" in client.get("/?view=list").content.decode()
+    assert "Yes, number of spaces not stated" in client.get(f"/listing/{listing.pk}/").content.decode()
+
+
+def test_reextract_command(capsys):
+    from django.core.management import call_command
+
+    call_command("reextract")
+    assert "Updated 0 listings" in capsys.readouterr().out

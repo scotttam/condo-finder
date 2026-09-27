@@ -14,7 +14,7 @@
       <table>
         <tr><th>Beds / Baths</th><td>{{ listing.beds }} / {{ listing.baths|floatformat:"-1" }}</td></tr>
         <tr><th>Square feet</th><td>{{ listing.sqft|default:"?" }}{% if listing.price_per_sqft %} (${{ listing.price_per_sqft }}/sqft){% endif %}</td></tr>
-        <tr><th>Parking</th><td>{% if listing.parking_spaces is None %}Unknown{% else %}{{ listing.parking_spaces }}{% endif %}</td></tr>
+        <tr><th>Parking</th><td>{% if listing.parking_spaces is not None %}{{ listing.parking_spaces }} space{{ listing.parking_spaces|pluralize }}{% elif listing.has_parking %}Yes, number of spaces not stated{% elif listing.has_parking is False %}None (street parking){% else %}Unknown{% endif %}</td></tr>
         <tr><th>Type</th><td>{{ listing.get_property_type_display }}</td></tr>
         <tr><th>Available</th><td>{{ listing.available|default:"?" }}</td></tr>
         <tr><th>Location</th><td>{{ listing.location_label }}</td></tr>

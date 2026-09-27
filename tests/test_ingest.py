@@ -137,3 +137,27 @@ def test_ingest_sets_portland_quadrant():
     ])
     assert Listing.objects.get(city="Portland").quadrant == "NW"
     assert Listing.objects.get(city="Beaverton").quadrant == ""
+
+
+def test_ingest_records_parking_presence_without_count():
+    ingest(make_source(), [scraped(description="Parking: Attached garage. Laundry: In Unit")])
+    listing = Listing.objects.get()
+    assert (listing.has_parking, listing.parking_spaces, listing.has_washer_dryer) == (True, None, True)
+
+
+def test_reextract_updates_stored_listings_and_keeps_overrides():
+    from listings.ingest import reextract_all
+
+    source = make_source()
+    ingest(source, [scraped(description="Nice home.")])
+    ingest(source, [scraped(external_id="b2", address="100 SW Main St, Portland, OR 97204", description="Nice home.")])
+    Listing.objects.filter(street="937 NW Glisan Street").update(
+        description="Appliances: Refrigerator, Washer, and Dryer. Parking Garage Access.")
+    Listing.objects.filter(street="100 SW Main St").update(
+        description="Laundry: In Unit", overrides={"has_washer_dryer": False})
+    assert reextract_all() == 2  # pearl gains W/D + parking; main gets its override applied
+    assert reextract_all() == 0  # idempotent
+    pearl = Listing.objects.get(street="937 NW Glisan Street")
+    main = Listing.objects.get(street="100 SW Main St")
+    assert (pearl.has_washer_dryer, pearl.has_parking) == (True, True)
+    assert main.has_washer_dryer is False  # manual override wins

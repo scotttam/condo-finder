@@ -12,7 +12,7 @@
         {% if not listing.is_active %}<div class="offmarket">Off market</div>{% endif %}</td>
       <td class="nowrap">{{ listing.beds }} / {{ listing.baths|floatformat:"-1" }}</td>
       <td>{{ listing.sqft|intcomma|default:"?" }}</td>
-      <td>{% if listing.parking_spaces is None %}?{% else %}{{ listing.parking_spaces }}{% endif %}</td>
+      <td class="nowrap">{% if listing.parking_spaces is not None %}{{ listing.parking_spaces }}{% elif listing.has_parking %}Yes (spaces ?){% elif listing.has_parking is False %}None{% else %}?{% endif %}</td>
       <td class="nowrap">
         {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
         {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}

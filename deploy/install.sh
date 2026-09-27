@@ -11,6 +11,7 @@ cd "$PROJECT_DIR"
 mkdir -p logs "$HOME/Library/LaunchAgents"
 "$UV" sync --frozen --no-dev
 "$UV" run --frozen --no-dev python manage.py migrate --noinput
+"$UV" run --frozen --no-dev python manage.py reextract
 "$UV" run --frozen --no-dev python manage.py collectstatic --noinput
 
 sed -e "s#__PROJECT_DIR__#$PROJECT_DIR#g" -e "s#__UV__#$UV#g" "deploy/$LABEL.plist.template" > "$PLIST"
