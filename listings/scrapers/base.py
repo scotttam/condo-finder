@@ -76,10 +76,13 @@ class Scraper:
     def __init__(self, key, name, fetcher=None, request_delay=None, max_detail_fetches=None, **options):
         self.key = key
         self.name = name
-        self.fetcher = fetcher or Fetcher(delay=request_delay)
+        self.fetcher = fetcher if fetcher is not None else self.default_fetcher(request_delay)
         self.max_detail_fetches = max_detail_fetches
         self.known_ids = set()  # external ids whose listing already has a description (set by the runner)
         self.options = options
+
+    def default_fetcher(self, request_delay):
+        return Fetcher(delay=request_delay)
 
     def scrape(self):
         raise NotImplementedError

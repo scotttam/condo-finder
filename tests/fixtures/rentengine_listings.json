@@ -1,0 +1,422 @@
+[
+ {
+  "id": 64401,
+  "lat": 45.573228,
+  "long": -122.6824532,
+  "street_number": "6933",
+  "street_name": "North Interstate Avenue",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97217",
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/d6939d8d-77d1-49e0-adf0-25155183c7b4.jpg"
+  ],
+  "pets_allowed": "No",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 3095,
+  "earliest_move_in_date": "2026-06-05",
+  "sqft": 3640,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 71416,
+  "lat": 45.5008623,
+  "long": -122.4251867,
+  "street_number": "530",
+  "street_name": "Northeast 5th Street",
+  "unit": "",
+  "city_name": "Gresham",
+  "state_name": "Oregon",
+  "zip_code": "97030",
+  "bedrooms": 2,
+  "bathrooms": 1,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/2676bc3e-4ec6-4cc3-ab1f-6f2a01d28a2f.jpg"
+  ],
+  "pets_allowed": "No",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 1925,
+  "earliest_move_in_date": "2026-06-27",
+  "sqft": 816,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 76070,
+  "lat": 45.5750408,
+  "long": -122.682865,
+  "street_number": "7150",
+  "street_name": "North Greenwich Avenue",
+  "unit": "6",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97217",
+  "bedrooms": 0,
+  "bathrooms": 1,
+  "furnished": false,
+  "property_type": "MULTI-FAMILY",
+  "photos": [
+   "images/c74be7c6-e5f1-40ad-8a40-9e62f17c9475.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 1195,
+  "earliest_move_in_date": "2026-10-01",
+  "sqft": 373,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 80420,
+  "lat": 45.5750408,
+  "long": -122.682865,
+  "street_number": "7150",
+  "street_name": "North Greenwich Avenue",
+  "unit": "5",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97217",
+  "bedrooms": 1,
+  "bathrooms": 1,
+  "furnished": false,
+  "property_type": "MULTI-FAMILY",
+  "photos": [
+   "images/fb7fc0bb-207d-440a-a012-9800f0d319c8.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 1325,
+  "earliest_move_in_date": "2026-08-05",
+  "sqft": 515,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 80825,
+  "lat": 45.3961645,
+  "long": -122.571499,
+  "street_number": "17442",
+  "street_name": "Southeast 82nd Drive",
+  "unit": "",
+  "city_name": "Clackamas",
+  "state_name": "Oregon",
+  "zip_code": "97015",
+  "bedrooms": 2,
+  "bathrooms": 1.5,
+  "furnished": false,
+  "property_type": "TOWNHOUSE",
+  "photos": [
+   "images/f17a2e8a-a044-4c1c-bd9e-b67153614934.jpg"
+  ],
+  "pets_allowed": "No",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 1725,
+  "earliest_move_in_date": "2026-08-07",
+  "sqft": 1120,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 81084,
+  "lat": 45.5518008,
+  "long": -122.6363571,
+  "street_number": "2836",
+  "street_name": "Northeast Bryce Street",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97212",
+  "bedrooms": 4,
+  "bathrooms": 2,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/26ff51f7-d3c8-4a4f-8f51-3c816a057a75.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 4500,
+  "earliest_move_in_date": "2026-08-10",
+  "sqft": 3214,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 82713,
+  "lat": 45.317152,
+  "long": -122.580095,
+  "street_number": "13955",
+  "street_name": "Traveler Road",
+  "unit": "",
+  "city_name": "Oregon City",
+  "state_name": "Oregon",
+  "zip_code": "97045",
+  "bedrooms": 3,
+  "bathrooms": 2.5,
+  "furnished": false,
+  "property_type": "TOWNHOUSE",
+  "photos": [
+   "images/292241a9-9bfa-40c4-bdf0-c2d7f577be5e.jpg"
+  ],
+  "pets_allowed": "No",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 2595,
+  "earliest_move_in_date": "2026-08-15",
+  "sqft": 1777,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 82898,
+  "lat": 45.5354156,
+  "long": -122.5818046,
+  "street_number": "1766",
+  "street_name": "Northeast 79th Avenue",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97213",
+  "bedrooms": 4,
+  "bathrooms": 2.5,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/17d31e81-b4e1-4c8b-a9c2-e83d1a37e844.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 3300,
+  "earliest_move_in_date": "2026-08-28",
+  "sqft": 1802,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 84431,
+  "lat": 45.5262468,
+  "long": -122.7880519,
+  "street_number": "10805",
+  "street_name": "Northwest Cornell Road",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97229",
+  "bedrooms": 4,
+  "bathrooms": 2.5,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/e8a92cb3-b9aa-4de2-bde1-ecd534e478c0.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 4600,
+  "earliest_move_in_date": "2026-08-28",
+  "sqft": 3117,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 85944,
+  "lat": 45.5311515,
+  "long": -122.6830552,
+  "street_number": "1133",
+  "street_name": "Northwest 11th Avenue",
+  "unit": "511",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97209",
+  "bedrooms": 1,
+  "bathrooms": 1,
+  "furnished": false,
+  "property_type": "CONDO",
+  "photos": [
+   "images/e537ebbd-947f-4a7e-a12a-3b84134e3df1.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 2350,
+  "earliest_move_in_date": "2026-09-04",
+  "sqft": 762,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 86836,
+  "lat": 45.5190794,
+  "long": -122.6503909,
+  "street_number": "516",
+  "street_name": "Southeast 15th Avenue",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97214",
+  "bedrooms": 1,
+  "bathrooms": 1,
+  "furnished": false,
+  "property_type": "MULTI-FAMILY",
+  "photos": [
+   "images/7b970093-76bb-4562-a98c-70208bcc1164.jpg"
+  ],
+  "pets_allowed": "No",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 1750,
+  "earliest_move_in_date": "2026-09-11",
+  "sqft": 800,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 90316,
+  "lat": 45.5424323,
+  "long": -122.6289645,
+  "street_number": "2715",
+  "street_name": "Northeast 35th Avenue",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97212",
+  "bedrooms": 5,
+  "bathrooms": 4,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/cabf74db-1da4-4ce6-9f99-5f6d4851287f.jpg"
+  ],
+  "pets_allowed": "No",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 5575,
+  "earliest_move_in_date": "2026-09-25",
+  "sqft": 3960,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 90950,
+  "lat": 45.5210078,
+  "long": -122.5012396,
+  "street_number": "220",
+  "street_name": "Southeast 157th Avenue",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97233",
+  "bedrooms": 2,
+  "bathrooms": 1,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/e4dc3d5a-deed-484c-ad0e-c5e26650ff9b.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 2350,
+  "earliest_move_in_date": "2026-09-30",
+  "sqft": 1505,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 91593,
+  "lat": 45.5422777,
+  "long": -122.5202203,
+  "street_number": "2637",
+  "street_name": "Northeast 138th Place",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97230",
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/87bd1bda-849c-41a9-a968-3c3d6b179ddf.jpg"
+  ],
+  "pets_allowed": "Yes",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 2850,
+  "earliest_move_in_date": "2026-10-01",
+  "sqft": 1430,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ },
+ {
+  "id": 92369,
+  "lat": 45.5754269,
+  "long": -122.7103611,
+  "street_number": "4133",
+  "street_name": "North Willamette Boulevard",
+  "unit": "",
+  "city_name": "Portland",
+  "state_name": "Oregon",
+  "zip_code": "97203",
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "furnished": false,
+  "property_type": "SINGLE FAMILY RESIDENCE",
+  "photos": [
+   "images/e1a117de-4840-483e-8165-2e91f2f3f1c4.jpg"
+  ],
+  "pets_allowed": "Cats only",
+  "desired_lease_duration_months": [
+   12
+  ],
+  "target_rental_rate": 3795,
+  "earliest_move_in_date": "2026-10-09",
+  "sqft": 3182,
+  "specials": [],
+  "monthly_fees": [],
+  "move_in_fees": []
+ }
+]

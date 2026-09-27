@@ -10,6 +10,7 @@ PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 cd "$PROJECT_DIR"
 mkdir -p logs "$HOME/Library/LaunchAgents"
 "$UV" sync --frozen --no-dev
+"$UV" run --frozen --no-dev playwright install chromium   # RentEngine sources need a real browser
 "$UV" run --frozen --no-dev python manage.py migrate --noinput
 "$UV" run --frozen --no-dev python manage.py collectstatic --noinput
 
