@@ -1,9 +1,10 @@
 from .appfolio import AppFolioScraper
+from .craigslist import CraigslistScraper
 from .nesthub import NesthubScraper
 from .redfin import RedfinScraper
 from .zillow import ZillowScraper
 
-PLATFORMS = {"appfolio": AppFolioScraper, "nesthub": NesthubScraper, "redfin": RedfinScraper, "zillow": ZillowScraper}
+PLATFORMS = {"appfolio": AppFolioScraper, "nesthub": NesthubScraper, "redfin": RedfinScraper, "zillow": ZillowScraper, "craigslist": CraigslistScraper}
 
 # To add a property manager, append one entry. AppFolio needs its <subdomain>.appfolio.com;
 # Nesthub needs the site's listings page URL.
@@ -20,6 +21,9 @@ SOURCES = [
     {"key": "redfin", "name": "Redfin", "platform": "redfin", "region_ids": [30772, 30777, 1432], "request_delay": 2},
     {"key": "zillow", "name": "Zillow", "platform": "zillow", "city_slugs": ["portland-or", "lake-oswego-or", "beaverton-or"],
      "request_delay": 3, "max_detail_fetches": 40},
+    {"key": "craigslist", "name": "Craigslist", "platform": "craigslist",
+     "search_url": "https://www.craigslist.org/search/area/portland?cat=apa&min_bedrooms=2&min_bathrooms=2",
+     "request_delay": 2, "max_detail_fetches": 60},
 ]
 
 
