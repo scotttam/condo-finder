@@ -18,6 +18,7 @@ from .models import Listing, PriceChange, PropertyType, SourceListing
 OVERRIDABLE_FIELDS = {
     "price", "beds", "baths", "sqft", "parking_spaces", "has_parking", "has_washer_dryer", "has_ac",
     "has_outdoor_space", "property_type", "neighborhood", "quadrant", "available", "title",
+    "latitude", "longitude",
 }
 
 
@@ -82,6 +83,10 @@ def _apply_scraped(listing, address, item):
     listing.description = "\n\n".join(p for p in (item.description, item.amenities) if p) or listing.description
     listing.available = (item.available or listing.available)[:100]
     listing.photo_url = item.photo_url or listing.photo_url
+    if item.latitude is not None and item.longitude is not None:
+        # The listing site's own pin beats a geocoded guess from the street address.
+        listing.latitude = item.latitude
+        listing.longitude = item.longitude
     for name in ("price", "beds", "baths", "sqft"):
         value = getattr(item, name)
         if value is not None:

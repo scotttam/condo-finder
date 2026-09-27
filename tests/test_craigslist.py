@@ -63,3 +63,8 @@ def test_scraper_fetches_details_for_new_candidates_only():
     fetched = [i for i in items.values() if i.address]
     assert len(fetched) == 5
     assert all(i.property_type_hint == "apartment" and "w/d in unit" in i.amenities for i in fetched)
+
+
+def test_coordinates_come_from_structured_data():
+    first = parse_search(load_fixture("craigslist_search.html"))[0]
+    assert (first.latitude, first.longitude) == (45.5546401373104, -122.679978430326)

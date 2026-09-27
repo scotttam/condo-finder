@@ -32,6 +32,8 @@ class ScrapedListing:
     available: str = ""
     photo_url: str = ""
     city: str = ""  # used when search results give a city but no street address (Craigslist)
+    latitude: float | None = None  # coordinates published by the listing site, when available
+    longitude: float | None = None
 
     @property
     def full_text(self):

@@ -40,13 +40,14 @@
         <tr><td>{{ change.seen_at|date:"M j, Y" }}</td><td>${{ change.price|intcomma }}</td></tr>
       {% endfor %}</table>
     </div>
-    {% if listing.latitude %}<div id="map" style="height:260px"></div>{% endif %}
+    {% if listing.latitude is not None %}<div id="map" style="height:260px"></div>
+    {% else %}<div class="panel muted">Map will appear once this address is located. Locations are looked up after each scrape.</div>{% endif %}
     <p><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>
   </aside>
 </div>
 {% endblock %}
 {% block scripts %}
-{% if listing.latitude %}
+{% if listing.latitude is not None %}
 <script>
   const map = L.map("map").setView([{{ listing.latitude }}, {{ listing.longitude }}], 15);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"}).addTo(map);

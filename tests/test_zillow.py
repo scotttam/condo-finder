@@ -83,3 +83,12 @@ def test_scraper_searches_then_fetches_limited_details():
     # are apartments anyway, so the detail budget goes to /homedetails/ listings.
     assert {i.external_id for i in items if i.description} == {"54003809", "2083259756"}
     assert all("/homedetails/" in url for _, url, _ in fake.calls[2:])
+
+
+def test_coordinates_come_from_latlong():
+    item = results()[0]["54003809"]
+    assert (item.latitude, item.longitude) == (45.475597, -122.604324)
+
+
+def test_building_summary_latlong_ids_never_become_items():
+    assert all(not item.external_id.count("--") for item in results()[0].values())

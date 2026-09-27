@@ -46,6 +46,8 @@ def parse_search(html):
                 baths=Decimal(str(baths)) if baths is not None else None,
                 title=card.get("title", ""),
                 city=((info.get("address") or {}).get("addressLocality") or ""),
+                latitude=info.get("latitude"),
+                longitude=info.get("longitude"),
             )
         )
     return items
