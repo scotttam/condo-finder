@@ -18,4 +18,10 @@ plutil -lint "$PLIST"
 
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-echo "Condo Finder is running at http://$(scutil --get LocalHostName).local:8000"
+echo "Condo Finder is running."
+echo "  Home network: http://$(scutil --get LocalHostName).local:8000"
+TAILSCALE="$(command -v tailscale || echo /Applications/Tailscale.app/Contents/MacOS/Tailscale)"
+if [ -x "$TAILSCALE" ]; then
+  TS_NAME="$("$TAILSCALE" status --json 2>/dev/null | python3 -c 'import json, sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))' 2>/dev/null || true)"
+  [ -n "$TS_NAME" ] && echo "  Anywhere (Tailscale): http://$TS_NAME:8000"
+fi
