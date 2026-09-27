@@ -1,0 +1,1189 @@
+{
+ "homes": [
+  {
+   "homeData": {
+    "propertyId": "188682401",
+    "url": "/OR/Portland/14950-NE-Rose-Pkwy-97230/home/188682401",
+    "propertyType": 3,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 41,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "123798222"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5439517,
+       "longitude": -122.5086092
+      }
+     },
+     "formattedStreetLine": "14950 NE Rose Pkwy",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97230",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "1ac1bebc-a6d2-4acf-9711-d46ebdd18177",
+    "bedRange": {
+     "min": 2,
+     "max": 2
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1638,
+     "max": 1638
+    },
+    "rentPriceRange": {
+     "min": 1995,
+     "max": 1995
+    },
+    "lastUpdated": "2026-09-26T12:29:41.731610Z",
+    "numAvailableUnits": 0,
+    "status": 2,
+    "dateAvailable": "2026-10-08T00:00:00Z",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 17.0,
+    "freshnessTimestamp": "2026-09-25T12:48:40.240Z",
+    "description": "Welcome to this inviting two-bedroom, two-bathroom end-unit townhouse-style condo in the private, tree-lined Jasper Heights community of NE Portland. Offering a spacious multi-level floor plan, newer...",
+    "feedSourceInternalId": "lv3349474929",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5037994802",
+    "mobileWebPhone": "5037994802",
+    "mobileAppPhone": "5037994802",
+    "feedSource": "APPFOLIO_FREE",
+    "feedExternalId": "4002fc2c-b76f-11f1-9848-0a4fa32d6793_40286570-b76f-11f1-9848-0a4fa32d6793",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5037994802",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "26504934",
+    "url": "/OR/Portland/12859-SE-Stark-St-97233/unit-A28/home/26504934",
+    "propertyType": 3,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 14,
+       "version": "3"
+      },
+      {
+       "startPos": 15,
+       "endPos": 30,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "126531006"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5194678,
+       "longitude": -122.5310872
+      }
+     },
+     "formattedStreetLine": "12859 SE Stark St Unit A28",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97233",
+     "unitNumber": "Unit A28",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "6f69f705-a64a-432c-b3c3-105a2ec3a26e",
+    "bedRange": {
+     "min": 2,
+     "max": 2
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1003,
+     "max": 1003
+    },
+    "rentPriceRange": {
+     "min": 1695,
+     "max": 1695
+    },
+    "lastUpdated": "2026-09-26T11:50:10.201391Z",
+    "numAvailableUnits": 1,
+    "status": 1,
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 26.0,
+    "freshnessTimestamp": "2026-09-25T12:03:07.452Z",
+    "description": "Welcome to this beautifully updated top-floor two-bedroom, two-bathroom condo offering 1,003 square feet of thoughtfully designed living space on Stark Street in Portland. Featuring an open-concept...",
+    "feedSourceInternalId": "lv2198743964",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5034308006",
+    "mobileWebPhone": "5034308006",
+    "mobileAppPhone": "5034308006",
+    "feedSource": "APPFOLIO_FREE",
+    "feedExternalId": "56bcf4d2-3102-11f0-81ce-0246e0994709_56d3f76c-3102-11f0-81ce-0246e0994709",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5034308006",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "188659090",
+    "url": "/OR/Portland/17548-NW-Springville-Rd-97229/home/188659090",
+    "propertyType": 3,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 43,
+       "version": "1"
+      }
+     ]
+    },
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5612636,
+       "longitude": -122.8578005
+      }
+     },
+     "formattedStreetLine": "17548 NW Springville Rd",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97229",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "c106d59e-3c95-40af-866f-0b765dba2096",
+    "bedRange": {
+     "min": 3,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1400,
+     "max": 1400
+    },
+    "rentPriceRange": {
+     "min": 1995,
+     "max": 1995
+    },
+    "lastUpdated": "2026-09-24T13:09:57.336618Z",
+    "numAvailableUnits": 1,
+    "status": 1,
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 35.0,
+    "freshnessTimestamp": "2026-09-24T13:09:44.586Z",
+    "description": "SCHEDULE A SHOWING ONLINE AT: showmojo.com/lrt/2deab23099 ---- Situated in the peaceful Courtyards at Springville community, this gorgeous 3-bedroom, 2-bathroom condo offers 1400 square feet of...",
+    "feedSourceInternalId": "lv3346281850",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "9714761101",
+    "mobileWebPhone": "9714761101",
+    "mobileAppPhone": "9714761101",
+    "feedSource": "SHOWMOJO",
+    "feedExternalId": "2deab23099",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "9714761101",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "26347858",
+    "url": "/OR/Lake-Oswego/1-Jefferson-Pkwy-97035/home/26347858",
+    "propertyType": 5,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 6,
+       "version": "5"
+      },
+      {
+       "startPos": 7,
+       "endPos": 53,
+       "version": "6"
+      },
+      {
+       "startPos": 54,
+       "endPos": 54,
+       "version": "11"
+      },
+      {
+       "startPos": 55,
+       "endPos": 55,
+       "version": "9"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "2786469"
+     },
+     {
+      "sashTypeId": 35,
+      "sashTypeName": "1 MONTH FREE",
+      "sashTypeColor": "#E96727"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.433869,
+       "longitude": -122.718275
+      }
+     },
+     "formattedStreetLine": "1 Jefferson Pkwy",
+     "city": "Lake Oswego",
+     "state": "OR",
+     "zip": "97035",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "3fff712f-a80a-45a1-b50d-2793e3cab370",
+    "bedRange": {
+     "min": 2,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 935,
+     "max": 1602
+    },
+    "rentPriceRange": {
+     "min": 2091,
+     "max": 2918
+    },
+    "lastUpdated": "2026-09-26T22:30:25.491924Z",
+    "numAvailableUnits": 21,
+    "status": 1,
+    "propertyName": "Elevation at Mountain Park",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 1.0,
+    "freshnessTimestamp": "2026-09-26T22:30:13.038Z",
+    "description": "There's Room for You at Elevation at Mountain Park  Experience luxury living amidst the natural beauty of Lake Oswego at Elevation at Mountain Park Apartments. Our pet-friendly community offers...",
+    "revenuePerLead": 7.0,
+    "feedSourceInternalId": "lc5915274",
+    "isCommercialPaid": true,
+    "feedOriginalSource": "ZILLOW",
+    "mlsAgentEmail": "stop@rent.com",
+    "desktopPhone": "5035688815",
+    "mobileWebPhone": "5035688815",
+    "mobileAppPhone": "5035688815",
+    "feedSource": "RentPath",
+    "feedExternalId": "4wdmvfc63jba",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5039268241",
+    "isTotalPrice": true,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "25980955",
+    "url": "/OR/Lake-Oswego/6142-Bonita-Rd-97035/home/25980955",
+    "propertyType": 5,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 1,
+       "version": "4"
+      },
+      {
+       "startPos": 2,
+       "endPos": 24,
+       "version": "5"
+      },
+      {
+       "startPos": 25,
+       "endPos": 28,
+       "version": "37"
+      },
+      {
+       "startPos": 29,
+       "endPos": 32,
+       "version": "59"
+      },
+      {
+       "startPos": 33,
+       "endPos": 36,
+       "version": "103"
+      },
+      {
+       "startPos": 37,
+       "endPos": 39,
+       "version": "125"
+      },
+      {
+       "startPos": 40,
+       "endPos": 40,
+       "version": "123"
+      },
+      {
+       "startPos": 41,
+       "endPos": 43,
+       "version": "135"
+      },
+      {
+       "startPos": 44,
+       "endPos": 44,
+       "version": "131"
+      },
+      {
+       "startPos": 45,
+       "endPos": 48,
+       "version": "143"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "10374821"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.4148052,
+       "longitude": -122.7396852
+      }
+     },
+     "formattedStreetLine": "6142 Bonita Rd",
+     "city": "Lake Oswego",
+     "state": "OR",
+     "zip": "97035",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "23769ee8-80a7-4e8a-b9da-dea6f59bcfa1",
+    "bedRange": {
+     "min": 2,
+     "max": 2
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 908,
+     "max": 920
+    },
+    "rentPriceRange": {
+     "min": 1749,
+     "max": 1949
+    },
+    "lastUpdated": "2026-09-26T20:23:49.790020Z",
+    "numAvailableUnits": 5,
+    "status": 1,
+    "propertyName": "Hunt Club",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 2.0,
+    "freshnessTimestamp": "2026-09-26T20:23:44.682Z",
+    "description": "Hunt Club Apartments Homes features one bedroom and two bedroom apartment homes for rent in Lake Oswego, Oregon.  Hunt Club Apartments Homes features one bedroom and two bedroom apartment homes for...",
+    "revenuePerLead": 6.0,
+    "feedSourceInternalId": "lc5905395",
+    "isCommercialPaid": true,
+    "feedOriginalSource": "ZILLOW",
+    "mlsAgentEmail": "stop@rent.com",
+    "desktopPhone": "9716344314",
+    "mobileWebPhone": "9716344314",
+    "mobileAppPhone": "9716344314",
+    "feedSource": "RentPath",
+    "feedExternalId": "54nxyyvzut0k9",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "9716349574",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "177629235",
+    "url": "/OR/Lake-Oswego/Mercato-Grove/apartment/177629235",
+    "propertyType": 5,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 12,
+       "version": "4"
+      },
+      {
+       "startPos": 13,
+       "endPos": 15,
+       "version": "5"
+      },
+      {
+       "startPos": 16,
+       "endPos": 19,
+       "version": "4"
+      },
+      {
+       "startPos": 20,
+       "endPos": 20,
+       "version": "3"
+      },
+      {
+       "startPos": 21,
+       "endPos": 21,
+       "version": "4"
+      },
+      {
+       "startPos": 22,
+       "endPos": 26,
+       "version": "5"
+      },
+      {
+       "startPos": 27,
+       "endPos": 28,
+       "version": "4"
+      },
+      {
+       "startPos": 29,
+       "endPos": 32,
+       "version": "5"
+      },
+      {
+       "startPos": 33,
+       "endPos": 33,
+       "version": "4"
+      },
+      {
+       "startPos": 34,
+       "endPos": 35,
+       "version": "5"
+      },
+      {
+       "startPos": 36,
+       "endPos": 36,
+       "version": "4"
+      },
+      {
+       "startPos": 37,
+       "endPos": 37,
+       "version": "5"
+      },
+      {
+       "startPos": 38,
+       "endPos": 38,
+       "version": "4"
+      },
+      {
+       "startPos": 39,
+       "endPos": 41,
+       "version": "5"
+      },
+      {
+       "startPos": 42,
+       "endPos": 42,
+       "version": "4"
+      },
+      {
+       "startPos": 43,
+       "endPos": 44,
+       "version": "5"
+      },
+      {
+       "startPos": 45,
+       "endPos": 45,
+       "version": "4"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "34552039"
+     },
+     {
+      "sashTypeId": 35,
+      "sashTypeName": "1 MONTH FREE",
+      "sashTypeColor": "#E96727"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.415522,
+       "longitude": -122.7188402
+      }
+     },
+     "formattedStreetLine": "4055 Mercantile Dr",
+     "city": "Lake Oswego",
+     "state": "OR",
+     "zip": "97035",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "1baea15a-4a9d-4e76-a2ff-7c1cd0d4876b",
+    "bedRange": {
+     "min": 2,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.5
+    },
+    "sqftRange": {
+     "min": 1075,
+     "max": 1897
+    },
+    "rentPriceRange": {
+     "min": 2900,
+     "max": 5699
+    },
+    "lastUpdated": "2026-09-26T14:15:37.668635Z",
+    "numAvailableUnits": 7,
+    "status": 1,
+    "propertyName": "Mercato Grove",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 3.0,
+    "freshnessTimestamp": "2026-09-26T13:40:47.469Z",
+    "description": "Quality Living. Local Dining. Well Being. It's All Here.  Mercato Grove is Lake Oswego's premier wellness-focused apartment community, where resort-style living meets everyday convenience. Surrounded...",
+    "revenuePerLead": 11.0,
+    "feedSourceInternalId": "lc5927373",
+    "isCommercialPaid": true,
+    "feedOriginalSource": "ZILLOW",
+    "mlsAgentEmail": "stop@rent.com",
+    "desktopPhone": "5036887894",
+    "mobileWebPhone": "5036887894",
+    "mobileAppPhone": "5036887894",
+    "feedSource": "RentPath",
+    "feedExternalId": "1u5qsxkjp8egu",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5036889475",
+    "isTotalPrice": true,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "26531127",
+    "url": "/OR/Portland/1037-NE-104th-Ave-97220/home/26531127",
+    "propertyType": 6,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 19,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "36328728"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5304772,
+       "longitude": -122.5557739
+      }
+     },
+     "formattedStreetLine": "1037 NE 104th Ave",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97220",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "4d8c8f31-2eaa-4b2a-a285-3c21469cd19a",
+    "bedRange": {
+     "min": 3,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1562,
+     "max": 1562
+    },
+    "rentPriceRange": {
+     "min": 2895,
+     "max": 2895
+    },
+    "lastUpdated": "2026-09-26T13:06:36.158353Z",
+    "numAvailableUnits": 0,
+    "status": 2,
+    "dateAvailable": "2026-10-10T00:00:00Z",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 2.0,
+    "freshnessTimestamp": "2026-09-26T13:06:29.748Z",
+    "description": "This single level house has fabulous outdoor space including covered front porch and back patio. Gardening shed to save room in the garage. Large master on suite separate laundry room and large...",
+    "feedSourceInternalId": "lv3351587814",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5034964200",
+    "mobileWebPhone": "5034964200",
+    "mobileAppPhone": "5034964200",
+    "feedSource": "APPFOLIO_FREE",
+    "feedExternalId": "a498e253-dd61-11e8-8226-1866da728e1f_ef6a06b9-f47e-11e9-8d76-f8bc12507dfc",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5034964200",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "205700586",
+    "url": "/OR/Portland/3410-SE-143rd-Ave-97236/unit-7/home/205700586",
+    "propertyType": 6,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 28,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "36354656"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.4979917,
+       "longitude": -122.515622
+      }
+     },
+     "formattedStreetLine": "3410 SE 143rd Ave Apt 7",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97236",
+     "unitNumber": "Apt 7",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "e662511f-ea3c-4f4f-8099-eecf612afea0",
+    "bedRange": {
+     "min": 2,
+     "max": 2
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1000,
+     "max": 1000
+    },
+    "rentPriceRange": {
+     "min": 1385,
+     "max": 1385
+    },
+    "lastUpdated": "2026-09-26T13:06:18.326164Z",
+    "numAvailableUnits": 0,
+    "status": 2,
+    "dateAvailable": "2026-11-01T00:00:00Z",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 3.0,
+    "freshnessTimestamp": "2026-09-26T13:06:03.813Z",
+    "feedSourceInternalId": "lv3351593293",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5036176414",
+    "mobileWebPhone": "5036176414",
+    "mobileAppPhone": "5036176414",
+    "feedSource": "APPFOLIO_FREE",
+    "feedExternalId": "22620b66-b469-11ed-bc57-0a986c8284ec_2304443d-b469-11ed-bc57-0a986c8284ec",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5036176414",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "26588083",
+    "url": "/OR/Portland/2637-NE-138th-Pl-97230/home/26588083",
+    "propertyType": 6,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 9,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "36554648"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5422777,
+       "longitude": -122.5202203
+      }
+     },
+     "formattedStreetLine": "2637 NE 138th Pl",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97230",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "a9fda127-1ff5-4b66-89bd-1875fe0e726e",
+    "bedRange": {
+     "min": 3,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1430,
+     "max": 1430
+    },
+    "rentPriceRange": {
+     "min": 2850,
+     "max": 2850
+    },
+    "lastUpdated": "2026-09-26T13:02:48.237553Z",
+    "numAvailableUnits": 1,
+    "status": 1,
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 4.0,
+    "freshnessTimestamp": "2026-09-26T13:02:43.817Z",
+    "description": "This beautifully refreshed Mid-Century home combines classic architectural character with comfortable modern updates. Vaulted ceilings, rich hardwood floors and lots of windows fill the home with...",
+    "feedSourceInternalId": "lv3350091603",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5033006172",
+    "mobileWebPhone": "5033006172",
+    "mobileAppPhone": "5033006172",
+    "feedSource": "rentalsource",
+    "feedExternalId": "84445302",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5033006172",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "188594368",
+    "url": "/OR/Portland/3820-S-River-Pkwy-97239/home/188594368",
+    "propertyType": 13,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 21,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "23099200"
+     },
+     {
+      "sashTypeId": 31,
+      "sashTypeName": "3D Walkthrough",
+      "sashTypeColor": "#7556F2"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.4954791,
+       "longitude": -122.6696285
+      }
+     },
+     "formattedStreetLine": "3820 S River Pkwy",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97239",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "7e35c49f-7e0e-45b2-8174-e510b3197bf1",
+    "bedRange": {
+     "min": 2,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 3.5
+    },
+    "sqftRange": {
+     "min": 1041,
+     "max": 2162
+    },
+    "rentPriceRange": {
+     "min": 3471,
+     "max": 8253
+    },
+    "lastUpdated": "2026-09-26T16:47:09.128889Z",
+    "numAvailableUnits": 24,
+    "status": 1,
+    "propertyName": "Willamette Tower",
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 1.0,
+    "freshnessTimestamp": "2026-09-26T16:46:59.248Z",
+    "description": "Up to 10 Weeks Free! *8 Weeks free plus an additional 2 weeks free with our look and lease special!*",
+    "revenuePerLead": 7.0,
+    "feedSourceInternalId": "lc6543458",
+    "isCommercialPaid": true,
+    "feedOriginalSource": "ZILLOW",
+    "mlsAgentEmail": "stop@rent.com",
+    "desktopPhone": "9716100031",
+    "mobileWebPhone": "9716100031",
+    "mobileAppPhone": "9716100031",
+    "feedSource": "RentPath",
+    "feedExternalId": "5b19ndu4bz312",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "9716100063",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "205688984",
+    "url": "/OR/Portland/16783-NE-Halsey-St-97230/unit-16783/home/205688984",
+    "propertyType": 13,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 28,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "36589769"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5351166,
+       "longitude": -122.489899
+      }
+     },
+     "formattedStreetLine": "16783 NE Halsey St Unit 16783",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97230",
+     "unitNumber": "Unit 16783",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "7710b926-53d4-437c-b12d-62db5a24e612",
+    "bedRange": {
+     "min": 3,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.5,
+     "max": 2.5
+    },
+    "sqftRange": {
+     "min": 1180,
+     "max": 1180
+    },
+    "rentPriceRange": {
+     "min": 2150,
+     "max": 2150
+    },
+    "lastUpdated": "2026-09-26T13:02:17.332369Z",
+    "numAvailableUnits": 1,
+    "status": 1,
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 5.0,
+    "freshnessTimestamp": "2026-09-26T13:02:08.674Z",
+    "description": "MOVE IN SPECIAL - 1/2 Off First Months Rent! Welcome home to this charming 3-bedroom end-unit townhome, tucked away in a quaint cul-de-sac within a welcoming community featuring a playground. With...",
+    "feedSourceInternalId": "lv3349896244",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5039141111",
+    "mobileWebPhone": "5039141111",
+    "mobileAppPhone": "5039141111",
+    "feedSource": "APPFOLIO_FREE",
+    "feedExternalId": "5b4621f3-7880-11eb-9147-06732c7187d4-edb8be0c-7c4c-11eb-9147-06732c7187d4_edb8be0c-7c4c-11eb-9147-06732c7187d4",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5039141111",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  },
+  {
+   "homeData": {
+    "propertyId": "205696595",
+    "url": "/OR/Portland/19465-NW-Mahama-Pl-97229/unit-A/home/205696595",
+    "propertyType": 13,
+    "photosInfo": {
+     "photoRanges": [
+      {
+       "startPos": 0,
+       "endPos": 29,
+       "version": "1"
+      }
+     ]
+    },
+    "sashes": [
+     {
+      "sashTypeId": 7,
+      "sashTypeName": "New",
+      "sashTypeColor": "#2E7E36",
+      "timeOnRedfin": "38281002"
+     },
+     {
+      "sashTypeId": 31,
+      "sashTypeName": "3D Walkthrough",
+      "sashTypeColor": "#7556F2"
+     }
+    ],
+    "hasAttFiber": false,
+    "addressInfo": {
+     "centroid": {
+      "centroid": {
+       "latitude": 45.5469839,
+       "longitude": -122.8774981
+      }
+     },
+     "formattedStreetLine": "19465 NW Mahama Pl Apt A",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97229",
+     "unitNumber": "Apt A",
+     "streetlineDisplayLevel": 1,
+     "unitNumberDisplayLevel": 1,
+     "locationDisplayLevel": 1,
+     "countryCode": 1,
+     "postalCodeDisplayLevel": 1
+    }
+   },
+   "rentalExtension": {
+    "rentalId": "851759d2-d630-4ccc-a04b-645aff0e53b7",
+    "bedRange": {
+     "min": 3,
+     "max": 3
+    },
+    "bathRange": {
+     "min": 2.0,
+     "max": 2.0
+    },
+    "sqftRange": {
+     "min": 1100,
+     "max": 1100
+    },
+    "rentPriceRange": {
+     "min": 1995,
+     "max": 1995
+    },
+    "lastUpdated": "2026-09-26T14:10:41.378411Z",
+    "numAvailableUnits": 1,
+    "status": 1,
+    "rentalDetailsPageType": 6,
+    "searchRankScore": 11.0,
+    "freshnessTimestamp": "2026-09-26T12:33:57.479Z",
+    "description": "========================= Schedule your private tour any day of the week 8am to 8pm Schedule online: https://firstclassportland.com/for-rent Schedule via text: 503-852-1593 =========================...",
+    "feedSourceInternalId": "lv3350870236",
+    "isCommercialPaid": false,
+    "feedOriginalSource": "LOVELY",
+    "desktopPhone": "5037147289",
+    "mobileWebPhone": "5037147289",
+    "mobileAppPhone": "5037147289",
+    "feedSource": "TENANTTURNER2",
+    "feedExternalId": "514782",
+    "leadRequiresMoveInDate": true,
+    "paidPhone": "5037147289",
+    "isTotalPrice": false,
+    "isInTotalPriceState": false,
+    "isIncomeRestricted": false,
+    "isSeniorLiving": false,
+    "isStudent": false,
+    "isMilitary": false
+   }
+  }
+ ],
+ "numMatchedHomes": 12,
+ "numMatchedUnits": 12
+}
