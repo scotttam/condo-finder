@@ -225,3 +225,28 @@ def test_detail_without_description_says_details_are_pending(client):
     content = client.get(f"/listing/{listing.pk}/").content.decode()
     assert "Full details haven't been fetched from the listing site yet" in content
     assert 'class="panel description"' not in content
+
+
+TAILSCALE_HOST = "mac-mini.tail1234.ts.net:8000"
+
+
+def test_pages_load_over_a_tailscale_hostname(client):
+    listing = good_listing()
+    assert client.get("/", HTTP_HOST=TAILSCALE_HOST).status_code == 200
+    assert client.get(f"/listing/{listing.pk}/", HTTP_HOST=TAILSCALE_HOST).status_code == 200
+
+
+def test_status_buttons_pass_csrf_over_tailscale():
+    from django.test import Client
+
+    listing = good_listing()
+    browser = Client(enforce_csrf_checks=True)
+    browser.get("/", HTTP_HOST=TAILSCALE_HOST)
+    token = browser.cookies["csrftoken"].value
+    response = browser.post(
+        f"/listing/{listing.pk}/status/", {"status": "interested"},
+        HTTP_HOST=TAILSCALE_HOST, HTTP_ORIGIN=f"http://{TAILSCALE_HOST}", HTTP_X_CSRFTOKEN=token, HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 200
+    listing.refresh_from_db()
+    assert listing.status == Status.INTERESTED

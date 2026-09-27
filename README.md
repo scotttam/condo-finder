@@ -25,6 +25,28 @@ uv run pytest
 
 Logs: `logs/web.log`. Restart after pulling changes: re-run `./deploy/install.sh`.
 
+## Access from anywhere (Tailscale)
+
+The app stays on the Mac mini, so scrapers keep running from a home internet connection (Zillow and
+Redfin block most cloud-server IPs). Tailscale gives both of you a private, encrypted connection
+to it from any network, and nothing is exposed to the public internet.
+
+1. **Mac mini:** install Tailscale ([tailscale.com/download](https://tailscale.com/download) or the Mac App
+   Store) and sign in. This creates your tailnet. Allow it to start at login.
+2. **Keep it connected:** in the [admin console](https://login.tailscale.com/admin/machines), open the
+   Mac mini's ⋯ menu → **Disable key expiry**. Otherwise it drops off the tailnet after 180 days.
+3. **Your devices:** install Tailscale on your phone and laptop and sign in with the same account.
+   Open `http://<mac-mini-name>:8000`. MagicDNS, on by default, resolves the machine name.
+4. **Your partner:** in the admin console, open the Mac mini's ⋯ menu → **Share…** and send her the
+   invite. She installs Tailscale, signs in with her own account, accepts, and opens
+   `http://<mac-mini-name>.<your-tailnet>.ts.net:8000` (shared machines need the full name, shown
+   in the console). She gets access to this one machine, not the rest of your network.
+5. **Test:** turn off Wi-Fi on a phone and open the link over cellular.
+
+Plain `http://` is fine here because Tailscale already encrypts the connection. The admin login is
+reachable by both of you, so give the admin user a real password (`uv run python manage.py
+changepassword <user>`).
+
 ## Alerts
 
 Install the **ntfy** app on both phones and subscribe to your `NTFY_TOPIC`. You'll get pushes for new
