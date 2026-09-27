@@ -1,12 +1,13 @@
 # Condo Finder
 
-Aggregates Portland / Lake Oswego / Beaverton rental listings from local property managers, Redfin, Zillow, and Craigslist into one
+Aggregates Portland / Lake Oswego / Beaverton rental listings from local property managers (including Chroma via RentEngine), Redfin, Zillow, and Craigslist into one
 browsable database with a map, filters, and shared status + notes.
 
 ## Develop
 
 ```bash
 uv sync
+uv run playwright install chromium        # once; needed for RentEngine sources
 uv run python manage.py migrate
 uv run python manage.py scrape            # scrape all sources once (add --source pearl for one)
 uv run python manage.py runserver 0.0.0.0:8000
@@ -61,6 +62,11 @@ links), add one entry to `SOURCES` in `listings/scrapers/registry.py`.
 Portal sources (Redfin, Zillow, Craigslist) fetch detail pages only for listings not yet described,
 capped per run (`max_detail_fetches` in the registry), so the first few runs fill in details gradually.
 Realtor.com isn't scraped: it's protected by Kasada bot protection.
+
+Property managers whose listings are embedded from **RentEngine** (`rentengine.io/c/<slug>`, e.g. Chroma)
+sit behind a Vercel bot checkpoint, so they're loaded in headless Chromium via Playwright. To add
+another one, add a `"platform": "rentengine"` entry with its `slug`. `deploy/install.sh` installs
+Chromium; in development run `uv run playwright install chromium` once.
 
 ## Correcting data
 

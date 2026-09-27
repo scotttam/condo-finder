@@ -2,9 +2,17 @@ from .appfolio import AppFolioScraper
 from .craigslist import CraigslistScraper
 from .nesthub import NesthubScraper
 from .redfin import RedfinScraper
+from .rentengine import RentEngineScraper
 from .zillow import ZillowScraper
 
-PLATFORMS = {"appfolio": AppFolioScraper, "nesthub": NesthubScraper, "redfin": RedfinScraper, "zillow": ZillowScraper, "craigslist": CraigslistScraper}
+PLATFORMS = {
+    "appfolio": AppFolioScraper,
+    "nesthub": NesthubScraper,
+    "redfin": RedfinScraper,
+    "zillow": ZillowScraper,
+    "craigslist": CraigslistScraper,
+    "rentengine": RentEngineScraper,
+}
 
 # To add a property manager, append one entry. AppFolio needs its <subdomain>.appfolio.com;
 # Nesthub needs the site's listings page URL.
@@ -17,6 +25,9 @@ SOURCES = [
     {"key": "utopia", "name": "Utopia Management", "platform": "appfolio", "subdomain": "utopiamanagement"},
     {"key": "uptown", "name": "Uptown Properties", "platform": "nesthub", "list_url": "https://www.uptownpm.com/portland-homes-for-rent"},
     {"key": "propm-site", "name": "PropM (website)", "platform": "nesthub", "list_url": "https://www.propmhomes.com/portland-homes-for-rent"},
+    # RentEngine: `slug` is the company's embed name (rentengine.io/c/<slug>); loaded in headless Chromium.
+    {"key": "chroma", "name": "Chroma Property Management", "platform": "rentengine", "slug": "chromapm",
+     "request_delay": 2, "max_detail_fetches": 30},
     # Redfin city region ids: Portland 30772, Lake Oswego 30777, Beaverton 1432.
     {"key": "redfin", "name": "Redfin", "platform": "redfin", "region_ids": [30772, 30777, 1432], "request_delay": 2},
     {"key": "zillow", "name": "Zillow", "platform": "zillow", "city_slugs": ["portland-or", "lake-oswego-or", "beaverton-or"],
