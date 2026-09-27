@@ -95,3 +95,18 @@ def test_filter_by_quadrant():
     listing("beaverton", city="Beaverton", quadrant="")
     assert filtered(default_filter_data() | {"quadrants": ["NW", "SE"]}) == {"nw", "se"}
     assert filtered() == {"nw", "se", "beaverton"}  # no quadrant filter by default
+
+
+def test_min_price_defaults_to_2000():
+    listing("cheap", price=1850)
+    listing("at-min", price=2000)
+    listing("ok", price=3000)
+    assert default_filter_data()["min_price"] == "2000"
+    assert filtered() == {"at-min", "ok"}
+    assert filtered(default_filter_data() | {"min_price": ""}) == {"cheap", "at-min", "ok"}
+
+
+def test_min_price_excludes_unknown_price():
+    listing("no-price", price=None)
+    listing("ok", price=3000)
+    assert filtered() == {"ok"}

@@ -13,6 +13,7 @@ def default_filter_data():
         "min_baths": "2",
         "min_parking": "2",
         "parking_unknown": "on",
+        "min_price": str(settings.DEFAULT_MIN_PRICE),
         "max_price": str(settings.DEFAULT_MAX_PRICE),
         "types": [value for value, _ in PropertyType.choices if value != PropertyType.APARTMENT],
         "statuses": [value for value, _ in Status.choices if value != Status.REJECTED],
@@ -28,6 +29,7 @@ class ListingFilterForm(forms.Form):
     min_baths = forms.DecimalField(required=False, min_value=0, decimal_places=1, label="Min baths")
     min_parking = forms.IntegerField(required=False, min_value=0, label="Min parking")
     parking_unknown = forms.BooleanField(required=False, label="Include unknown parking")
+    min_price = forms.IntegerField(required=False, min_value=0, label="Min price")
     max_price = forms.IntegerField(required=False, min_value=0, label="Max price")
     cities = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     quadrants = forms.MultipleChoiceField(
