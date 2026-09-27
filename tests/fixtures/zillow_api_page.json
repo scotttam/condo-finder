@@ -1,0 +1,1931 @@
+{
+ "cat1": {
+  "searchResults": {
+   "listResults": [
+    {
+     "zpid": "45.49526--122.672165",
+     "id": "45.49526--122.672165",
+     "providerListingId": "2da9rbrvuznm5",
+     "imgSrc": "https://photos.zillowstatic.com/fp/564a17e29c4a84716816d2a32ef6668c-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "/apartments/portland-or/the-dylan/CkBcxq/",
+     "statusType": "FOR_RENT",
+     "statusText": "The Dylan",
+     "address": "3883 S Moody Ave, Portland, OR",
+     "addressStreet": "3883 S  Moody Ave  # 303",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97239",
+     "units": [
+      {
+       "price": "$2,560+",
+       "beds": "2",
+       "roomForRent": false
+      }
+     ],
+     "shouldShowRequestOnPrice": false,
+     "lotId": 2750825593,
+     "latLong": {
+      "latitude": 45.49526,
+      "longitude": -122.672165
+     },
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "Special offer",
+        "contentType": "frSpecialOffer"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "503-832-5481",
+        "contentType": "PHONE"
+       },
+       {
+        "displayString": "Check availability",
+        "contentType": "CHECK_AVAILABILITY"
+       }
+      ],
+      "zovInsight": {
+       "amenityType": "FitnessCenter",
+       "rarity": "7%",
+       "regionName": "Portland",
+       "displayString": "Fitness center"
+      }
+     },
+     "buildingName": "The Dylan",
+     "isBuilding": true,
+     "canSaveBuilding": true,
+     "has3DModel": true,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "564a17e29c4a84716816d2a32ef6668c"
+       },
+       {
+        "photoKey": "8b1421c4592283726870a1f78bba5542"
+       },
+       {
+        "photoKey": "0842651f0cbda0e60f604a6435651a80"
+       },
+       {
+        "photoKey": "9e1a5cffc5edadb341181f61731df968"
+       },
+       {
+        "photoKey": "1d0ccf6fe95cbbc802e43bc39b61534b"
+       },
+       {
+        "photoKey": "aa9f8e5921760b5206d4cd32c9bd7706"
+       },
+       {
+        "photoKey": "20283b2dd37501560b669358c3d0fea6"
+       },
+       {
+        "photoKey": "0035536f18f84028cf3d0254cbf97e31"
+       },
+       {
+        "photoKey": "f1f336a5f6672ac5c6e81300c46acae0"
+       },
+       {
+        "photoKey": "1a7f4a2488e65d17a5a844006607a759"
+       },
+       {
+        "photoKey": "3d4f736509637ee268aea72c25967022"
+       },
+       {
+        "photoKey": "fbf6a8c2d39e980a768a75d66a237217"
+       },
+       {
+        "photoKey": "cb4d44bef675c8237a1ddd19bff0f33d"
+       },
+       {
+        "photoKey": "7a314779848bbde001fa59de71cff375"
+       },
+       {
+        "photoKey": "811d370a41260a1ae21b47d7e42824b1"
+       },
+       {
+        "photoKey": "ed1bc54a8aaa36dfbd500932d4ad1b6c"
+       },
+       {
+        "photoKey": "4f2e36a32f701a4227d10e98df98d972"
+       },
+       {
+        "photoKey": "f1b93133b07d6f7979e7067615d3f535"
+       },
+       {
+        "photoKey": "4c0ea90e98884359d7022266feda953f"
+       },
+       {
+        "photoKey": "05888b6a653b151715b8362bc136acda"
+       },
+       {
+        "photoKey": "5b3f0fc1225e24064c998bdb65ae2bf8"
+       },
+       {
+        "photoKey": "d0b65528e2d2b3e3c81c434a3940c85e"
+       },
+       {
+        "photoKey": "cbd0e7752729ec2f7bfb80a900839e66"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "availabilityCount": 2,
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "multiFamilySalesListing",
+      "paidOrUnpaidMultifamily",
+      "paidMultifamily",
+      "multifamilyPinnaclePackage"
+     ],
+     "listPriceIncludesRequiredMonthlyFees": true,
+     "minBaseRent": 2560.0,
+     "maxBaseRent": 3099.0,
+     "isInstantTourEnabled": false,
+     "isContactable": true,
+     "isPaidBuilderNewConstruction": false
+    },
+    {
+     "zpid": "45.603077--122.675766",
+     "id": "45.603077--122.675766",
+     "providerListingId": "3jnsx6us0deku",
+     "imgSrc": "https://photos.zillowstatic.com/fp/4783fb0f759f7f849d4bf9b6b7f7d5f2-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "/apartments/portland-or/maddox-apartments/Cjppjq/",
+     "statusType": "FOR_RENT",
+     "statusText": "Maddox Apartments",
+     "address": "995 N Marine Dr, Portland, OR",
+     "addressStreet": "995 N  Marine Dr # 905-409",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97217",
+     "units": [
+      {
+       "price": "$1,966+",
+       "beds": "2",
+       "roomForRent": false
+      }
+     ],
+     "shouldShowRequestOnPrice": false,
+     "lotId": 2748728981,
+     "latLong": {
+      "latitude": 45.603077,
+      "longitude": -122.675766
+     },
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "Renovated redesigned interiors",
+        "contentType": "homeInsight"
+       },
+       {
+        "displayString": "Special Offer",
+        "contentType": "frSpecialOffer"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "971-306-5686",
+        "contentType": "PHONE"
+       },
+       {
+        "displayString": "Check availability",
+        "contentType": "CHECK_AVAILABILITY_ELISE_AI_LISTING"
+       }
+      ],
+      "zovInsight": {
+       "amenityType": "FitnessCenter",
+       "rarity": "7%",
+       "regionName": "Portland",
+       "displayString": "Fitness center"
+      }
+     },
+     "buildingName": "Maddox Apartments",
+     "isBuilding": true,
+     "canSaveBuilding": true,
+     "has3DModel": true,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "4783fb0f759f7f849d4bf9b6b7f7d5f2"
+       },
+       {
+        "photoKey": "490ee5bab4ff77af82d9ba049807042e"
+       },
+       {
+        "photoKey": "fb3e159ff49c814e637d28915948b8d5"
+       },
+       {
+        "photoKey": "3afec884a45df4004335ae1dbe8723dc"
+       },
+       {
+        "photoKey": "ac8169dc8311dc8e10e0190b34fba60d"
+       },
+       {
+        "photoKey": "ba1e61321295dcb30dc3f66b4a4f5efc"
+       },
+       {
+        "photoKey": "5546fc8a9bfeabccfd27478e285b172a"
+       },
+       {
+        "photoKey": "52c88bec6814d5e98a37ce7fb2be5d79"
+       },
+       {
+        "photoKey": "5ea81c4e0f24eb0391342ceb0c12d02d"
+       },
+       {
+        "photoKey": "a07b3ea03defe6c6ffbd06ae848e7664"
+       },
+       {
+        "photoKey": "102ef0b8b778bde4308c0d6baffb50b5"
+       },
+       {
+        "photoKey": "e034047c44d13491ff44a3bae105f554"
+       },
+       {
+        "photoKey": "ed6b706022c45bbb26b5b17451833365"
+       },
+       {
+        "photoKey": "689c5a897e1d2a86141f3a1dd9c4a099"
+       },
+       {
+        "photoKey": "339ea501d4e2f7a07ba272c810e4961d"
+       },
+       {
+        "photoKey": "2e771c9f7143f5a85e54de041df9d5f9"
+       },
+       {
+        "photoKey": "d7df6646290e76a9edda6990558b8bcc"
+       },
+       {
+        "photoKey": "3f6491ad0979a6ae857ff605cb92088b"
+       },
+       {
+        "photoKey": "09ab624c085f8859437d723dd09676e4"
+       },
+       {
+        "photoKey": "5e6f4d1f8670ce6184ee1d9c7fec25da"
+       },
+       {
+        "photoKey": "594dc8ec51a6c4a514d56d1d7072f7d4"
+       },
+       {
+        "photoKey": "832f756246d9cd52ea690a662634eb9d"
+       },
+       {
+        "photoKey": "5c4ed52f9c1d584f7f68141fee3f932a"
+       },
+       {
+        "photoKey": "dbacebbe8853213b1e34aba27ed9e834"
+       },
+       {
+        "photoKey": "41a3712b9ff7d7a84587f6d4149bc588"
+       },
+       {
+        "photoKey": "de79e34226aef82ef0a77c78622948b9"
+       },
+       {
+        "photoKey": "b2ebc262c599209e4b13c1f70e091cde"
+       },
+       {
+        "photoKey": "aa9fbd3729bfc3dacf1f15bde3b5fe1c"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "availabilityCount": 2,
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "multiFamilySalesListing",
+      "paidOrUnpaidMultifamily",
+      "paidMultifamily",
+      "multifamilyPinnaclePackage"
+     ],
+     "listPriceIncludesRequiredMonthlyFees": true,
+     "minBaseRent": 1966.0,
+     "maxBaseRent": 1971.0,
+     "isInstantTourEnabled": true,
+     "isContactable": true,
+     "isPaidBuilderNewConstruction": false
+    },
+    {
+     "zpid": "45.53379--122.64995",
+     "id": "45.53379--122.64995",
+     "providerListingId": "2mpftx5d47qyg",
+     "imgSrc": "https://photos.zillowstatic.com/fp/a8a1107775b4f7c96420448717cd2c93-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "/apartments/portland-or/axcess-15-apartments/5XjKQf/",
+     "statusType": "FOR_RENT",
+     "statusText": "Axcess 15 Apartments",
+     "address": "1500 NE 15th Ave, Portland, OR",
+     "addressStreet": "1500 NE 15th Ave # N430",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97232",
+     "units": [
+      {
+       "price": "$2,117+",
+       "beds": "2",
+       "roomForRent": false
+      }
+     ],
+     "shouldShowRequestOnPrice": false,
+     "lotId": 1001465315,
+     "latLong": {
+      "latitude": 45.53379,
+      "longitude": -122.64995
+     },
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "Covered garage parking",
+        "contentType": "homeInsight"
+       },
+       {
+        "displayString": "$500 Off",
+        "contentType": "frSpecialOffer"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "503-386-9791",
+        "contentType": "PHONE"
+       },
+       {
+        "displayString": "Check availability",
+        "contentType": "CHECK_AVAILABILITY_ELISE_AI_LISTING"
+       }
+      ],
+      "zovInsight": {
+       "amenityType": "FitnessCenter",
+       "rarity": "7%",
+       "regionName": "Portland",
+       "displayString": "Fitness center"
+      }
+     },
+     "buildingName": "Axcess 15 Apartments",
+     "isBuilding": true,
+     "canSaveBuilding": true,
+     "has3DModel": true,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "a8a1107775b4f7c96420448717cd2c93"
+       },
+       {
+        "photoKey": "5b8576c91577a45da12f605cc44ce8eb"
+       },
+       {
+        "photoKey": "bca171252d3db909749fe29afa5fe714"
+       },
+       {
+        "photoKey": "fb35e1f4bdb25496009fa0ef0b241e97"
+       },
+       {
+        "photoKey": "8620402d4ae02f2d71df16bfd0b19ed9"
+       },
+       {
+        "photoKey": "b818885f9788122b2d28b180a04af707"
+       },
+       {
+        "photoKey": "c95352a2025948a252e55a521de55435"
+       },
+       {
+        "photoKey": "d32e7f8d69967cf050c5a61f3fab266d"
+       },
+       {
+        "photoKey": "f01fe80c5afe435da3f46ed3ac8bcb0d"
+       },
+       {
+        "photoKey": "5c4f6d59cfc351289398f4e74973ab94"
+       },
+       {
+        "photoKey": "3c5c632807c39627f32fd19e61b37f20"
+       },
+       {
+        "photoKey": "f874046b69e20ac0e0413a303c1ebedd"
+       },
+       {
+        "photoKey": "27a0596ae66fc43fdf913a4dae326354"
+       },
+       {
+        "photoKey": "2687834f6bf7a8b3f983ef595ef1d453"
+       },
+       {
+        "photoKey": "02f9e22900cc1700dd2f353417d76c4d"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "availabilityCount": 5,
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "multiFamilySalesListing",
+      "paidOrUnpaidMultifamily",
+      "paidMultifamily",
+      "multifamilyPinnaclePackage"
+     ],
+     "listPriceIncludesRequiredMonthlyFees": true,
+     "minBaseRent": 2117.0,
+     "maxBaseRent": 2162.0,
+     "isInstantTourEnabled": true,
+     "isContactable": true,
+     "isPaidBuilderNewConstruction": false
+    },
+    {
+     "zpid": "465501490",
+     "palsId": "100066001_093c7c785d193e43f210bb6d62c79dbc4e69606d5fcd6ef65a3f8aea86c113a2",
+     "id": "465501490",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "4v2tc0kjb2d55",
+     "imgSrc": "https://photos.zillowstatic.com/fp/3bad910005e0a2a61a44e849d00060ae-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/apartments/portland-or/burlington-tower/5Xk9VT/",
+     "statusType": "FOR_RENT",
+     "statusText": "Apartment for rent",
+     "countryCurrency": "$",
+     "price": "$2,600/mo",
+     "unformattedPrice": 2600,
+     "address": "Burlington Tower, 900 NW Lovejoy St #1-207, Portland, OR 97209",
+     "addressStreet": "900 NW Lovejoy St #1-207",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97209",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 2,
+     "baths": 2.0,
+     "area": 1133,
+     "latLong": {
+      "latitude": 45.529682,
+      "longitude": -122.68084
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "3 days ago",
+        "contentType": "timeOnInfo"
+       },
+       {
+        "displayString": "1 Month Free",
+        "contentType": "frSpecialOffer"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "971-273-5972",
+        "contentType": "PHONE"
+       },
+       {
+        "displayString": "Check availability",
+        "contentType": "CHECK_AVAILABILITY"
+       }
+      ],
+      "zovInsight": {
+       "amenityType": "FitnessCenter",
+       "rarity": "7%",
+       "regionName": "Portland",
+       "displayString": "Fitness center"
+      }
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 465501490,
+       "streetAddress": "900 NW Lovejoy St #1-207",
+       "zipcode": "97209",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.529682,
+       "longitude": -122.68084,
+       "price": 2600.0,
+       "bathrooms": 2.0,
+       "bedrooms": 2.0,
+       "livingArea": 1133.0,
+       "homeType": "APARTMENT",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 3,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "listing_sub_type": {},
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 2600.0,
+       "timeOnZillow": 341207000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "unit": "# 1-207",
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": false,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "availabilityDate": "2026-10-10 00:00:00",
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "3bad910005e0a2a61a44e849d00060ae"
+       },
+       {
+        "photoKey": "7d4de3f3337c518ae49cfee45a72c584"
+       },
+       {
+        "photoKey": "847ee419d422e49f19abf59c32050bbc"
+       },
+       {
+        "photoKey": "0d9ad7ef302962d98c6a3c1b81b31caa"
+       },
+       {
+        "photoKey": "0652ee876327acae01cca71ef7ab9c55"
+       },
+       {
+        "photoKey": "13f0199e4375198a860027db6218b431"
+       },
+       {
+        "photoKey": "85ee1bd39b3a97b003bf07e38c2cbb39"
+       },
+       {
+        "photoKey": "f139962c42b341132127e8fa6da305f2"
+       },
+       {
+        "photoKey": "1561e1e540d1af69d517a9984cb7ca35"
+       },
+       {
+        "photoKey": "75930d9c11d5bff4cd6c9505836663e4"
+       },
+       {
+        "photoKey": "e4d95975a3d95e8328aac72a0b1c8036"
+       },
+       {
+        "photoKey": "50c517ec957c5400c5fc94f54e59c5a8"
+       },
+       {
+        "photoKey": "1b56ca2d66a9db5dc14d184678c36c44"
+       },
+       {
+        "photoKey": "19bf25e4b8a82b2870acacab911c5852"
+       },
+       {
+        "photoKey": "6ac3010ae98b54f2ccd9ae46118c2481"
+       },
+       {
+        "photoKey": "1cc852b8bc895bc8e6be0c0533896545"
+       },
+       {
+        "photoKey": "6ea4c6f95780da5d103b88d8d216db4b"
+       },
+       {
+        "photoKey": "ebc3eaddfb531faa067d4bfa9a548d26"
+       },
+       {
+        "photoKey": "09733ea08e85536b7e770099fbc597f9"
+       },
+       {
+        "photoKey": "809efb28247cf737634e52f9a3a7a4d7"
+       },
+       {
+        "photoKey": "23870f57e401434ddafaa882846d2bd0"
+       },
+       {
+        "photoKey": "ff8acd473be6489b2ad867b7214849d1"
+       },
+       {
+        "photoKey": "52bc1839ddc55b53f936f401ac66580a"
+       },
+       {
+        "photoKey": "705eb926aae5f8eca6af065c97c0a06d"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "multiFamilySalesListing",
+      "paidOrUnpaidMultifamily",
+      "paidMultifamily",
+      "multifamilyPinnaclePackage"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "halfBathroomCount": 0,
+      "fullBathroomCount": 2,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    },
+    {
+     "zpid": "2083535903",
+     "palsId": "100066001_7d6de1adb0f210b9bc9f874bc18fed093387edc65ecc4302c5d47cb959d386a5",
+     "id": "2083535903",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "58ytdzv6f44ju",
+     "imgSrc": "https://photos.zillowstatic.com/fp/aa8409bce91ad763aaa53afff3bbf184-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/apartments/portland-or/maestro/Cm56rj/",
+     "statusType": "FOR_RENT",
+     "statusText": "Apartment for rent",
+     "countryCurrency": "$",
+     "price": "$2,995/mo",
+     "unformattedPrice": 2995,
+     "address": "Maestro, 1755 NW Kearney St #302, Portland, OR 97209",
+     "addressStreet": "1755 NW Kearney St #302",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97209",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 2,
+     "baths": 2.0,
+     "area": 1116,
+     "latLong": {
+      "latitude": 45.529457,
+      "longitude": -122.68884
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "Special offer",
+        "contentType": "frSpecialOffer"
+       },
+       {
+        "displayString": "$83",
+        "contentType": "frPriceCut"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "971-351-1216",
+        "contentType": "PHONE"
+       },
+       {
+        "displayString": "Check availability",
+        "contentType": "CHECK_AVAILABILITY"
+       }
+      ],
+      "zovInsight": {
+       "amenityType": "ClubHouse",
+       "rarity": "5%",
+       "regionName": "Portland",
+       "displayString": "Clubhouse"
+      }
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 2083535903,
+       "streetAddress": "1755 NW Kearney St #302",
+       "zipcode": "97209",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.529457,
+       "longitude": -122.68884,
+       "price": 2995.0,
+       "datePriceChanged": 1788505200000,
+       "bathrooms": 2.0,
+       "bedrooms": 2.0,
+       "livingArea": 1116.0,
+       "homeType": "APARTMENT",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 50,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "rentZestimate": 3390,
+       "listing_sub_type": {},
+       "priceReduction": "$83 (Sep 4)",
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 2995.0,
+       "priceChange": -83,
+       "timeOnZillow": 4402333000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "unit": "# 302",
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": false,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "availabilityDate": "2026-09-03 00:00:00",
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "aa8409bce91ad763aaa53afff3bbf184"
+       },
+       {
+        "photoKey": "63f78bd1f4bf9d7157ce6e01c2d2924c"
+       },
+       {
+        "photoKey": "658392949c4432584ebf864aacaad75b"
+       },
+       {
+        "photoKey": "d9973076eda0eb3b064df07693230ad7"
+       },
+       {
+        "photoKey": "a56f9ded04b4505dcbf1ca451e9fc2d9"
+       },
+       {
+        "photoKey": "8d61ef1ef8f70bf416b732e1f45bc185"
+       },
+       {
+        "photoKey": "246be5c8e49f6b179265fb57f7ff6f00"
+       },
+       {
+        "photoKey": "855a4aee78d2be57399fe5463e86e1a4"
+       },
+       {
+        "photoKey": "de1bf061f4c20424bc0d30802626f117"
+       },
+       {
+        "photoKey": "a93a611d36c29f84432d674d2faee71d"
+       },
+       {
+        "photoKey": "1484fc355e4ca91d5d9c03b95c1eeba7"
+       },
+       {
+        "photoKey": "a6d92c899dd005a5ff3064ad88825473"
+       },
+       {
+        "photoKey": "28efffa4bb86ef2dbb64dab83cb1fc36"
+       },
+       {
+        "photoKey": "77a385e9bc0556ce9ee5c1405c31a5d2"
+       },
+       {
+        "photoKey": "2111957eefbdb594c0b690a9bc702d15"
+       },
+       {
+        "photoKey": "fe048b9dd90a0726642c25b9783b582a"
+       },
+       {
+        "photoKey": "e3b24d448b65359a574571178b3d8101"
+       },
+       {
+        "photoKey": "eb2c4bfc014d3a6e94d7c1079a37784b"
+       },
+       {
+        "photoKey": "d6c42d8300bf7e4dfb5ba6109f85fddb"
+       },
+       {
+        "photoKey": "cb0c735be5b07cf658d08c101d4accce"
+       },
+       {
+        "photoKey": "62a5aa45aefce02ccf16c7ef0d6e15c6"
+       },
+       {
+        "photoKey": "63bcf430708d4405c9ec325610b8a2aa"
+       },
+       {
+        "photoKey": "ee26e114583e2e390a0fdce0d7c41887"
+       },
+       {
+        "photoKey": "24f059a5629889eb0fde18b216f5ec73"
+       },
+       {
+        "photoKey": "df916559384f07122e57317c08ad4bd1"
+       },
+       {
+        "photoKey": "6d937e84456746eb65399eb4a6f22647"
+       },
+       {
+        "photoKey": "2046e335ea62b1f4a46803fac9bc9427"
+       },
+       {
+        "photoKey": "cc1110b793dacf6ae6e9a27df7eb6e75"
+       },
+       {
+        "photoKey": "14a6d309a5ca705cf3dc11efd32d0f6b"
+       },
+       {
+        "photoKey": "d5e29e778e9634e9581c9632f4650269"
+       },
+       {
+        "photoKey": "fd2900f40a5340086f2cdfcb098bdc16"
+       },
+       {
+        "photoKey": "6ea0fca6cef82e4077892c19e84184ed"
+       },
+       {
+        "photoKey": "5807acb8f9a3af2849e06413c59bf15a"
+       },
+       {
+        "photoKey": "3404b9809b890daa204a4de347aa8ddc"
+       },
+       {
+        "photoKey": "2a66b77c9c9bfc60cb83eaa5b377b10f"
+       },
+       {
+        "photoKey": "7bd9f4eb91fc4a43574f938362783557"
+       },
+       {
+        "photoKey": "44341225922273170075ba6d87cad14f"
+       },
+       {
+        "photoKey": "9dc708ab7530d013d4a6c07df0f19f6e"
+       },
+       {
+        "photoKey": "7e8405b79b0639fb12dacb748ed28abb"
+       },
+       {
+        "photoKey": "3154d45deeb32badcbd50d6af2e56a50"
+       },
+       {
+        "photoKey": "c068a4b35f40d5b39587d3f343919e5e"
+       },
+       {
+        "photoKey": "ceeb73794893860bc8eba59992782dc5"
+       },
+       {
+        "photoKey": "869bc56d7e80c38ec626a5be3a06fa5c"
+       },
+       {
+        "photoKey": "8abcb246571c2e77d3033a0dc25126b6"
+       },
+       {
+        "photoKey": "bfe3d3ae54f6704c08801dcd71ea5057"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "multiFamilySalesListing",
+      "paidOrUnpaidMultifamily",
+      "paidMultifamily",
+      "multifamilyPinnaclePackage"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "fullBathroomCount": 2,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    },
+    {
+     "zpid": "464432454",
+     "palsId": "100066001_92146b66f6c7afc28125b832dd7fdbb9633734359bc55009adeaf98397571b7f",
+     "id": "464432454",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "4kfkb3dvfavvt",
+     "imgSrc": "https://photos.zillowstatic.com/fp/8e6ac522beab42733bbad014c4719323-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/apartments/portland-or/modera-woodstock/CkCcX2/",
+     "statusType": "FOR_RENT",
+     "statusText": "Apartment for rent",
+     "countryCurrency": "$",
+     "price": "$3,300/mo",
+     "unformattedPrice": 3300,
+     "address": "Modera Woodstock, 4850 SE Woodstock Blvd #453, Portland, OR 97206",
+     "addressStreet": "4850 SE Woodstock Blvd #453",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97206",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 2,
+     "baths": 2.0,
+     "area": 1085,
+     "latLong": {
+      "latitude": 45.479053,
+      "longitude": -122.61297
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "3D Tour",
+        "contentType": "threeDHome"
+       },
+       {
+        "displayString": "4 Weeks Free",
+        "contentType": "frSpecialOffer"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "971-351-3038",
+        "contentType": "PHONE"
+       },
+       {
+        "displayString": "Check availability",
+        "contentType": "CHECK_AVAILABILITY"
+       }
+      ],
+      "zovInsight": {
+       "amenityType": "FitnessCenter",
+       "rarity": "7%",
+       "regionName": "Portland",
+       "displayString": "Fitness center"
+      }
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 464432454,
+       "streetAddress": "4850 SE Woodstock Blvd #453",
+       "zipcode": "97206",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.479053,
+       "longitude": -122.61297,
+       "price": 3300.0,
+       "bathrooms": 2.0,
+       "bedrooms": 2.0,
+       "livingArea": 1085.0,
+       "homeType": "APARTMENT",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 47,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "rentZestimate": 2049,
+       "listing_sub_type": {},
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 3300.0,
+       "timeOnZillow": 4087418000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "unit": "# 453",
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": true,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "8e6ac522beab42733bbad014c4719323"
+       },
+       {
+        "photoKey": "2c9fa9ff8d49fd2d9c27aecafef4f08d"
+       },
+       {
+        "photoKey": "94f50cd40bf1807aeaee4f230efcb1c8"
+       },
+       {
+        "photoKey": "e19a40db20ec832bef2ef59758a7d847"
+       },
+       {
+        "photoKey": "244865c011d8d9163791743b40730a7d"
+       },
+       {
+        "photoKey": "457c9ee6f2976b83997e9a3c6c5198e7"
+       },
+       {
+        "photoKey": "7341e9256bb64cbb7bcc30448b9af18c"
+       },
+       {
+        "photoKey": "420d17988867ba458e38cfface1e3160"
+       },
+       {
+        "photoKey": "2faa95d0e4579cb6e7f9f5d2710dcbf1"
+       },
+       {
+        "photoKey": "85de6412f27a86aef47bfeeeb1cc4a54"
+       },
+       {
+        "photoKey": "715e4681b6a8e1067cd6789016f51f49"
+       },
+       {
+        "photoKey": "3c1a41881f8980fb0c9d0e4824d215aa"
+       },
+       {
+        "photoKey": "5c87c7f72983a8213ed84e184c5bb82f"
+       },
+       {
+        "photoKey": "39385032bf2abd033c841fe2f2d6afef"
+       },
+       {
+        "photoKey": "65fe218fa96ec768b8e67e644926802b"
+       },
+       {
+        "photoKey": "d297e9266877c6f94e000682d6b24462"
+       },
+       {
+        "photoKey": "a75a0552444a115b21375fd974872b9e"
+       },
+       {
+        "photoKey": "ea65a6eff1754b929c5245f17e6469ab"
+       },
+       {
+        "photoKey": "9b872ea91f7bab1ca303b28d95fc545e"
+       },
+       {
+        "photoKey": "41264722c1c44e6b9f6fe7ba22005030"
+       },
+       {
+        "photoKey": "78bdea00d80c4280cc955c766f2099c9"
+       },
+       {
+        "photoKey": "e5ec3233c0baa9eb5c29c26f3dece689"
+       },
+       {
+        "photoKey": "1d790759a9267ef71c9c679e7008fb2d"
+       },
+       {
+        "photoKey": "883941b764bc4aafa219ef74cf7a856d"
+       },
+       {
+        "photoKey": "37ca4a96f76508ca23ece78896bbe66b"
+       },
+       {
+        "photoKey": "1bbad0cc294e018b200d4d2f4d51a3ba"
+       },
+       {
+        "photoKey": "f54570ed1baa59f492d2834dfb6a6530"
+       },
+       {
+        "photoKey": "3db2e5f817eaf24bae6486119940e75e"
+       },
+       {
+        "photoKey": "3c0b1bd782821779bcb0931d871d8ebf"
+       },
+       {
+        "photoKey": "68f41015c35fca5bd5c684d298bd77a2"
+       },
+       {
+        "photoKey": "344d797d4ab04d6339673a7063519916"
+       },
+       {
+        "photoKey": "d17b3d8fa134ef4d1853b711f70f3cb7"
+       },
+       {
+        "photoKey": "81d57d1eeffc98c0cb646c11d779dfd8"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "multiFamilySalesListing",
+      "paidOrUnpaidMultifamily",
+      "paidMultifamily",
+      "multifamilyPinnaclePackage"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "halfBathroomCount": 0,
+      "fullBathroomCount": 2,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    },
+    {
+     "zpid": "54003809",
+     "palsId": "100066001_36470b140791523579da0e3892adfb87dd6e21dc9355d3d6c863d68a5e28ad96",
+     "id": "54003809",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "3hjk27wb9sypw",
+     "imgSrc": "https://photos.zillowstatic.com/fp/1db380be2f80ea024cb06bb33665168b-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/homedetails/5720-SE-Duke-St-Portland-OR-97206/54003809_zpid/",
+     "statusType": "FOR_RENT",
+     "statusText": "Townhouse for rent",
+     "countryCurrency": "$",
+     "price": "$2,850/mo",
+     "unformattedPrice": 2850,
+     "address": "5720 SE Duke St, Portland, OR 97206",
+     "addressStreet": "5720 SE Duke St",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97206",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 2,
+     "baths": 3.0,
+     "area": 1095,
+     "latLong": {
+      "latitude": 45.475597,
+      "longitude": -122.604324
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "ctaRecommendations": [
+       {
+        "displayString": "Request a tour",
+        "contentType": "REQUEST_A_TOUR"
+       }
+      ]
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 54003809,
+       "streetAddress": "5720 SE Duke St",
+       "zipcode": "97206",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.475597,
+       "longitude": -122.604324,
+       "price": 2850.0,
+       "datePriceChanged": 1789542000000,
+       "bathrooms": 3.0,
+       "bedrooms": 2.0,
+       "livingArea": 1095.0,
+       "homeType": "TOWNHOUSE",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 60,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "zestimate": 339100,
+       "rentZestimate": 2869,
+       "listing_sub_type": {},
+       "priceReduction": "$245 (Sep 16)",
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 2850.0,
+       "priceChange": -245,
+       "timeOnZillow": 5187726000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "taxAssessedValue": 338850.0,
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "zestimate": 339100,
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": false,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "availabilityDate": "2026-09-01 00:00:00",
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "1db380be2f80ea024cb06bb33665168b"
+       },
+       {
+        "photoKey": "f0a72de0b80d81fdd35624cb835e3f99"
+       },
+       {
+        "photoKey": "9003743fa7dc0644dacde06a965e0831"
+       },
+       {
+        "photoKey": "9f8ec8de14be3db909785bed0c42a8cf"
+       },
+       {
+        "photoKey": "64e5cc8e32eba78dadbe96d335249891"
+       },
+       {
+        "photoKey": "396e389453bfe9f6dcd1b2987b27949e"
+       },
+       {
+        "photoKey": "e8ebe007de64f3c8ed54756bea43f9db"
+       },
+       {
+        "photoKey": "4dd37916319351a8b29cab7c9e005e21"
+       },
+       {
+        "photoKey": "3a8b17d82862a95b917bb5ff8100639f"
+       },
+       {
+        "photoKey": "7760a1261045c048f9bc0959a8d0a8dc"
+       },
+       {
+        "photoKey": "b17eb50fdad92890e72c04469b1dd94b"
+       },
+       {
+        "photoKey": "654d3e100766f192ba9b844b07ad1673"
+       },
+       {
+        "photoKey": "94e378a3d58fe6fae4569cd5fb6175dc"
+       },
+       {
+        "photoKey": "4643eab3cf1b96af7fc9afa119e8a354"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "feedConnectSingleFamilyDailyListings"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "halfBathroomCount": 1,
+      "fullBathroomCount": 2,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    },
+    {
+     "zpid": "2083259756",
+     "palsId": "100066001_9127d3e1142c631eb3d1d650d0b3d910cd98717639e5f1cb861f3a2b1f15ed08",
+     "id": "2083259756",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "10xtr1cma23z0",
+     "imgSrc": "https://photos.zillowstatic.com/fp/dced7711d9108ff8323d9c1983c2fb2d-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/homedetails/1534-N-Blandena-St-Portland-OR-97217/2083259756_zpid/",
+     "statusType": "FOR_RENT",
+     "statusText": "Townhouse for rent",
+     "countryCurrency": "$",
+     "price": "$4,200/mo",
+     "unformattedPrice": 4200,
+     "address": "1534 N Blandena St, Portland, OR 97217",
+     "addressStreet": "1534 N Blandena St",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97217",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 5,
+     "baths": 4.0,
+     "area": 2150,
+     "latLong": {
+      "latitude": 45.55671,
+      "longitude": -122.68305
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "11 days ago",
+        "contentType": "timeOnInfo"
+       },
+       {
+        "displayString": "Apply instantly",
+        "contentType": "frZillowApplication"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "Request a tour",
+        "contentType": "REQUEST_A_TOUR"
+       }
+      ]
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 2083259756,
+       "streetAddress": "1534 N Blandena St",
+       "zipcode": "97217",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.55671,
+       "longitude": -122.68305,
+       "price": 4200.0,
+       "bathrooms": 4.0,
+       "bedrooms": 5.0,
+       "livingArea": 2150.0,
+       "homeType": "TOWNHOUSE",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 11,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "zestimate": 676400,
+       "rentZestimate": 3903,
+       "listing_sub_type": {},
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 4200.0,
+       "timeOnZillow": 953325000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "zestimate": 676400,
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": false,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "dced7711d9108ff8323d9c1983c2fb2d"
+       },
+       {
+        "photoKey": "5b2be944590cf727cc91f2d1c069a780"
+       },
+       {
+        "photoKey": "a041c0a08e16ebb8398eac55eab14f80"
+       },
+       {
+        "photoKey": "b2f3b492588f2f0c9794ab9d950a8913"
+       },
+       {
+        "photoKey": "db29f9c5f5f365cb9ca4817456d7bc6c"
+       },
+       {
+        "photoKey": "410dc63252a2bab0c93346f57642f49b"
+       },
+       {
+        "photoKey": "58224ba86507f3ddd976a8849e2e7e86"
+       },
+       {
+        "photoKey": "869b050978aee0607545bfe2162c2c98"
+       },
+       {
+        "photoKey": "e1d19a072af70691097a7e6db0953e61"
+       },
+       {
+        "photoKey": "1e9ad47b46274fcb9dea7cc2faeb5d4f"
+       },
+       {
+        "photoKey": "1bf1cd6c23a4399f9f468433457a87ff"
+       },
+       {
+        "photoKey": "f8fc0f451b12d3049e0a2312afc4f86e"
+       },
+       {
+        "photoKey": "f01e0aff3b0945fb389111001fd0e7ba"
+       },
+       {
+        "photoKey": "1a2a02290796b1557eefbf8d59542ce0"
+       },
+       {
+        "photoKey": "1c7de702f62ee453a7e5de58b3402c13"
+       },
+       {
+        "photoKey": "c1876bcdebcaeb60f462013f735578b7"
+       },
+       {
+        "photoKey": "60297f4c61e68679b94ee24700c1f823"
+       },
+       {
+        "photoKey": "764c327bcd353bc699ad6caedfce7f08"
+       },
+       {
+        "photoKey": "4dce8734915e610e3af72a28be93c71c"
+       },
+       {
+        "photoKey": "418246d9a4a4f41955f0096182d0268f"
+       },
+       {
+        "photoKey": "9646cd56dc7d9d31ff6291f1720dd7df"
+       },
+       {
+        "photoKey": "eeae4e0b123805eb9d4f426e43847c6b"
+       },
+       {
+        "photoKey": "edd32aeff1a72f11487b070585a1fef5"
+       },
+       {
+        "photoKey": "6a4a5682531ac1b7b4600b9ce50043ef"
+       },
+       {
+        "photoKey": "a2fb10d4e0ab45916a73ee63b38a89e0"
+       },
+       {
+        "photoKey": "5818ccdcac09daf90a64092a877d55bc"
+       },
+       {
+        "photoKey": "f3d31ebd258789b77a5b56669ebf1b95"
+       },
+       {
+        "photoKey": "ba093b7714c53f00cb0e29a0d97570e1"
+       },
+       {
+        "photoKey": "82e8c867513148403b533d914de73034"
+       },
+       {
+        "photoKey": "d8fc3de4bccaa6e67acb829620faa962"
+       },
+       {
+        "photoKey": "e02e3517f2ed211531bb3dc6892bc7a3"
+       },
+       {
+        "photoKey": "7cc04bf00d1d87c83e2e3a82bdd17f79"
+       },
+       {
+        "photoKey": "54df2de7b8993a151a9df96dc8d7d7e3"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "paid",
+      "zillowRentalManager"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "halfBathroomCount": 1,
+      "fullBathroomCount": 3,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    },
+    {
+     "zpid": "2077222357",
+     "palsId": "100066001_e35aec9fa36ab00c11953186666d5a603642a84fe12af6e3ec4601ea11921aaa",
+     "id": "2077222357",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "4b6uehhm1s123",
+     "imgSrc": "https://photos.zillowstatic.com/fp/2074a997c4c99d24e2118d7ed01f26e3-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/homedetails/14318-SE-Stark-St-2-Portland-OR-97233/2077222357_zpid/",
+     "statusType": "FOR_RENT",
+     "statusText": "Townhouse for rent",
+     "countryCurrency": "$",
+     "price": "$2,250/mo",
+     "unformattedPrice": 2250,
+     "address": "14318 SE Stark St #2, Portland, OR 97233",
+     "addressStreet": "14318 SE Stark St #2",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97233",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 3,
+     "baths": 3.0,
+     "area": 1191,
+     "latLong": {
+      "latitude": 45.51885,
+      "longitude": -122.515495
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "flexFieldRecommendations": [
+       {
+        "displayString": "8 days ago",
+        "contentType": "timeOnInfo"
+       },
+       {
+        "displayString": "Apply instantly",
+        "contentType": "frZillowApplication"
+       }
+      ],
+      "ctaRecommendations": [
+       {
+        "displayString": "Request a tour",
+        "contentType": "REQUEST_A_TOUR"
+       }
+      ]
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 2077222357,
+       "streetAddress": "14318 SE Stark St #2",
+       "zipcode": "97233",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.51885,
+       "longitude": -122.515495,
+       "price": 2250.0,
+       "bathrooms": 3.0,
+       "bedrooms": 3.0,
+       "livingArea": 1191.0,
+       "homeType": "TOWNHOUSE",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 8,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "zestimate": 313800,
+       "rentZestimate": 2454,
+       "listing_sub_type": {},
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 2250.0,
+       "timeOnZillow": 774072000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "unit": "# 2",
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "zestimate": 313800,
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": false,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "2074a997c4c99d24e2118d7ed01f26e3"
+       },
+       {
+        "photoKey": "2bdc05a2b238a337c67ef33f21d04bbd"
+       },
+       {
+        "photoKey": "e7c904447a7ddb8013393a324ceee5a4"
+       },
+       {
+        "photoKey": "d7778f0166e144254b22a2a9676e4a35"
+       },
+       {
+        "photoKey": "650899dc0cfdb7352d5117f20d5398da"
+       },
+       {
+        "photoKey": "9c0746b52cdecf9ba01ec7f3d27479c8"
+       },
+       {
+        "photoKey": "29e3da19b9028f9b6796bd5c217d3e52"
+       },
+       {
+        "photoKey": "3bdbecd2ec05ba53b1dbb7308d4d85f9"
+       },
+       {
+        "photoKey": "530dca0c11ea99d1b4a9636c20cd4a6a"
+       },
+       {
+        "photoKey": "3e6e42c70b448c6113f4bb0125c0458d"
+       },
+       {
+        "photoKey": "876fc6baf0840d9342192f359039fd07"
+       },
+       {
+        "photoKey": "7cb94c58108cd385b6433125982bf699"
+       },
+       {
+        "photoKey": "83eb85d59b36693886ff4cb376bb0556"
+       },
+       {
+        "photoKey": "4b351b14c9f585dfba6debc11ec615ff"
+       },
+       {
+        "photoKey": "cb546c829a7810f92af0e72bd499f396"
+       },
+       {
+        "photoKey": "0d4de0a1e194c1dad16d48af56122b6c"
+       },
+       {
+        "photoKey": "1672fb78c0be5cc45d94db70e3c5e04d"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "paid",
+      "zillowRentalManager"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "halfBathroomCount": 1,
+      "fullBathroomCount": 2,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    },
+    {
+     "zpid": "53856550",
+     "palsId": "100066001_d967b0783a613dc9575508873a4459c839dc034fe460e2f582942c1ec0489355",
+     "id": "53856550",
+     "rawHomeStatusCd": "ForRent",
+     "marketingStatusSimplifiedCd": "For Rent",
+     "providerListingId": "41470ytvjdrcr",
+     "imgSrc": "https://photos.zillowstatic.com/fp/bc66e8233cb20ddf4944982f97dd97df-p_e.jpg",
+     "hasImage": true,
+     "detailUrl": "https://www.zillow.com/homedetails/1408-SW-Custer-Dr-Portland-OR-97219/53856550_zpid/",
+     "statusType": "FOR_RENT",
+     "statusText": "Condo for rent",
+     "countryCurrency": "$",
+     "price": "$1,650/mo",
+     "unformattedPrice": 1650,
+     "address": "1408 SW Custer Dr, Portland, OR 97219",
+     "addressStreet": "1408 SW Custer Dr",
+     "addressCity": "Portland",
+     "addressState": "OR",
+     "addressZipcode": "97219",
+     "isUndisclosedAddress": false,
+     "shouldShowRequestOnPrice": false,
+     "beds": 2,
+     "baths": 2.0,
+     "area": 829,
+     "latLong": {
+      "latitude": 45.46986,
+      "longitude": -122.69358
+     },
+     "isZillowOwned": false,
+     "listCardRecommendation": {
+      "ctaRecommendations": [
+       {
+        "displayString": "Request a tour",
+        "contentType": "REQUEST_A_TOUR"
+       }
+      ]
+     },
+     "hdpData": {
+      "homeInfo": {
+       "zpid": 53856550,
+       "streetAddress": "1408 SW Custer Dr",
+       "zipcode": "97219",
+       "city": "Portland",
+       "state": "OR",
+       "latitude": 45.46986,
+       "longitude": -122.69358,
+       "price": 1650.0,
+       "datePriceChanged": 1789196400000,
+       "bathrooms": 2.0,
+       "bedrooms": 2.0,
+       "livingArea": 829.0,
+       "homeType": "CONDO",
+       "homeStatus": "FOR_RENT",
+       "daysOnZillow": 50,
+       "isFeatured": true,
+       "shouldHighlight": false,
+       "isRentalWithBasePrice": false,
+       "zestimate": 198500,
+       "rentZestimate": 1692,
+       "listing_sub_type": {},
+       "priceReduction": "$50 (Sep 12)",
+       "isUnmappable": false,
+       "isPreforeclosureAuction": false,
+       "homeStatusForHDP": "FOR_RENT",
+       "priceForHDP": 1650.0,
+       "priceChange": -50,
+       "timeOnZillow": 4398938000,
+       "isNonOwnerOccupied": true,
+       "isPremierBuilder": false,
+       "isZillowOwned": false,
+       "currency": "USD",
+       "country": "USA",
+       "taxAssessedValue": 197190.0,
+       "isShowcaseListing": false
+      }
+     },
+     "isUserClaimingOwner": false,
+     "isUserConfirmedClaim": false,
+     "pgapt": "ForRent",
+     "sgapt": "For Rent",
+     "zestimate": 198500,
+     "shouldShowZestimateAsPrice": false,
+     "has3DModel": false,
+     "hasVideo": false,
+     "isHomeRec": false,
+     "hasAdditionalAttributions": false,
+     "isFeaturedListing": true,
+     "isShowcaseListing": false,
+     "list": true,
+     "relaxed": false,
+     "carouselPhotosComposable": {
+      "baseUrl": "https://photos.zillowstatic.com/fp/{photoKey}-p_e.jpg",
+      "communityBaseUrl": null,
+      "photoData": [
+       {
+        "photoKey": "bc66e8233cb20ddf4944982f97dd97df"
+       },
+       {
+        "photoKey": "409c9fef0e6094a7803ba4d90d50bafe"
+       },
+       {
+        "photoKey": "7895cb6ccb84678b357eb2010a132d44"
+       },
+       {
+        "photoKey": "4d600ff10c70d8994c019bf5e5b8f37f"
+       },
+       {
+        "photoKey": "34fe3391d62a45520517444ffc98c592"
+       },
+       {
+        "photoKey": "7cc431aaf8e9ef25e6810dc9a5cb9654"
+       },
+       {
+        "photoKey": "16dea128d6992a7373822cf0cf31febe"
+       },
+       {
+        "photoKey": "0c352b9f048c190fc44917405575e894"
+       },
+       {
+        "photoKey": "6459955db96eda5f19834b966d173edb"
+       },
+       {
+        "photoKey": "340d659dbfc4c2971df7cecd6424c537"
+       },
+       {
+        "photoKey": "70594dfdfadc5451d2ca11f097958b06"
+       },
+       {
+        "photoKey": "bf340bd2eeffcf0bcf989d2fb8dddaed"
+       },
+       {
+        "photoKey": "acd9f88bb38f1127bf3e3454b1b95434"
+       },
+       {
+        "photoKey": "5e000f9253230218ea650774092b4a96"
+       },
+       {
+        "photoKey": "5929e94e3db94dd57fd0d34656c8e87d"
+       },
+       {
+        "photoKey": "923c11706d4763e193b1728cc8d66a08"
+       },
+       {
+        "photoKey": "294fd48f6381604b0a7c868afb78fe87"
+       },
+       {
+        "photoKey": "679606c64094418e2b8c2b9dede18507"
+       },
+       {
+        "photoKey": "59e6a43d9e6720c69bd5b8daa4b1b44b"
+       },
+       {
+        "photoKey": "0a48cc3e825ded8c72351100a8888f7a"
+       },
+       {
+        "photoKey": "e86e9ad2fcbdfdc19f8d2c5758d2f320"
+       },
+       {
+        "photoKey": "530d27caa5867e768476b0be19c8cb8b"
+       },
+       {
+        "photoKey": "b00159be430e711be4275fbec85723ff"
+       },
+       {
+        "photoKey": "42b43d31d8214f8e5ef772f163e20788"
+       },
+       {
+        "photoKey": "c15477943d4efb0861051e6221225038"
+       },
+       {
+        "photoKey": "3ef16d8b8b84cce465236804371e0f10"
+       },
+       {
+        "photoKey": "662d6007ac672b2b9d99aa36102a96dc"
+       },
+       {
+        "photoKey": "d3dd80a7b5db698a40f1e44e18331f20"
+       }
+      ],
+      "communityPhotoData": null,
+      "isStaticUrls": false
+     },
+     "marketingTreatments": [
+      "trustedListing",
+      "paid",
+      "singleFamilyPaid",
+      "feedConnectSingleFamilyDailyListings"
+     ],
+     "rooms": [],
+     "listPriceIncludesRequiredMonthlyFees": false,
+     "isPaidBuilderNewConstruction": false,
+     "factsAndFeatures": {
+      "halfBathroomCount": 1,
+      "fullBathroomCount": 1,
+      "hasFireplace": false,
+      "hasAirConditioning": false,
+      "hasSpa": false,
+      "hasPool": false
+     }
+    }
+   ]
+  },
+  "searchList": {
+   "totalResultCount": 10,
+   "totalPages": 1
+  }
+ }
+}
