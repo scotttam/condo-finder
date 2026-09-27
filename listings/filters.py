@@ -16,6 +16,8 @@ def apply_filters(queryset, data):
         if data.get("parking_unknown"):
             parking |= Q(parking_spaces__isnull=True)
         queryset = queryset.filter(parking)
+    if data.get("min_price") is not None:
+        queryset = queryset.filter(price__gte=data["min_price"])
     if data.get("max_price") is not None:
         queryset = queryset.filter(price__lte=data["max_price"])
     if data.get("cities"):

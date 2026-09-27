@@ -212,3 +212,9 @@ def test_detail_without_coordinates_explains_missing_map(client):
     content = client.get(f"/listing/{listing.pk}/").content.decode()
     assert "Map will appear once this address is located" in content
     assert 'id="map"' not in content
+
+
+def test_min_price_field_before_max_price(client):
+    content = client.get("/").content.decode()
+    assert 'name="min_price" value="2000"' in content
+    assert content.index('name="min_price"') < content.index('name="max_price"')
