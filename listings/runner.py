@@ -1,14 +1,12 @@
 import logging
 import threading
 
-from django.conf import settings
 from django.db import close_old_connections
 from django.utils import timezone
 
 from .geocode import geocode_pending
 from .ingest import ingest, reextract_all
 from .models import Source, SourceListing, SourceRun
-from .notify import alert_new_listings, alert_price_drops, send_push
 from .scrapers.registry import SOURCES, build_scraper
 
 log = logging.getLogger(__name__)
@@ -17,7 +15,7 @@ _run_lock = threading.Lock()
 
 
 class EmptyScrape(Exception):
-    pass
+    """0 results counts as a failure: a blocked or changed site must not mark everything off-market."""
 
 
 def _source_for(config):
@@ -60,8 +58,6 @@ def run_source(config, fetcher=None):
     source.last_success_at = now
     source.last_count = len(items)
     source.save()
-    alert_new_listings(result.new_listings)
-    alert_price_drops(result.price_drops)
     log.info("Source %s: %d listings (%d stored, %d new)", source.key, len(items), result.seen, run.new_count)
     return run
 
@@ -75,21 +71,6 @@ def _record_failure(source, run, exc):
     source.last_error = run.error
     source.last_error_at = now
     source.save()
-    sources_url = f"{settings.SITE_URL}/sources/"
-    if isinstance(exc, EmptyScrape) and source.consecutive_failures == 1 and source.last_count:
-        send_push(
-            f"{source.name} returned 0 listings",
-            f"It had {source.last_count} last time. The site may have changed or blocked us.",
-            url=sources_url,
-            tags=["warning"],
-        )
-    elif source.consecutive_failures == settings.HEALTH_ALERT_AFTER_FAILURES:
-        send_push(
-            f"Scraper failing: {source.name}",
-            f"{source.consecutive_failures} failed runs in a row. {run.error}",
-            url=sources_url,
-            tags=["warning"],
-        )
 
 
 def is_running():

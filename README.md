@@ -1,7 +1,7 @@
 # Condo Finder
 
 Aggregates Portland / Lake Oswego / Beaverton rental listings from local property managers, Redfin, Zillow, and Craigslist into one
-browsable database with a map, filters, shared status + notes, and push alerts.
+browsable database with a map, filters, and shared status + notes.
 
 ## Develop
 
@@ -15,7 +15,7 @@ uv run pytest
 
 ## Run on the Mac mini (always on)
 
-1. `cp .env.example .env` and fill it in (set `SITE_URL` to `http://<mac-mini>.local:8000`, choose an `NTFY_TOPIC`).
+1. `cp .env.example .env` and set `DJANGO_SECRET_KEY` to a long random string (other values are optional).
 2. `./deploy/install.sh` — installs a launchd agent that starts gunicorn at login, restarts it on crash,
    and runs scheduled scrapes (default 7am, 11am, 3pm, 7pm, 11pm).
 3. System Settings → Users & Groups → enable automatic login for your user (LaunchAgents start at login),
@@ -47,11 +47,11 @@ Plain `http://` is fine here because Tailscale already encrypts the connection. 
 reachable by both of you, so give the admin user a real password (`uv run python manage.py
 changepassword <user>`).
 
-## Alerts
+## Scraper health
 
-Install the **ntfy** app on both phones and subscribe to your `NTFY_TOPIC`. You'll get pushes for new
-listings matching 2bd/2ba/2 parking (unknowns allowed), price drops on listings marked Interested, and
-scrapers that keep failing.
+The **Sources** page shows each site's last successful scrape, listing count, and consecutive
+failures with the last error. A scrape that returns 0 listings counts as a failure, so a blocked or
+changed site never marks its listings off-market.
 
 ## Adding a property manager
 
