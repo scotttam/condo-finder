@@ -4,13 +4,13 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-from .address import is_target_city, parse_address
+from .address import is_target_city, parse_address, portland_quadrant
 from .extract import classify_property_type, extract_parking, has_ac, has_outdoor_space, has_washer_dryer
 from .models import Listing, PriceChange, PropertyType, SourceListing
 
 OVERRIDABLE_FIELDS = {
     "price", "beds", "baths", "sqft", "parking_spaces", "has_washer_dryer", "has_ac",
-    "has_outdoor_space", "property_type", "neighborhood", "available", "title",
+    "has_outdoor_space", "property_type", "neighborhood", "quadrant", "available", "title",
 }
 
 
@@ -72,6 +72,7 @@ def _apply_scraped(listing, address, item):
     listing.unit = address.unit
     listing.city = address.city
     listing.zip_code = address.zip_code
+    listing.quadrant = portland_quadrant(address.street, address.city)
     listing.title = (item.title or listing.title)[:300]
     listing.description = "\n\n".join(p for p in (item.description, item.amenities) if p) or listing.description
     listing.available = (item.available or listing.available)[:100]

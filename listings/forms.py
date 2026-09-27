@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 
-from .models import Listing, PropertyType, Source, Status
+from .models import Listing, PropertyType, Quadrant, Source, Status
 
 FEATURE_CHOICES = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
@@ -30,6 +30,9 @@ class ListingFilterForm(forms.Form):
     parking_unknown = forms.BooleanField(required=False, label="Include unknown parking")
     max_price = forms.IntegerField(required=False, min_value=0, label="Max price")
     cities = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
+    quadrants = forms.MultipleChoiceField(
+        required=False, choices=Quadrant.choices, widget=forms.CheckboxSelectMultiple, label="Portland quadrant"
+    )
     neighborhood = forms.CharField(required=False)
     sources = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     types = forms.MultipleChoiceField(required=False, choices=PropertyType.choices, widget=forms.CheckboxSelectMultiple)

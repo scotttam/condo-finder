@@ -18,7 +18,7 @@ class PriceChangeInline(admin.TabularInline):
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
     list_display = ("address", "price", "beds", "baths", "parking_spaces", "property_type", "status", "is_active", "first_seen_at")
-    list_filter = ("status", "property_type", "city", "is_active")
+    list_filter = ("status", "property_type", "city", "quadrant", "is_active")
     search_fields = ("address", "title", "neighborhood")
     inlines = [SourceListingInline, PriceChangeInline]
 

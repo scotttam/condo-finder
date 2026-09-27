@@ -55,3 +55,28 @@ def test_is_target_city():
     assert is_target_city("Portland")
     assert is_target_city("lake oswego")
     assert not is_target_city("Gresham")
+
+
+@pytest.mark.parametrize(
+    "street,city,expected",
+    [
+        ("937 NW Glisan Street", "Portland", "NW"),
+        ("14950 NE Rose Pkwy", "Portland", "NE"),
+        ("5720 SE Duke St", "Portland", "SE"),
+        ("3820 SW Garden View Ave", "Portland", "SW"),
+        ("1534 N Blandena St", "Portland", "N"),
+        ("3820 S River Pkwy", "Portland", "S"),
+        ("937 Northwest Glisan Street", "Portland", "NW"),
+        ("1500 N.E. 15th Ave", "Portland", "NE"),
+        ("5681-5687 NE Glisan St", "Portland", "NE"),  # address ranges (whole buildings)
+        ("3410-3414 SE 143rd Ave", "Portland", "SE"),
+        ("8426 E Burnside St", "Portland", ""),  # Burnside splits NE/SE; no quadrant prefix
+        ("123 Main St", "Portland", ""),
+        ("4775 SW Franklin Ave", "Beaverton", ""),  # Washington County grid, not Portland's SW
+        ("16849 Lakeridge Drive", "Lake Oswego", ""),
+    ],
+)
+def test_portland_quadrant(street, city, expected):
+    from listings.address import portland_quadrant
+
+    assert portland_quadrant(street, city) == expected

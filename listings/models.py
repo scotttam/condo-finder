@@ -12,6 +12,17 @@ class PropertyType(models.TextChoices):
     UNKNOWN = "unknown", "Unknown"
 
 
+class Quadrant(models.TextChoices):
+    """Portland's address sextants (the four quadrants plus North and South Portland)."""
+
+    NW = "NW", "NW"
+    NE = "NE", "NE"
+    SE = "SE", "SE"
+    SW = "SW", "SW"
+    N = "N", "N"
+    S = "S", "S"
+
+
 class Status(models.TextChoices):
     NEW = "new", "New"
     INTERESTED = "interested", "Interested"
@@ -58,6 +69,7 @@ class Listing(models.Model):
     city = models.CharField(max_length=100)
     zip_code = models.CharField(max_length=10, blank=True)
     neighborhood = models.CharField(max_length=100, blank=True)
+    quadrant = models.CharField(max_length=2, choices=Quadrant.choices, blank=True, db_index=True)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     geocoded_at = models.DateTimeField(null=True, blank=True)
@@ -99,6 +111,10 @@ class Listing(models.Model):
 
     def get_absolute_url(self):
         return reverse("listing_detail", args=[self.pk])
+
+    @property
+    def location_label(self):
+        return " · ".join(part for part in (self.city, self.quadrant, self.neighborhood) if part)
 
     @property
     def price_per_sqft(self):

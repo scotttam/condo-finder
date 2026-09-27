@@ -17,7 +17,7 @@
         <tr><th>Parking</th><td>{% if listing.parking_spaces is None %}Unknown{% else %}{{ listing.parking_spaces }}{% endif %}</td></tr>
         <tr><th>Type</th><td>{{ listing.get_property_type_display }}</td></tr>
         <tr><th>Available</th><td>{{ listing.available|default:"?" }}</td></tr>
-        <tr><th>Location</th><td>{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %}</td></tr>
+        <tr><th>Location</th><td>{{ listing.location_label }}</td></tr>
         <tr><th>Listed</th><td>{{ listing.first_seen_at|naturalday }} ({{ listing.days_on_market }} days)</td></tr>
         <tr><th>Features</th><td>
           {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}

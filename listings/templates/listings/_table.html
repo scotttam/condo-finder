@@ -20,7 +20,7 @@
       </td>
       <td>{{ listing.get_property_type_display }}</td>
       <td><a href="{{ listing.get_absolute_url }}">{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}</a>
-        <div class="muted">{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %}</div></td>
+        <div class="muted">{{ listing.location_label }}</div></td>
       <td>{% include "listings/_sources.html" %}</td>
       <td class="nowrap">{{ listing.days_on_market }}d</td>
       <td>{% include "listings/_status.html" %}</td>
