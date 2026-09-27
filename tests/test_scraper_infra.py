@@ -56,7 +56,6 @@ def test_ingest_refreshes_known_listing_without_address():
     listing = Listing.objects.get()
     assert result.seen == 1 and result.skipped == 0
     assert listing.price == 2400
-    assert result.price_drops == [(listing, 2500, 2400)]
     assert [p.price for p in PriceChange.objects.order_by("seen_at")] == [2500, 2400]
 
 

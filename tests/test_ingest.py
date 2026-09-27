@@ -46,21 +46,11 @@ def test_merges_same_unit_across_sources():
     assert Listing.objects.get().source_listings.count() == 2
 
 
-def test_price_drop_is_recorded_and_reported():
+def test_price_changes_are_recorded_in_history():
     source = make_source()
-    ingest(source, [scraped(price=3000)])
-    result = ingest(source, [scraped(price=2750)])
-    listing = Listing.objects.get()
-    assert [p.price for p in listing.price_changes.all()] == [3000, 2750]
-    assert result.price_drops == [(listing, 3000, 2750)]
-
-
-def test_price_increase_recorded_not_reported():
-    source = make_source()
-    ingest(source, [scraped(price=2800)])
-    result = ingest(source, [scraped(price=2900)])
-    assert result.price_drops == []
-    assert PriceChange.objects.count() == 2
+    for price in (3000, 2750, 2900):
+        ingest(source, [scraped(price=price)])
+    assert [p.price for p in Listing.objects.get().price_changes.all()] == [3000, 2750, 2900]
 
 
 def test_unchanged_price_adds_no_history():

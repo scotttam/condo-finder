@@ -12,13 +12,6 @@ PEARL = {"key": "pearl", "name": "Pearl", "platform": "appfolio", "subdomain": "
 LIST_URL = "https://pearlpropertymanagement.appfolio.com/listings"
 
 
-@pytest.fixture
-def pushes(monkeypatch):
-    sent = []
-    monkeypatch.setattr(runner, "send_push", lambda title, message, url="", tags=None: sent.append(title))
-    return sent
-
-
 class BrokenFetcher:
     def get(self, url):
         raise httpx.ConnectError("blocked")
@@ -28,7 +21,7 @@ def pearl_fetcher():
     return FakeFetcher({LIST_URL: load_fixture("appfolio_list.html")}, default=load_fixture("appfolio_detail.html"))
 
 
-def test_successful_run_ingests_and_records(pushes):
+def test_successful_run_ingests_and_records():
     run = runner.run_source(PEARL, fetcher=pearl_fetcher())
     assert run.ok and run.count == 7 and run.finished_at is not None
     assert run.new_count == Listing.objects.count() > 0
@@ -36,27 +29,26 @@ def test_successful_run_ingests_and_records(pushes):
     assert source.last_count == 7 and source.consecutive_failures == 0 and source.last_success_at
 
 
-def test_failures_alert_on_third_in_a_row(pushes):
-    for _ in range(2):
+def test_failures_are_recorded_for_the_sources_page():
+    for _ in range(3):
         run = runner.run_source(PEARL, fetcher=BrokenFetcher())
         assert not run.ok and "ConnectError" in run.error
-    assert pushes == []
-    runner.run_source(PEARL, fetcher=BrokenFetcher())
-    assert pushes == ["Scraper failing: Pearl"]
-    assert Source.objects.get(key="pearl").consecutive_failures == 3
+    source = Source.objects.get(key="pearl")
+    assert source.consecutive_failures == 3
+    assert "ConnectError" in source.last_error and source.last_error_at
 
 
-def test_success_resets_failures(pushes):
+def test_success_resets_failures():
     runner.run_source(PEARL, fetcher=BrokenFetcher())
     runner.run_source(PEARL, fetcher=pearl_fetcher())
     assert Source.objects.get(key="pearl").consecutive_failures == 0
 
 
-def test_empty_result_after_nonzero_alerts_immediately(pushes):
+def test_empty_result_is_a_failure_and_keeps_listings_active():
     runner.run_source(PEARL, fetcher=pearl_fetcher())
     run = runner.run_source(PEARL, fetcher=FakeFetcher({LIST_URL: "<html></html>"}))
     assert not run.ok and "0 listings" in run.error
-    assert pushes == ["Pearl returned 0 listings"]
+    assert Source.objects.get(key="pearl").consecutive_failures == 1
     assert Listing.objects.filter(is_active=True).count() > 0
 
 

@@ -94,15 +94,10 @@ LOGGING = {
 }
 
 # --- Condo finder ---
-SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000").rstrip("/")
 TARGET_CITIES = env_list("TARGET_CITIES", "Portland,Lake Oswego,Beaverton")
 SCRAPE_HOURS = os.environ.get("SCRAPE_HOURS", "7,11,15,19,23")
-ALERT_MAX_PRICE = int(os.environ.get("ALERT_MAX_PRICE", "5000"))
 DEFAULT_MIN_PRICE = int(os.environ.get("DEFAULT_MIN_PRICE", "2000"))
 DEFAULT_MAX_PRICE = int(os.environ.get("DEFAULT_MAX_PRICE", "5000"))
 REQUEST_DELAY_SECONDS = float(os.environ.get("REQUEST_DELAY_SECONDS", "1.5"))
-NTFY_SERVER = os.environ.get("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
-NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 NOMINATIM_EMAIL = os.environ.get("NOMINATIM_EMAIL", "")
 OFF_MARKET_AFTER_MISSES = 3
-HEALTH_ALERT_AFTER_FAILURES = 3

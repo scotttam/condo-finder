@@ -85,21 +85,17 @@ Addresses are geocoded with OpenStreetMap Nominatim (≤1 req/s, identifying Use
 results stored on the listing so each address is geocoded once). Neighborhood comes from
 Nominatim's `neighbourhood`/`suburb` address component.
 
-## Alerts (ntfy.sh push to both phones)
+## Alerts
 
-- **New match:** a newly seen listing where beds ≥2, baths ≥2, price ≤ alert max
-  (default $5,000), property type ≠ apartment, and parking/W/D/AC/outdoor are not known
-  to fail (unknown passes).
-- **Price drop** on a listing with status Interested.
-- **Source health:** a source fails 3 runs in a row, or returns 0 listings after
-  previously returning some.
-- Topic configured by `NTFY_TOPIC`; if unset, alerts are logged only.
+Removed 2026-09-27: push notifications (ntfy.sh) aren't needed. Scraper health is visible on the
+Sources page; a scrape returning 0 listings still counts as a failure.
 
 ## Runtime & deployment
 
 - Django + SQLite, runs 24/7 on the user's Mac mini.
 - Served by gunicorn (1 worker, several threads — the scheduler must exist exactly once),
-  bound to `0.0.0.0:8000` for LAN access; static files via WhiteNoise.
+  bound to `0.0.0.0:8000`; static files via WhiteNoise. Remote access for both users is over
+  Tailscale (the Mac mini stays home so scraping keeps a residential IP).
 - launchd `KeepAlive` job starts it at boot and restarts on crash.
 - In-process APScheduler: cron trigger, default every 4 hours between 7am and 11pm
   (07, 11, 15, 19, 23), configurable via `SCRAPE_HOURS`. Scheduler only starts when
@@ -109,8 +105,8 @@ Nominatim's `neighbourhood`/`suburb` address component.
 
 ## Configuration (env vars, `.env` supported)
 
-`NTFY_TOPIC`, `SCRAPE_HOURS` (default `7,11,15,19,23`), `ALERT_MAX_PRICE` (default `5000`),
-`TARGET_CITIES` (default `Portland,Lake Oswego,Beaverton`), `REQUEST_DELAY_SECONDS`
+`SCRAPE_HOURS` (default `7,11,15,19,23`), `DEFAULT_MIN_PRICE` / `DEFAULT_MAX_PRICE` (UI
+defaults `2000` / `5000`), `TARGET_CITIES` (default `Portland,Lake Oswego,Beaverton`), `REQUEST_DELAY_SECONDS`
 (default `1.5`), `NOMINATIM_EMAIL` (optional), `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`.
 
 ## Out of scope (v1)

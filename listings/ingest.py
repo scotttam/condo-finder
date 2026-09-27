@@ -27,7 +27,6 @@ class IngestResult:
     seen: int = 0
     skipped: int = 0
     new_listings: list = field(default_factory=list)
-    price_drops: list = field(default_factory=list)  # (listing, old_price, new_price)
 
 
 def ingest(source, items, now=None):
@@ -42,14 +41,12 @@ def ingest(source, items, now=None):
             result.skipped += 1
             continue
         with transaction.atomic():
-            listing, created, old_price = _upsert_listing(address, item, now)
+            listing, created = _upsert_listing(address, item, now)
             source_listing = _upsert_source_listing(source, listing, item, now)
         seen_ids.add(source_listing.pk)
         result.seen += 1
         if created:
             result.new_listings.append(listing)
-        elif old_price is not None and listing.price is not None and listing.price < old_price:
-            result.price_drops.append((listing, old_price, listing.price))
     if items:
         _mark_missing(source, seen_ids)
     return result
@@ -68,7 +65,7 @@ def _upsert_listing(address, item, now):
     listing.save()
     if listing.price is not None and listing.price != old_price:
         PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now)
-    return listing, created, old_price
+    return listing, created
 
 
 def _apply_scraped(listing, address, item):
@@ -169,8 +166,6 @@ def _refresh_known(source, item, now, result, seen_ids):
         _upsert_source_listing(source, listing, item, now)
     seen_ids.add(source_listing.pk)
     result.seen += 1
-    if old_price is not None and listing.price is not None and listing.price < old_price:
-        result.price_drops.append((listing, old_price, listing.price))
     return True
 
 
