@@ -7,7 +7,7 @@ from decimal import Decimal
 
 import httpx
 
-from .base import ScrapedListing, Scraper, is_candidate
+from .base import ScrapedListing, Scraper, detail_priority, is_candidate
 
 log = logging.getLogger(__name__)
 
@@ -82,15 +82,27 @@ def parse_detail(html):
         if fact.get("factLabel") and fact.get("factValue")
     ]
     for label, key in (("Parking", "parkingFeatures"), ("Laundry", "laundryFeatures"), ("Cooling", "cooling"),
-                       ("Appliances", "appliances"), ("Outdoor", "patioAndPorchFeatures")):
+                       ("Appliances", "appliances"), ("Outdoor", "patioAndPorchFeatures"),
+                       ("Interior", "interiorFeatures"), ("Exterior", "exteriorFeatures"), ("Flooring", "flooring")):
         value = facts.get(key)
         if value:
             lines.append(f"{label}: {', '.join(value) if isinstance(value, list) else value}")
+    glance = {fact.get("factLabel"): fact.get("factValue") for fact in facts.get("atAGlanceFacts") or []}
     return {
         "description": prop.get("description") or "",
         "amenities": "\n".join(lines),
         "home_type": _type_label(prop.get("homeType")),
+        "baths": _baths(facts),
+        "available": glance.get("Date available") or "",
     }
+
+
+def _baths(facts):
+    """Search results round half baths up (2.5 shows as 3), so count full + half from the detail page."""
+    full, half = facts.get("bathroomsFull"), facts.get("bathroomsHalf")
+    if full is None and half is None:
+        return None
+    return Decimal(full or 0) + Decimal(half or 0) / 2
 
 
 class ZillowScraper(Scraper):
@@ -103,7 +115,7 @@ class ZillowScraper(Scraper):
                 by_id[item.external_id] = item
         items = list(by_id.values())
         fetched = 0
-        for item in items:
+        for item in sorted(items, key=detail_priority):
             if not is_candidate(item) or "/homedetails/" not in item.url:
                 continue  # /apartments/ pages are complex units with a different layout
             if not self.should_fetch_detail(item, fetched):
@@ -117,6 +129,8 @@ class ZillowScraper(Scraper):
             item.description = detail["description"]
             item.amenities = detail["amenities"]
             item.property_type_hint = detail["home_type"] or item.property_type_hint
+            item.baths = detail["baths"] if detail["baths"] is not None else item.baths
+            item.available = detail["available"] or item.available
         return items
 
     def _search(self, slug):

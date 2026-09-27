@@ -218,3 +218,10 @@ def test_min_price_field_before_max_price(client):
     content = client.get("/").content.decode()
     assert 'name="min_price" value="2000"' in content
     assert content.index('name="min_price"') < content.index('name="max_price"')
+
+
+def test_detail_without_description_says_details_are_pending(client):
+    listing = good_listing(description="")
+    content = client.get(f"/listing/{listing.pk}/").content.decode()
+    assert "Full details haven't been fetched from the listing site yet" in content
+    assert 'class="panel description"' not in content

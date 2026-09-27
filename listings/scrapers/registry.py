@@ -20,7 +20,7 @@ SOURCES = [
     # Redfin city region ids: Portland 30772, Lake Oswego 30777, Beaverton 1432.
     {"key": "redfin", "name": "Redfin", "platform": "redfin", "region_ids": [30772, 30777, 1432], "request_delay": 2},
     {"key": "zillow", "name": "Zillow", "platform": "zillow", "city_slugs": ["portland-or", "lake-oswego-or", "beaverton-or"],
-     "request_delay": 3, "max_detail_fetches": 40},
+     "request_delay": 3, "max_detail_fetches": 80},
     {"key": "craigslist", "name": "Craigslist", "platform": "craigslist",
      "search_url": "https://www.craigslist.org/search/area/portland?cat=apa&min_bedrooms=2&min_bathrooms=2",
      "request_delay": 2, "max_detail_fetches": 60},
