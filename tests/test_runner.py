@@ -60,12 +60,20 @@ def test_empty_result_after_nonzero_alerts_immediately(pushes):
     assert Listing.objects.filter(is_active=True).count() > 0
 
 
-def test_run_all_filters_keys_and_geocodes(monkeypatch):
+def test_run_all_filters_keys_then_redetects_and_geocodes(monkeypatch):
     called = []
     monkeypatch.setattr(runner, "run_source", lambda config: called.append(config["key"]) or config["key"])
+    monkeypatch.setattr(runner, "reextract_all", lambda: called.append("reextract") or 0)
     monkeypatch.setattr(runner, "geocode_pending", lambda: called.append("geocode"))
     assert runner.run_all(keys=["uptown", "pearl"]) == ["pearl", "uptown"]
-    assert called == ["pearl", "uptown", "geocode"]
+    assert called == ["pearl", "uptown", "reextract", "geocode"]
+
+
+def test_run_all_survives_redetection_errors(monkeypatch):
+    monkeypatch.setattr(runner, "run_source", lambda config: config["key"])
+    monkeypatch.setattr(runner, "reextract_all", lambda: 1 / 0)
+    monkeypatch.setattr(runner, "geocode_pending", lambda: None)
+    assert runner.run_all(keys=["pearl"]) == ["pearl"]
 
 
 def test_run_all_skips_when_already_running(monkeypatch):
