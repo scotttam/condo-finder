@@ -87,3 +87,11 @@ def test_source_choices_come_from_sources_table():
     make_source("zillow")
     make_source("pearl")
     assert [key for key, _ in ListingFilterForm().fields["sources"].choices] == ["pearl", "zillow"]
+
+
+def test_filter_by_quadrant():
+    listing("nw", quadrant="NW")
+    listing("se", quadrant="SE")
+    listing("beaverton", city="Beaverton", quadrant="")
+    assert filtered(default_filter_data() | {"quadrants": ["NW", "SE"]}) == {"nw", "se"}
+    assert filtered() == {"nw", "se", "beaverton"}  # no quadrant filter by default

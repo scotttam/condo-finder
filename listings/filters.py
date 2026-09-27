@@ -20,6 +20,8 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(price__lte=data["max_price"])
     if data.get("cities"):
         queryset = queryset.filter(city__in=data["cities"])
+    if data.get("quadrants"):
+        queryset = queryset.filter(quadrant__in=data["quadrants"])
     if data.get("neighborhood"):
         queryset = queryset.filter(neighborhood__icontains=data["neighborhood"])
     if data.get("sources"):

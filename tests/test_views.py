@@ -156,3 +156,16 @@ def test_filters_apply_on_change_without_button(client):
     assert 'hx-get="/"' in content and 'hx-target="#results"' in content and 'hx-push-url="true"' in content
     assert 'id="results"' in content
     assert "Apply filters" not in content.replace("<noscript>", "\0").split("\0")[0]
+
+
+def test_quadrant_shown_on_card_table_and_detail(client):
+    listing = good_listing(quadrant="NW", neighborhood="Pearl District")
+    assert "Portland · NW · Pearl District" in client.get("/").content.decode()
+    assert "Portland · NW · Pearl District" in client.get("/?view=list").content.decode()
+    assert "Portland · NW · Pearl District" in client.get(f"/listing/{listing.pk}/").content.decode()
+
+
+def test_quadrant_filter_in_sidebar(client):
+    content = client.get("/").content.decode()
+    for value in ("NW", "NE", "SE", "SW", "N", "S"):
+        assert f'name="quadrants" value="{value}"' in content

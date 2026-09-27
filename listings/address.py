@@ -62,5 +62,20 @@ def parse_address(raw):
     )
 
 
+_QUADRANT_WORDS = {
+    "nw": "NW", "northwest": "NW", "ne": "NE", "northeast": "NE",
+    "se": "SE", "southeast": "SE", "sw": "SW", "southwest": "SW",
+    "n": "N", "north": "N", "s": "S", "south": "S",
+}
+
+
+def portland_quadrant(street, city):
+    """NW/NE/SE/SW/N/S from the street's directional prefix; only Portland uses this grid."""
+    if (city or "").strip().lower() != "portland":
+        return ""
+    match = re.match(r"\s*\d+[a-z]?(?:-\d+[a-z]?)?\s+([a-z.]+)\s", (street or "").lower())
+    return _QUADRANT_WORDS.get(match.group(1).replace(".", ""), "") if match else ""
+
+
 def is_target_city(city):
     return (city or "").strip().lower() in {c.lower() for c in settings.TARGET_CITIES}

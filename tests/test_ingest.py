@@ -128,3 +128,12 @@ def test_first_seen_is_kept_and_last_seen_updates():
     listing = Listing.objects.get()
     assert listing.first_seen_at == earlier
     assert listing.last_seen_at > earlier
+
+
+def test_ingest_sets_portland_quadrant():
+    ingest(make_source(), [
+        scraped(),
+        scraped(external_id="bv", address="4775 SW Franklin Ave, Beaverton, OR 97005"),
+    ])
+    assert Listing.objects.get(city="Portland").quadrant == "NW"
+    assert Listing.objects.get(city="Beaverton").quadrant == ""

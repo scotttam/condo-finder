@@ -10,7 +10,7 @@
     <div>{{ listing.beds }} bd · {{ listing.baths|floatformat:"-1" }} ba{% if listing.sqft %} · {{ listing.sqft|intcomma }} sqft{% endif %}
       · <strong>{% if listing.parking_spaces is None %}? parking{% else %}{{ listing.parking_spaces }} parking{% endif %}</strong></div>
     <a href="{{ listing.get_absolute_url }}">{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}</a>
-    <div class="muted">{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %} · {{ listing.get_property_type_display }} · {{ listing.days_on_market }}d listed</div>
+    <div class="muted">{{ listing.location_label }} · {{ listing.get_property_type_display }} · {{ listing.days_on_market }}d listed</div>
     <div>
       {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
       {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
