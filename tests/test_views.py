@@ -109,3 +109,50 @@ def test_filter_by_source_from_query(client):
     content = client.get("/?view=list&sources=zillow&min_beds=2").content.decode()
     assert "2 Zillow Way" in content and "937 NW Glisan Street" not in content
     assert other.pk
+
+
+def many_listings(count):
+    for i in range(count):
+        make_listing(address_key=f"k{i}", street=f"{i} Test St", price=2000 + i, beds=2, baths=Decimal("2"),
+                     parking_spaces=2, property_type="condo", latitude=45.5, longitude=-122.6)
+
+
+def test_results_are_paginated_with_links_that_keep_filters(client):
+    many_listings(60)
+    response = client.get("/?view=list&sort=price&min_beds=2")
+    page = response.context["page_obj"]
+    assert page.paginator.count == 60 and len(page.object_list) == 50
+    assert "60 listings" in response.content.decode()
+    next_url = response.context["next_url"]
+    assert "page=2" in next_url and "view=list" in next_url and "min_beds=2" in next_url
+    assert response.context["prev_url"] == ""
+    second = client.get("/" + next_url)
+    assert [listing.street for listing in second.context["listings"]][:1] == ["50 Test St"]
+    assert len(second.context["listings"]) == 10
+
+
+def test_page_only_query_still_uses_default_filters(client):
+    many_listings(55)
+    make_listing(address_key="one-bed", street="1 One Bed St", beds=1, price=1000)
+    response = client.get("/?page=2")
+    assert response.context["page_obj"].number == 2
+    assert response.context["page_obj"].paginator.count == 55
+
+
+def test_out_of_range_page_shows_last_page(client):
+    many_listings(60)
+    assert client.get("/?view=list&page=99").context["page_obj"].number == 2
+
+
+def test_map_shows_every_match_not_just_the_page(client):
+    many_listings(60)
+    response = client.get("/")
+    assert len(response.context["map_points"]) == 60
+    assert response.content.decode().count('class="card"') == 50
+
+
+def test_filters_apply_on_change_without_button(client):
+    content = client.get("/").content.decode()
+    assert 'hx-get="/"' in content and 'hx-target="#results"' in content and 'hx-push-url="true"' in content
+    assert 'id="results"' in content
+    assert "Apply filters" not in content.replace("<noscript>", "\0").split("\0")[0]

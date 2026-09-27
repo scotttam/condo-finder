@@ -1,6 +1,8 @@
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -10,42 +12,54 @@ from .models import Listing, Source, SourceRun, Status
 from .runner import is_running, run_all_in_background, sync_sources
 from .scheduler import next_run_time
 
-MAX_RESULTS = 500
+PAGE_SIZE = 50
+MAX_MAP_POINTS = 3000
 VIEWS = ("map", "list")
+NON_FILTER_PARAMS = {"view", "page"}
 
 
 def listing_list(request):
     view = request.GET.get("view") if request.GET.get("view") in VIEWS else "map"
-    has_filters = any(key != "view" for key in request.GET)
+    has_filters = any(key not in NON_FILTER_PARAMS for key in request.GET)
     form = ListingFilterForm(request.GET if has_filters else default_filter_data())
-    queryset = Listing.objects.prefetch_related("source_listings__source")
+    queryset = Listing.objects.all()
     if form.is_valid():
         queryset = apply_filters(queryset, form.cleaned_data)
-    listings = list(queryset[:MAX_RESULTS])
-    map_points = [] if view != "map" else [
-        {
-            "id": listing.pk,
-            "lat": listing.latitude,
-            "lng": listing.longitude,
-            "label": f"${listing.price:,} · {listing.beds}bd · {listing.street}" if listing.price else listing.street,
-            "url": listing.get_absolute_url(),
-        }
-        for listing in listings
-        if listing.latitude is not None
-    ]
+    page_obj = Paginator(queryset.prefetch_related("source_listings__source"), PAGE_SIZE).get_page(
+        request.GET.get("page")
+    )
     return render(request, "listings/list.html", {
         "form": form,
-        "listings": listings,
-        "map_points": map_points,
         "view": view,
-        "map_url": _with_view(request, "map"),
-        "list_url": _with_view(request, "list"),
+        "page_obj": page_obj,
+        "listings": page_obj.object_list,
+        "map_points": _map_points(queryset) if view == "map" else [],
+        "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
+        "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
+        "map_url": _url_with(request, view="map"),
+        "list_url": _url_with(request, view="list"),
     })
 
 
-def _with_view(request, view):
+def _map_points(queryset):
+    """Pins for every matching listing (not just the current page)."""
+    rows = queryset.filter(latitude__isnull=False).values("pk", "latitude", "longitude", "price", "beds", "street")
+    return [
+        {
+            "id": row["pk"],
+            "lat": row["latitude"],
+            "lng": row["longitude"],
+            "label": f"${row['price']:,} · {row['beds']}bd · {row['street']}" if row["price"] else row["street"],
+            "url": reverse("listing_detail", args=[row["pk"]]),
+        }
+        for row in rows[:MAX_MAP_POINTS]
+    ]
+
+
+def _url_with(request, **params):
     query = request.GET.copy()
-    query["view"] = view
+    for key, value in params.items():
+        query[key] = value
     return f"?{query.urlencode()}"
 
 

@@ -1,15 +1,23 @@
 {% extends "listings/base.html" %}
+{% load humanize %}
 {% block content %}
 <div class="layout">
-  <form class="filters" method="get">
+  {# Any change re-fetches the page and swaps in #results; typing waits for a pause. #}
+  <form class="filters" method="get" action="{% url 'listing_list' %}"
+        hx-get="{% url 'listing_list' %}" hx-target="#results" hx-select="#results" hx-swap="outerHTML"
+        hx-push-url="true" hx-trigger="change, input delay:500ms" hx-sync="this:replace"
+        hx-indicator="#results">
     <input type="hidden" name="view" value="{{ view }}">
     {{ form.as_div }}
-    <button type="submit">Apply filters</button>
-    <p class="muted"><a href="{% url 'listing_list' %}">Reset to defaults</a></p>
+    <noscript><button type="submit">Apply filters</button></noscript>
+    <p class="muted"><a href="{% url 'listing_list' %}{% if view == 'list' %}?view=list{% endif %}">Reset to defaults</a></p>
   </form>
-  <section>
+  <section id="results">
     <div class="results-bar">
-      <p class="muted">{{ listings|length }} listing{{ listings|length|pluralize }}{% if listings|length == 500 %} (showing first 500){% endif %}</p>
+      <p class="muted">
+        {{ page_obj.paginator.count|intcomma }} listing{{ page_obj.paginator.count|pluralize }}
+        {% if page_obj.paginator.num_pages > 1 %}· showing {{ page_obj.start_index }}–{{ page_obj.end_index }}{% endif %}
+      </p>
       <nav class="view-toggle" aria-label="Results view">
         <a href="{{ map_url }}"{% if view == "map" %} class="active" aria-current="page"{% endif %}>Map</a>
         <a href="{{ list_url }}"{% if view == "list" %} class="active" aria-current="page"{% endif %}>List</a>
@@ -22,28 +30,40 @@
       <div class="grid">
         {% for listing in listings %}{% include "listings/_card.html" %}{% empty %}<p>No listings match. Try loosening the filters.</p>{% endfor %}
       </div>
+      {{ map_points|json_script:"map-points" }}
     {% endif %}
+    {% include "listings/_pagination.html" %}
   </section>
 </div>
-{% if view == "map" %}{{ map_points|json_script:"map-points" }}{% endif %}
 {% endblock %}
 {% block scripts %}
-{% if view == "map" %}
 <script>
-  const points = JSON.parse(document.getElementById("map-points").textContent);
-  const map = L.map("map").setView([45.515, -122.68], 11);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19, attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
-  const markers = points.map(p => {
-    const marker = L.marker([p.lat, p.lng]).addTo(map);
-    const link = document.createElement("a");
-    link.href = p.url;
-    link.textContent = p.label;
-    marker.bindPopup(link);
-    return marker;
+  let resultsMap = null;
+
+  function drawMap() {
+    const container = document.getElementById("map");
+    const data = document.getElementById("map-points");
+    if (resultsMap) { resultsMap.remove(); resultsMap = null; }
+    if (!container || !data) return;
+    const points = JSON.parse(data.textContent);
+    resultsMap = L.map(container).setView([45.515, -122.68], 11);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(resultsMap);
+    const markers = points.map(p => {
+      const marker = L.marker([p.lat, p.lng]).addTo(resultsMap);
+      const link = document.createElement("a");
+      link.href = p.url;
+      link.textContent = p.label;
+      marker.bindPopup(link);
+      return marker;
+    });
+    if (markers.length) resultsMap.fitBounds(L.featureGroup(markers).getBounds().pad(0.1));
+  }
+
+  drawMap();
+  document.body.addEventListener("htmx:afterSettle", event => {
+    if (event.detail.elt.id === "results" || event.detail.target.id === "results") drawMap();
   });
-  if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.1));
 </script>
-{% endif %}
 {% endblock %}
