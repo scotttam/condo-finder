@@ -100,6 +100,7 @@ class Listing(models.Model):
     notes = models.TextField(blank=True)
 
     is_active = models.BooleanField(default=True)
+    listed_at = models.DateField(null=True, blank=True, help_text="When the current rental listing started, per the listing site")
     first_seen_at = models.DateTimeField(default=timezone.now)
     last_seen_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -125,8 +126,12 @@ class Listing(models.Model):
 
     @property
     def days_on_market(self):
-        end = timezone.now() if self.is_active else self.last_seen_at
-        return (end - self.first_seen_at).days
+        """From the site's listed date when known (often before we first saw it), else first seen."""
+        start = timezone.localdate(self.first_seen_at)
+        if self.listed_at and self.listed_at < start:
+            start = self.listed_at
+        end = timezone.localdate() if self.is_active else timezone.localdate(self.last_seen_at)
+        return (end - start).days
 
 
 class SourceListing(models.Model):
@@ -138,6 +143,9 @@ class SourceListing(models.Model):
     missed_runs = models.IntegerField(default=0)
     first_seen_at = models.DateTimeField(default=timezone.now)
     last_seen_at = models.DateTimeField(default=timezone.now)
+    # Parser version that last fetched this listing's detail page; a scraper re-fetches details
+    # (within its per-run budget) when its details_version is higher.
+    details_version = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         constraints = [
@@ -149,6 +157,8 @@ class PriceChange(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="price_changes")
     price = models.IntegerField()
     seen_at = models.DateTimeField(default=timezone.now)
+    event = models.CharField(max_length=40, blank=True)  # e.g. "Listed for rent", "Price change", "First seen"
+    source = models.CharField(max_length=100, blank=True)  # where the entry came from; blank = entered by hand
 
     class Meta:
         ordering = ["seen_at"]

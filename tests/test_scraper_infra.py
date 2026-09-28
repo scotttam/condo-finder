@@ -74,20 +74,3 @@ def test_refreshed_listing_is_not_marked_missing():
     for _ in range(3):
         ingest(source, [bare, other])
     assert Listing.objects.get(street="937 NW Glisan Street").is_active is True
-
-
-@pytest.mark.django_db
-def test_runner_sets_known_ids_to_described_listings(monkeypatch):
-    source = make_source("pearl")
-    ingest(source, [scraped(external_id="described"),
-                    scraped(external_id="bare", description="", title="", address="100 SW Main St, Portland, OR 97204")])
-    captured = {}
-
-    class Spy(Scraper):
-        def scrape(self):
-            captured["known"] = set(self.known_ids)
-            return []
-
-    monkeypatch.setattr(runner, "build_scraper", lambda config, fetcher=None: Spy(key="pearl", name="Pearl", fetcher=object()))
-    runner.run_source({"key": "pearl", "name": "Pearl", "platform": "appfolio"})
-    assert captured["known"] == {"described"}

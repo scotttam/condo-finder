@@ -131,6 +131,7 @@ class ZillowScraper(Scraper):
             item.property_type_hint = detail["home_type"] or item.property_type_hint
             item.baths = detail["baths"] if detail["baths"] is not None else item.baths
             item.available = detail["available"] or item.available
+            item.details_version = self.details_version
         return items
 
     def _search(self, slug):

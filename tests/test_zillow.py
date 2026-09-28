@@ -160,3 +160,9 @@ def test_details_fetched_for_listings_matching_default_filters_first():
         "1534-N-Blandena-St-Portland-OR-97217",
         "5720-SE-Duke-St-Portland-OR-97206",
     ]
+
+
+def test_fetched_details_are_stamped_with_the_parser_version():
+    fake = fetcher()
+    items = ZillowScraper(key="zillow", name="Zillow", fetcher=fake, city_slugs=["portland-or"], max_detail_fetches=2).scrape()
+    assert sorted(i.details_version for i in items) == [0] * 5 + [ZillowScraper.details_version] * 2
