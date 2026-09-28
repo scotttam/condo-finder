@@ -177,6 +177,7 @@ class SourceListing(models.Model):
     # Parser version that last fetched this listing's detail page; a scraper re-fetches details
     # (within its per-run budget) when its details_version is higher.
     details_version = models.PositiveSmallIntegerField(default=0)
+    last_price = models.IntegerField(null=True, blank=True)  # this site's latest price for the listing
 
     class Meta:
         constraints = [
