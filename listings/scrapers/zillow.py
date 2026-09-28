@@ -3,6 +3,7 @@
 import json
 import logging
 import re
+from datetime import date
 from decimal import Decimal
 
 import httpx
@@ -94,7 +95,19 @@ def parse_detail(html):
         "home_type": _type_label(prop.get("homeType")),
         "baths": _baths(facts),
         "available": glance.get("Date available") or "",
+        **_rental_history(prop.get("priceHistory") or []),
     }
+
+
+def _rental_history(entries):
+    """Rental events only (Zillow also lists sales), oldest first, plus the current listing's start."""
+    history = sorted(
+        (date.fromisoformat(entry["date"]), int(entry["price"]), entry.get("event") or "")
+        for entry in entries
+        if entry.get("postingIsRental") and entry.get("price") is not None and entry.get("date")
+    )
+    listings_started = [day for day, _, event in history if event == "Listed for rent"]
+    return {"price_history": history, "listed_at": listings_started[-1] if listings_started else None}
 
 
 def _baths(facts):
@@ -107,6 +120,7 @@ def _baths(facts):
 
 class ZillowScraper(Scraper):
     platform = "zillow"
+    details_version = 2  # 2: rental price history and listed date
 
     def scrape(self):
         by_id = {}
@@ -131,6 +145,8 @@ class ZillowScraper(Scraper):
             item.property_type_hint = detail["home_type"] or item.property_type_hint
             item.baths = detail["baths"] if detail["baths"] is not None else item.baths
             item.available = detail["available"] or item.available
+            item.price_history = detail["price_history"]
+            item.listed_at = detail["listed_at"]
             item.details_version = self.details_version
         return items
 
