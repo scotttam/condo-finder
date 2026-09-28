@@ -42,8 +42,10 @@ def ingest(source, items, now=None):
             result.skipped += 1
             continue
         with transaction.atomic():
-            listing, created = _upsert_listing(address, item, now, source.name)
-            source_listing = _upsert_source_listing(source, listing, item, now)
+            listing, created = _upsert_listing(address, item, now, source)
+            source_listing, previous_price = _upsert_source_listing(source, listing, item, now)
+            _update_price(listing, previous_price, item, now, source.name, created)
+            _import_history(listing, item.price_history, source.name)
         seen_ids.add(source_listing.pk)
         result.seen += 1
         if created:
@@ -53,27 +55,58 @@ def ingest(source, items, now=None):
     return result
 
 
-def _upsert_listing(address, item, now, source_name):
-    listing = Listing.objects.filter(address_key=address.key).first()
+def _listing_key(source, address, item):
+    """The same address from different sites is one listing, but a site never lists one unit twice:
+    another listing from the same site at a taken address is a different unit (a building without
+    unit numbers), and hidden addresses have nothing real to match on. Those get their own key."""
+    own = f"{address.key}|{source.key}:{item.external_id}"
+    if not address.street[:1].isdigit():
+        return own
+    current = (
+        SourceListing.objects.filter(source=source, external_id=item.external_id)
+        .values_list("listing__address_key", flat=True)
+        .first()
+    )
+    if current in (address.key, own):
+        return current
+    taken = (
+        SourceListing.objects.filter(source=source, listing__address_key=address.key)
+        .exclude(external_id=item.external_id)
+        .exists()
+    )
+    return own if taken else address.key
+
+
+def _upsert_listing(address, item, now, source):
+    key = _listing_key(source, address, item)
+    listing = Listing.objects.filter(address_key=key).first()
     created = listing is None
     if created:
-        listing = Listing(address_key=address.key, first_seen_at=now)
-    old_price = listing.price
+        listing = Listing(address_key=key, first_seen_at=now)
     _apply_scraped(listing, address, item)
     _apply_overrides(listing)
     listing.is_active = True
     listing.last_seen_at = now
     listing.save()
-    _record_price(listing, old_price, now, source_name)
-    _import_history(listing, item.price_history, source_name)
     return listing, created
 
 
-def _record_price(listing, old_price, now, source_name):
-    """Our own observation of the current price, when it's new or changed."""
-    if listing.price is not None and listing.price != old_price:
-        event = "First seen" if old_price is None else "Price change"
-        PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now, event=event, source=source_name)
+def _update_price(listing, previous_price, item, now, source_name, created):
+    """The listing shows the lowest current price among the sites listing it. A price change is
+    recorded only when one site changes its own price: sites disagreeing (a building's "from" price
+    vs one unit, say) isn't a change."""
+    if "price" in (listing.overrides or {}):
+        listing.price = listing.overrides["price"]
+    else:
+        prices = listing.source_listings.filter(is_active=True, last_price__isnull=False).values_list("last_price", flat=True)
+        listing.price = min(prices, default=listing.price)
+    listing.save(update_fields=["price", "updated_at"])
+    if item.price is None:
+        return
+    if created:
+        PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now, event="First seen", source=source_name)
+    elif previous_price is not None and item.price != previous_price:
+        PriceChange.objects.create(listing=listing, price=item.price, seen_at=now, event="Price change", source=source_name)
 
 
 def _history_time(day):
@@ -120,7 +153,7 @@ def _apply_scraped(listing, address, item):
         # The listing site's own pin beats a geocoded guess from the street address.
         listing.latitude = item.latitude
         listing.longitude = item.longitude
-    for name in ("price", "beds", "baths", "sqft"):
+    for name in ("beds", "baths", "sqft"):  # price: see _update_price
         value = getattr(item, name)
         if value is not None:
             setattr(listing, name, value)
@@ -179,8 +212,11 @@ def _upsert_source_listing(source, listing, item, now):
         source_listing.missed_runs = 0
         source_listing.last_seen_at = now
     source_listing.details_version = max(source_listing.details_version, item.details_version)
+    previous_price = source_listing.last_price
+    if item.price is not None:
+        source_listing.last_price = item.price
     source_listing.save()
-    return source_listing
+    return source_listing, previous_price
 
 
 def _refresh_known(source, item, now, result, seen_ids):
@@ -191,15 +227,12 @@ def _refresh_known(source, item, now, result, seen_ids):
     if source_listing is None:
         return False
     listing = source_listing.listing
-    old_price = listing.price
     with transaction.atomic():
-        if item.price is not None and "price" not in (listing.overrides or {}):
-            listing.price = item.price
         listing.is_active = True
         listing.last_seen_at = now
         listing.save()
-        _record_price(listing, old_price, now, source.name)
-        _upsert_source_listing(source, listing, item, now)
+        _, previous_price = _upsert_source_listing(source, listing, item, now)
+        _update_price(listing, previous_price, item, now, source.name, created=False)
     seen_ids.add(source_listing.pk)
     result.seen += 1
     return True
@@ -214,6 +247,12 @@ def _mark_missing(source, seen_ids):
             affected.add(source_listing.listing_id)
         source_listing.save(update_fields=["missed_runs", "is_active"])
     for listing in Listing.objects.filter(pk__in=affected, is_active=True):
-        if not listing.source_listings.filter(is_active=True).exists():
+        active = listing.source_listings.filter(is_active=True)
+        if not active.exists():
             listing.is_active = False
             listing.save(update_fields=["is_active", "updated_at"])
+        elif "price" not in (listing.overrides or {}):
+            # Another site still lists it: show the lowest price among the sites that remain.
+            prices = active.filter(last_price__isnull=False).values_list("last_price", flat=True)
+            listing.price = min(prices, default=listing.price)
+            listing.save(update_fields=["price", "updated_at"])
