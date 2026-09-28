@@ -8,11 +8,16 @@ class SourceListingInline(admin.TabularInline):
     extra = 0
     readonly_fields = ("source", "external_id", "url", "is_active", "missed_runs", "first_seen_at", "last_seen_at")
 
+    def has_add_permission(self, request, obj=None):
+        return False  # created by scrapers; every field is read-only, so an added row would save nothing
+
 
 class PriceChangeInline(admin.TabularInline):
+    # Editable so history can be corrected or added by hand. With every field read-only,
+    # "Add another" rows had no inputs and were silently discarded on save.
     model = PriceChange
     extra = 0
-    readonly_fields = ("price", "seen_at")
+    fields = ("price", "seen_at")
 
 
 @admin.register(Listing)
