@@ -109,3 +109,25 @@ def test_migration_marks_already_described_listings_as_detail_version_1():
 def test_scraped_listing_defaults():
     item = ScrapedListing(external_id="1", url="u", address="")
     assert (item.price_history, item.listed_at, item.details_version) == ([], None, 0)
+
+
+def test_listed_date_keeps_the_earliest_start_across_sites():
+    ingest(make_source("zillow"), [scraped(external_id="z1", price=2850, listed_at=date(2026, 9, 24))])
+    ingest(make_source("redfin"), [scraped(external_id="r1", price=2850, listed_at=date(2026, 9, 26))])
+    assert Listing.objects.get().listed_at == date(2026, 9, 24)
+
+
+def test_runner_skips_details_for_listings_covered_by_another_site(monkeypatch):
+    redfin, zillow = make_source("redfin"), make_source("zillow")
+    ingest(redfin, [scraped(external_id="r-both"), scraped(external_id="r-only", address="100 SW Main St, Portland, OR 97204")])
+    ingest(zillow, [scraped(external_id="z1")])  # same unit as r-both
+    captured = {}
+
+    class Spy(Scraper):
+        def scrape(self):
+            captured["skip"] = set(self.skip_detail_ids)
+            return []
+
+    monkeypatch.setattr(runner, "build_scraper", lambda config, fetcher=None: Spy(key="redfin", name="Redfin", fetcher=object()))
+    runner.run_source({"key": "redfin", "name": "Redfin", "platform": "redfin", "skip_details_if_on": "zillow"})
+    assert captured["skip"] == {"r-both"}

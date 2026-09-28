@@ -40,6 +40,13 @@ def run_source(config, fetcher=None):
             SourceListing.objects.filter(source=source, details_version__gte=scraper.details_version)
             .values_list("external_id", flat=True)
         )
+        if config.get("skip_details_if_on"):
+            # Listings this site shares with another source get their details from that source.
+            scraper.skip_detail_ids = set(
+                SourceListing.objects.filter(
+                    source=source, listing__source_listings__source__key=config["skip_details_if_on"]
+                ).values_list("external_id", flat=True)
+            )
         items = scraper.scrape()
         if not items:
             raise EmptyScrape("scraper returned 0 listings")

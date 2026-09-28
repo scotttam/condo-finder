@@ -10,8 +10,10 @@ def load_fixture(name):
 
 
 class FakeResponse:
-    def __init__(self, text):
+    def __init__(self, text, status_code=200, headers=None):
         self.text = text
+        self.status_code = status_code
+        self.headers = headers or {}
 
     def json(self):
         import json
@@ -32,7 +34,8 @@ class FakeFetcher:
         self.requested.append(url)
         self.calls.append((method, url, kwargs))
         if url in self.pages:
-            return FakeResponse(self.pages[url])
+            page = self.pages[url]
+            return page if isinstance(page, FakeResponse) else FakeResponse(page)
         if self.default is not None:
             return FakeResponse(self.default)
         raise httpx.HTTPError(f"no fake page for {url}")

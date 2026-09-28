@@ -29,7 +29,10 @@ SOURCES = [
     {"key": "chroma", "name": "Chroma Property Management", "platform": "rentengine", "slug": "chromapm",
      "request_delay": 2, "max_detail_fetches": 30},
     # Redfin city region ids: Portland 30772, Lake Oswego 30777, Beaverton 1432.
-    {"key": "redfin", "name": "Redfin", "platform": "redfin", "region_ids": [30772, 30777, 1432], "request_delay": 2},
+    {"key": "redfin", "name": "Redfin", "platform": "redfin", "region_ids": [30772, 30777, 1432],
+     # Listing pages are behind AWS bot protection that blocks fast fetching: go slowly, and only
+     # for listings Zillow doesn't also cover (Zillow's page already gives their history/details).
+     "request_delay": 20, "max_detail_fetches": 10, "skip_details_if_on": "zillow"},
     {"key": "zillow", "name": "Zillow", "platform": "zillow", "city_slugs": ["portland-or", "lake-oswego-or", "beaverton-or"],
      "request_delay": 3, "max_detail_fetches": 80},
     {"key": "craigslist", "name": "Craigslist", "platform": "craigslist",
