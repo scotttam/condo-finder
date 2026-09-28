@@ -6,6 +6,7 @@
   </a>
   <div class="body">
     <div class="price">{% if listing.price %}${{ listing.price|intcomma }}{% else %}Price ?{% endif %}
+      {% if listing.price_drop %}<span class="drop" title="Down {{ listing.price_drop_percent }}% since listed">↓ ${{ listing.price_drop|intcomma }}</span>{% endif %}
       {% if not listing.is_active %}<span class="offmarket">Off market</span>{% endif %}</div>
     <div>{{ listing.beds }} bd · {{ listing.baths|floatformat:"-1" }} ba{% if listing.sqft %} · {{ listing.sqft|intcomma }} sqft{% endif %}
       · <strong>{% if listing.parking_spaces is not None %}{{ listing.parking_spaces }} parking{% elif listing.has_parking %}parking (spaces ?){% elif listing.has_parking is False %}no parking{% else %}? parking{% endif %}</strong></div>

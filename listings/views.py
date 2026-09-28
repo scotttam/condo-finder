@@ -28,7 +28,7 @@ def listing_list(request):
     queryset = Listing.objects.all()
     if form.is_valid():
         queryset = apply_filters(queryset, form.cleaned_data)
-    page_obj = Paginator(queryset.prefetch_related("source_listings__source"), PAGE_SIZE).get_page(
+    page_obj = Paginator(queryset.prefetch_related("source_listings__source", "price_changes"), PAGE_SIZE).get_page(
         request.GET.get("page")
     )
     return render(request, "listings/list.html", {

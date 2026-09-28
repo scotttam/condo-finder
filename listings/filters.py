@@ -1,4 +1,4 @@
-from django.db.models import ExpressionWrapper, F, FloatField, Q
+from django.db.models import ExpressionWrapper, F, FloatField, Max, Q
 from django.db.models.functions import Cast
 
 FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space"}
@@ -32,6 +32,12 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(property_type__in=data["types"])
     if data.get("statuses"):
         queryset = queryset.filter(status__in=data["statuses"])
+    if data.get("price_reduced"):
+        # Peak price during the current rental listing (all history when the listed date is unknown).
+        in_current_listing = Q(listed_at__isnull=True) | Q(price_changes__seen_at__date__gte=F("listed_at"))
+        queryset = queryset.annotate(peak_price=Max("price_changes__price", filter=in_current_listing)).filter(
+            peak_price__gt=F("price")
+        )
     for key, field in FEATURE_FIELDS.items():
         if data.get(key) == "yes":
             queryset = queryset.filter(**{field: True})
