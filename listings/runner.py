@@ -35,9 +35,9 @@ def run_source(config, fetcher=None):
     run = SourceRun.objects.create(source=source)
     try:
         scraper = build_scraper(config, fetcher=fetcher)
+        # Listings whose details were fetched by the current parser; the rest get (re-)fetched.
         scraper.known_ids = set(
-            SourceListing.objects.filter(source=source)
-            .exclude(listing__description="")
+            SourceListing.objects.filter(source=source, details_version__gte=scraper.details_version)
             .values_list("external_id", flat=True)
         )
         items = scraper.scrape()

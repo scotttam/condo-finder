@@ -96,3 +96,9 @@ def test_default_fetcher_is_a_lazy_browser_session():
     assert isinstance(scraper.fetcher, RentEngineSession)
     assert scraper.fetcher.delay == 2
     assert scraper.fetcher._browser is None  # Chromium only starts when a scrape runs
+
+
+def test_fetched_details_are_stamped_with_the_parser_version():
+    scraper = RentEngineScraper(key="chroma", name="Chroma", fetcher=FakeSession(), slug="chromapm", max_detail_fetches=3)
+    items = scraper.scrape()
+    assert sum(i.details_version == RentEngineScraper.details_version for i in items) == 3

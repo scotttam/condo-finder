@@ -1,6 +1,7 @@
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import date
 from decimal import Decimal
 
 import httpx
@@ -34,6 +35,11 @@ class ScrapedListing:
     city: str = ""  # used when search results give a city but no street address (Craigslist)
     latitude: float | None = None  # coordinates published by the listing site, when available
     longitude: float | None = None
+    # From detail pages: [(date, price, event)] rental history, when the current listing started,
+    # and which parser version produced the details (0 = details not fetched this run).
+    price_history: list = field(default_factory=list)
+    listed_at: date | None = None
+    details_version: int = 0
 
     @property
     def full_text(self):
@@ -72,6 +78,7 @@ class Fetcher:
 
 class Scraper:
     platform = ""
+    details_version = 1  # bump when detail parsing gains data, to re-fetch stored listings once
 
     def __init__(self, key, name, fetcher=None, request_delay=None, max_detail_fetches=None, **options):
         self.key = key

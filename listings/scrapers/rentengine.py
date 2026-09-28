@@ -140,6 +140,7 @@ class RentEngineScraper(Scraper):
                     continue
                 item.description = detail["description"]
                 item.amenities = detail["amenities"]
+                item.details_version = self.details_version
             return items
         finally:
             self.fetcher.close()

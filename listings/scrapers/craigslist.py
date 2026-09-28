@@ -111,4 +111,5 @@ class CraigslistScraper(Scraper):
             item.amenities = detail["amenities"]
             item.property_type_hint = detail["housing_type"]
             item.photo_url = detail["photo_url"]
+            item.details_version = self.details_version
         return items

@@ -17,7 +17,7 @@ class PriceChangeInline(admin.TabularInline):
     # "Add another" rows had no inputs and were silently discarded on save.
     model = PriceChange
     extra = 0
-    fields = ("price", "seen_at")
+    fields = ("seen_at", "price", "event", "source")
 
 
 @admin.register(Listing)

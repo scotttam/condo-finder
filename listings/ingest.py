@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime, time
 
 from django.conf import settings
 from django.db import transaction
@@ -41,7 +42,7 @@ def ingest(source, items, now=None):
             result.skipped += 1
             continue
         with transaction.atomic():
-            listing, created = _upsert_listing(address, item, now)
+            listing, created = _upsert_listing(address, item, now, source.name)
             source_listing = _upsert_source_listing(source, listing, item, now)
         seen_ids.add(source_listing.pk)
         result.seen += 1
@@ -52,7 +53,7 @@ def ingest(source, items, now=None):
     return result
 
 
-def _upsert_listing(address, item, now):
+def _upsert_listing(address, item, now, source_name):
     listing = Listing.objects.filter(address_key=address.key).first()
     created = listing is None
     if created:
@@ -63,9 +64,43 @@ def _upsert_listing(address, item, now):
     listing.is_active = True
     listing.last_seen_at = now
     listing.save()
-    if listing.price is not None and listing.price != old_price:
-        PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now)
+    _record_price(listing, old_price, now, source_name)
+    _import_history(listing, item.price_history, source_name)
     return listing, created
+
+
+def _record_price(listing, old_price, now, source_name):
+    """Our own observation of the current price, when it's new or changed."""
+    if listing.price is not None and listing.price != old_price:
+        event = "First seen" if old_price is None else "Price change"
+        PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now, event=event, source=source_name)
+
+
+def _history_time(day):
+    return timezone.make_aware(datetime.combine(day, time(12)))
+
+
+def _import_history(listing, entries, source_name):
+    """Add a listing site's own rental history. Entries already present (same day and price, e.g.
+    typed in by hand) are labelled rather than duplicated."""
+    if not entries:
+        return
+    imported = []
+    for day, price, event in entries:
+        existing = listing.price_changes.filter(seen_at__date=day, price=price).first()
+        if existing is None:
+            existing = PriceChange.objects.create(
+                listing=listing, price=price, seen_at=_history_time(day), event=event, source=source_name
+            )
+        elif not existing.event:
+            existing.event, existing.source = event, source_name
+            existing.save(update_fields=["event", "source"])
+        imported.append(existing)
+    # Our own "First seen" is redundant when the site's history already shows that price by then.
+    for observed in listing.price_changes.filter(event="First seen"):
+        earlier = [entry for entry in imported if entry.seen_at <= observed.seen_at]
+        if earlier and max(earlier, key=lambda entry: entry.seen_at).price == observed.price:
+            observed.delete()
 
 
 def _apply_scraped(listing, address, item):
@@ -80,6 +115,7 @@ def _apply_scraped(listing, address, item):
     listing.description = "\n\n".join(p for p in (item.description, item.amenities) if p) or listing.description
     listing.available = (item.available or listing.available)[:100]
     listing.photo_url = item.photo_url or listing.photo_url
+    listing.listed_at = item.listed_at or listing.listed_at
     if item.latitude is not None and item.longitude is not None:
         # The listing site's own pin beats a geocoded guess from the street address.
         listing.latitude = item.latitude
@@ -142,7 +178,8 @@ def _upsert_source_listing(source, listing, item, now):
         source_listing.is_active = True
         source_listing.missed_runs = 0
         source_listing.last_seen_at = now
-        source_listing.save()
+    source_listing.details_version = max(source_listing.details_version, item.details_version)
+    source_listing.save()
     return source_listing
 
 
@@ -161,8 +198,7 @@ def _refresh_known(source, item, now, result, seen_ids):
         listing.is_active = True
         listing.last_seen_at = now
         listing.save()
-        if listing.price is not None and listing.price != old_price:
-            PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now)
+        _record_price(listing, old_price, now, source.name)
         _upsert_source_listing(source, listing, item, now)
     seen_ids.add(source_listing.pk)
     result.seen += 1

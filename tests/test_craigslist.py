@@ -68,3 +68,10 @@ def test_scraper_fetches_details_for_new_candidates_only():
 def test_coordinates_come_from_structured_data():
     first = parse_search(load_fixture("craigslist_search.html"))[0]
     assert (first.latitude, first.longitude) == (45.5546401373104, -122.679978430326)
+
+
+def test_fetched_details_are_stamped_with_the_parser_version():
+    fake = FakeFetcher({SEARCH_URL: load_fixture("craigslist_search.html")}, default=load_fixture("craigslist_detail_0.html"))
+    items = CraigslistScraper(key="craigslist", name="Craigslist", fetcher=fake, search_url=SEARCH_URL).scrape()
+    assert sum(i.details_version == CraigslistScraper.details_version for i in items) == 6
+    assert all(i.details_version == 0 for i in items if not i.address)
