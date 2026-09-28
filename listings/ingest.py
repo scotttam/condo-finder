@@ -148,7 +148,8 @@ def _apply_scraped(listing, address, item):
     listing.description = "\n\n".join(p for p in (item.description, item.amenities) if p) or listing.description
     listing.available = (item.available or listing.available)[:100]
     listing.photo_url = item.photo_url or listing.photo_url
-    listing.listed_at = item.listed_at or listing.listed_at
+    if item.listed_at and (listing.listed_at is None or item.listed_at < listing.listed_at):
+        listing.listed_at = item.listed_at  # sites can disagree; keep the earliest start
     if item.latitude is not None and item.longitude is not None:
         # The listing site's own pin beats a geocoded guess from the street address.
         listing.latitude = item.latitude

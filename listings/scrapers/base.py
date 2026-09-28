@@ -85,7 +85,8 @@ class Scraper:
         self.name = name
         self.fetcher = fetcher if fetcher is not None else self.default_fetcher(request_delay)
         self.max_detail_fetches = max_detail_fetches
-        self.known_ids = set()  # external ids whose listing already has a description (set by the runner)
+        self.known_ids = set()  # external ids already fetched by the current parser version (set by the runner)
+        self.skip_detail_ids = set()  # external ids whose details come from another site (set by the runner)
         self.options = options
 
     def default_fetcher(self, request_delay):
@@ -95,7 +96,7 @@ class Scraper:
         raise NotImplementedError
 
     def should_fetch_detail(self, item, fetched_so_far):
-        if item.external_id in self.known_ids:
+        if item.external_id in self.known_ids or item.external_id in self.skip_detail_ids:
             return False
         return self.max_detail_fetches is None or fetched_so_far < self.max_detail_fetches
 
