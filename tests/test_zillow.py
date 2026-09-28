@@ -166,3 +166,47 @@ def test_fetched_details_are_stamped_with_the_parser_version():
     fake = fetcher()
     items = ZillowScraper(key="zillow", name="Zillow", fetcher=fake, city_slugs=["portland-or"], max_detail_fetches=2).scrape()
     assert sorted(i.details_version for i in items) == [0] * 5 + [ZillowScraper.details_version] * 2
+
+
+# priceHistory from 10805 NW Cornell Rd (zpid 186247313), 2026-09-28, newest first as Zillow sends it.
+CORNELL_PRICE_HISTORY = [
+    {"date": "2026-09-22", "price": 4600, "event": "Price change", "postingIsRental": True},
+    {"date": "2026-08-22", "price": 4800, "event": "Listed for rent", "postingIsRental": True},
+    {"date": "2022-10-21", "price": 1080000, "event": "Sold", "postingIsRental": False},
+    {"date": "2022-09-21", "price": 1100000, "event": "Listed for sale", "postingIsRental": False},
+    {"date": "2021-05-01", "price": 3900, "event": "Listing removed", "postingIsRental": True},
+    {"date": "2021-03-10", "price": 3900, "event": "Listed for rent", "postingIsRental": True},
+    {"date": "2020-01-01", "price": None, "event": "Listing removed", "postingIsRental": True},
+]
+
+
+def test_detail_rental_price_history_oldest_first():
+    from datetime import date
+
+    detail = parse_detail(detail_html({"priceHistory": CORNELL_PRICE_HISTORY, "resoFacts": {}}))
+    assert detail["price_history"] == [
+        (date(2021, 3, 10), 3900, "Listed for rent"),
+        (date(2021, 5, 1), 3900, "Listing removed"),
+        (date(2026, 8, 22), 4800, "Listed for rent"),
+        (date(2026, 9, 22), 4600, "Price change"),
+    ]  # sale events and entries without a price are left out
+    assert detail["listed_at"] == date(2026, 8, 22)  # start of the current rental listing
+
+
+def test_detail_without_history():
+    detail = parse_detail(detail_html({"resoFacts": {}}))
+    assert (detail["price_history"], detail["listed_at"]) == ([], None)
+
+
+def test_scraper_passes_history_through_and_bumps_parser_version():
+    from datetime import date
+
+    fake = FakeFetcher(
+        {PORTLAND: load_fixture("zillow_search_page.html"), SEARCH_API: load_fixture("zillow_api_page.json")},
+        default=detail_html({"priceHistory": CORNELL_PRICE_HISTORY, "resoFacts": {}}),
+    )
+    items = {i.external_id: i for i in ZillowScraper(key="zillow", name="Zillow", fetcher=fake,
+                                                      city_slugs=["portland-or"]).scrape()}
+    duke = items["54003809"]
+    assert duke.listed_at == date(2026, 8, 22) and len(duke.price_history) == 4
+    assert duke.details_version == ZillowScraper.details_version == 2
