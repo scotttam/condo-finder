@@ -42,6 +42,7 @@ class ListingFilterForm(forms.Form):
     wd = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="In-unit W/D")
     ac = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="AC")
     outdoor = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Outdoor space")
+    price_reduced = forms.BooleanField(required=False, label="Price reduced")
     show_inactive = forms.BooleanField(required=False, label="Show off-market")
     sort = forms.ChoiceField(required=False, choices=SORT_CHOICES)
 

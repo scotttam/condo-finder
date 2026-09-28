@@ -125,6 +125,37 @@ class Listing(models.Model):
         return None
 
     @property
+    def price_drop(self):
+        """How far the price has fallen from its peak during the current rental listing."""
+        if not self.price:
+            return 0
+        prices = [
+            change.price
+            for change in self.price_changes.all()
+            if self.listed_at is None or timezone.localdate(change.seen_at) >= self.listed_at
+        ]
+        return max(max(prices, default=self.price) - self.price, 0)
+
+    @property
+    def price_drop_percent(self):
+        return round(self.price_drop * 100 / (self.price + self.price_drop)) if self.price_drop else 0
+
+    @property
+    def price_history_rows(self):
+        """Price history oldest first, each with its change from the previous entry. A new
+        'Listed for rent' starts a new rental period, so it isn't shown as a change."""
+        rows, previous = [], None
+        for change in self.price_changes.all():
+            label = ""
+            if previous and change.price != previous and change.event != "Listed for rent":
+                delta = change.price - previous
+                sign = "−" if delta < 0 else "+"
+                label = f"{sign}${abs(delta):,} ({sign}{abs(round(delta * 100 / previous))}%)"
+            rows.append({"change": change, "label": label, "is_drop": label.startswith("−")})
+            previous = change.price
+        return rows
+
+    @property
     def days_on_market(self):
         """From the site's listed date when known (often before we first saw it), else first seen."""
         start = timezone.localdate(self.first_seen_at)
