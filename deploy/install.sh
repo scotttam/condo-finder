@@ -17,8 +17,19 @@ mkdir -p logs "$HOME/Library/LaunchAgents"
 sed -e "s#__PROJECT_DIR__#$PROJECT_DIR#g" -e "s#__UV__#$UV#g" "deploy/$LABEL.plist.template" > "$PLIST"
 plutil -lint "$PLIST"
 
-launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
-launchctl bootstrap "gui/$(id -u)" "$PLIST"
+deploy/launchd-restart.sh "$LABEL" "$PLIST"
+
+echo "Waiting for the app to answer on port 8000..."
+for _ in $(seq 60); do
+  if curl -fs -o /dev/null http://127.0.0.1:8000/; then
+    break
+  fi
+  sleep 1
+done
+if ! curl -fs -o /dev/null http://127.0.0.1:8000/; then
+  echo "The app didn't respond within 60s. Check: tail -50 $PROJECT_DIR/logs/web.log" >&2
+  exit 1
+fi
 echo "Condo Finder is running."
 echo "  Home network: http://$(scutil --get LocalHostName).local:8000"
 TAILSCALE="$(command -v tailscale || echo /Applications/Tailscale.app/Contents/MacOS/Tailscale)"
