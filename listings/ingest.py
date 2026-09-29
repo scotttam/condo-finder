@@ -1,5 +1,7 @@
+import logging
 from dataclasses import dataclass, field
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
+from types import SimpleNamespace
 
 from django.conf import settings
 from django.db import transaction
@@ -16,6 +18,11 @@ from .extract import (
 )
 from .models import Listing, PriceChange, PropertyType, SourceListing
 
+log = logging.getLogger(__name__)
+
+LISTING_CHECKS_PER_RUN = 25  # direct listing-page checks before calling a listing gone (see _mark_missing)
+RECHECK_DROPPED_WITHIN = timedelta(days=14)
+
 OVERRIDABLE_FIELDS = {
     "price", "beds", "baths", "sqft", "parking_spaces", "has_parking", "has_washer_dryer", "has_ac",
     "has_outdoor_space", "property_type", "neighborhood", "quadrant", "available", "title",
@@ -30,7 +37,7 @@ class IngestResult:
     new_listings: list = field(default_factory=list)
 
 
-def ingest(source, items, now=None):
+def ingest(source, items, now=None, verify=None):
     now = now or timezone.now()
     result = IngestResult()
     seen_ids = set()
@@ -51,7 +58,7 @@ def ingest(source, items, now=None):
         if created:
             result.new_listings.append(listing)
     if items:
-        _mark_missing(source, seen_ids)
+        _mark_missing(source, seen_ids, now, verify)
     return result
 
 
@@ -239,14 +246,44 @@ def _refresh_known(source, item, now, result, seen_ids):
     return True
 
 
-def _mark_missing(source, seen_ids):
-    affected = set()
-    for source_listing in SourceListing.objects.filter(source=source, is_active=True).exclude(pk__in=seen_ids):
+def _mark_missing(source, seen_ids, now, verify=None):
+    """Listings this source didn't return count a miss; at OFF_MARKET_AFTER_MISSES they're gone.
+    When the source can check a listing directly (verify(url) -> (listed?, price)), a listing about to
+    be called gone is checked first, and recently dropped ones are re-checked."""
+    checks_left = LISTING_CHECKS_PER_RUN if verify else 0
+    affected, checked = set(), set()
+    outcomes = {"still up": 0, "confirmed gone": 0, "unknown": 0}
+    missing = SourceListing.objects.filter(source=source, is_active=True).exclude(pk__in=seen_ids).select_related("listing")
+    for source_listing in missing:
+        if checks_left and source_listing.missed_runs + 1 >= settings.OFF_MARKET_AFTER_MISSES:
+            checks_left -= 1
+            checked.add(source_listing.pk)
+            listed, price = verify(source_listing.url)
+            outcomes["still up" if listed else "confirmed gone" if listed is False else "unknown"] += 1
+            if listed:
+                _still_listed(source_listing, price, now, source.name)
+                continue
+            if listed is False:
+                source_listing.missed_runs = settings.OFF_MARKET_AFTER_MISSES - 1  # confirmed gone
         source_listing.missed_runs += 1
         if source_listing.missed_runs >= settings.OFF_MARKET_AFTER_MISSES:
             source_listing.is_active = False
             affected.add(source_listing.listing_id)
         source_listing.save(update_fields=["missed_runs", "is_active"])
+    if checks_left:
+        recently_dropped = (
+            SourceListing.objects.filter(source=source, is_active=False, last_seen_at__gte=now - RECHECK_DROPPED_WITHIN)
+            .exclude(pk__in=seen_ids | checked)
+            .select_related("listing")
+            .order_by("-last_seen_at")[:checks_left]
+        )
+        for source_listing in recently_dropped:
+            listed, price = verify(source_listing.url)
+            outcomes["still up" if listed else "confirmed gone" if listed is False else "unknown"] += 1
+            if listed:
+                _still_listed(source_listing, price, now, source.name)
+    if verify and any(outcomes.values()):
+        log.info("%s listing checks: %s", source.name, ", ".join(f"{count} {label}" for label, count in outcomes.items()))
     for listing in Listing.objects.filter(pk__in=affected, is_active=True):
         active = listing.source_listings.filter(is_active=True)
         if not active.exists():
@@ -257,3 +294,19 @@ def _mark_missing(source, seen_ids):
             prices = active.filter(last_price__isnull=False).values_list("last_price", flat=True)
             listing.price = min(prices, default=listing.price)
             listing.save(update_fields=["price", "updated_at"])
+
+
+def _still_listed(source_listing, price, now, source_name):
+    """A direct check found the listing still up: keep (or bring back) it and note its price."""
+    previous_price = source_listing.last_price
+    source_listing.is_active = True
+    source_listing.missed_runs = 0
+    source_listing.last_seen_at = now
+    if price is not None:
+        source_listing.last_price = price
+    source_listing.save(update_fields=["is_active", "missed_runs", "last_seen_at", "last_price"])
+    listing = source_listing.listing
+    listing.is_active = True
+    listing.last_seen_at = now
+    listing.save(update_fields=["is_active", "last_seen_at", "updated_at"])
+    _update_price(listing, previous_price, SimpleNamespace(price=price), now, source_name, created=False)

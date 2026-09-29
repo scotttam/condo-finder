@@ -95,6 +95,11 @@ class Scraper:
     def scrape(self):
         raise NotImplementedError
 
+    def check_listing(self, url):
+        """(still listed?, current price) for one listing page: True/False, or None when unknown.
+        Sources that can confirm a listing directly override this; see ingest._mark_missing."""
+        return None, None
+
     def should_fetch_detail(self, item, fetched_so_far):
         if item.external_id in self.known_ids or item.external_id in self.skip_detail_ids:
             return False

@@ -7,6 +7,7 @@ from django.utils import timezone
 from .geocode import geocode_pending
 from .ingest import ingest, reextract_all
 from .models import Source, SourceListing, SourceRun
+from .scrapers.base import Scraper
 from .scrapers.registry import SOURCES, build_scraper
 
 log = logging.getLogger(__name__)
@@ -50,7 +51,9 @@ def run_source(config, fetcher=None):
         items = scraper.scrape()
         if not items:
             raise EmptyScrape("scraper returned 0 listings")
-        result = ingest(source, items)
+        # Sources that can check a listing page directly confirm it before it's called gone.
+        overrides_check = type(scraper).check_listing is not Scraper.check_listing
+        result = ingest(source, items, verify=scraper.check_listing if overrides_check else None)
     except Exception as exc:  # one broken source must never stop the others
         log.exception("Source %s failed", source.key)
         _record_failure(source, run, exc)
