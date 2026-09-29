@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from .filters import apply_filters
 from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
 from .models import Listing, PriceChange, Source, SourceRun, Status
+from . import feed
 from .ingest import refresh_source_listing
 from .runner import is_running, run_all_in_background, sync_sources
 from .scrapers.base import RefreshBlocked, Scraper
@@ -16,6 +17,7 @@ from .scrapers.registry import PLATFORMS, SOURCES, build_scraper
 from .scheduler import next_run_time
 
 PAGE_SIZE = 50
+FEED_PAGE_SIZE = 100
 VIEWS = ("map", "list")
 NON_FILTER_PARAMS = {"view", "page"}
 
@@ -83,6 +85,38 @@ def _map_points(listings):
         for listing in listings
         if listing.latitude is not None and listing.longitude is not None
     ]
+
+
+def feed_page(request):
+    """New listings and updates to listings you're tracking, newest first; unread since your last visit."""
+    tab = request.GET.get("tab") if request.GET.get("tab") in ("new", "updates") else "all"
+    show_apartments = request.GET.get("apartments") == "show"
+    last_seen = feed.seen_at(request)
+    page_obj = Paginator(feed.events(tab, show_apartments), FEED_PAGE_SIZE).get_page(request.GET.get("page"))
+    today = timezone.localdate()
+    rows = []
+    for event in page_obj.object_list:
+        day = timezone.localdate(event.created_at)
+        happened = timezone.localdate(event.happened_at)
+        rows.append({
+            "event": event,
+            "listing": event.listing,
+            "label": feed.label(event),
+            "unread": event.created_at > last_seen,
+            "day": "Today" if day == today else "Yesterday" if (today - day).days == 1 else f"{day:%A, %b} {day.day}",
+            "happened": happened if happened != day else None,
+        })
+    response = render(request, "listings/feed.html", {
+        "rows": rows,
+        "page_obj": page_obj,
+        "tab": tab,
+        "show_apartments": show_apartments,
+        "unread": sum(row["unread"] for row in rows),
+        "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
+        "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
+    })
+    response.set_cookie(feed.SEEN_COOKIE, timezone.now().isoformat(), max_age=60 * 60 * 24 * 365, samesite="Lax")
+    return response
 
 
 def _url_with(request, **params):

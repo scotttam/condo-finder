@@ -98,7 +98,13 @@ def test_backfill_seeds_price_changes_and_skips_the_initial_import():
     PriceChange.objects.create(listing=first, price=2900, seen_at=at(2), event="Price change", source="Zillow")
     FeedEvent.objects.all().delete()
     migration.seed_feed(apps, None)
+    from listings.models import SourceListing
+
+    SourceListing.objects.create(listing=later, source=make_source("redfin"), external_id="r9", url="https://x.example/r9",
+                                 first_seen_at=later.first_seen_at)
+    FeedEvent.objects.all().delete()
+    migration.seed_feed(apps, None)
     new = FeedEvent.objects.get(kind="new_listing")
-    assert new.listing_id == later.pk and new.created_at == later.first_seen_at
+    assert new.listing_id == later.pk and new.created_at == later.first_seen_at and new.source == "Redfin"
     change = FeedEvent.objects.get(kind="price_change")
     assert (change.listing_id, change.old_price, change.new_price, change.created_at) == (first.pk, 3000, 2900, at(2))

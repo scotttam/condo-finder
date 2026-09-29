@@ -16,6 +16,10 @@ def seed_feed(apps, schema_editor):
     Listing = apps.get_model("listings", "Listing")
     PriceChange = apps.get_model("listings", "PriceChange")
     FeedEvent = apps.get_model("listings", "FeedEvent")
+    SourceListing = apps.get_model("listings", "SourceListing")
+    found_on = {}  # listing -> the site it was first found on
+    for listing_id, name in SourceListing.objects.order_by("-first_seen_at", "-pk").values_list("listing_id", "source__name"):
+        found_on[listing_id] = name
     first = Listing.objects.order_by("first_seen_at").values_list("first_seen_at", flat=True).first()
     if first is None:
         return
@@ -26,6 +30,7 @@ def seed_feed(apps, schema_editor):
             parts.append(f"{listing.baths.normalize():f} ba")
         parts.append(TYPE_LABELS.get(listing.property_type, listing.property_type))
         events.append(FeedEvent(listing=listing, kind="new_listing", summary=" · ".join(parts),
+                                source=found_on.get(listing.pk, ""),
                                 happened_at=listing.first_seen_at, created_at=listing.first_seen_at))
     previous = {}
     for change in PriceChange.objects.order_by("listing_id", "seen_at", "pk"):

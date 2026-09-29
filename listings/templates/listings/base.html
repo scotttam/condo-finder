@@ -143,6 +143,22 @@
     .row-actions { text-align:right; }
     .form-error { width:100%; color:var(--no); font-size:12px; }
     .small { font-size:12px; }
+    /* Feed */
+    .nav-badge { display:inline-block; min-width:18px; padding:0 6px; margin-left:2px; border-radius:9px; background:#c0265f; color:#fff;
+                 font-size:12px; font-weight:700; text-align:center; line-height:18px; }
+    .feed-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+    .feed-head h1 { margin:0; font-size:26px; } .feed-head h1 .muted { font-size:15px; font-weight:400; }
+    .feed-controls { display:flex; align-items:center; gap:14px; } .toggle-link { font-size:14px; }
+    .feed-day { font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:22px 0 8px; }
+    .feed-table td { vertical-align:middle; padding:8px 10px; }
+    .feed-row.unread { background:#f1f8f4; } .feed-row.unread td:first-child { box-shadow:inset 3px 0 0 var(--accent); }
+    .feed-time { color:var(--muted); font-size:13px; width:72px; }
+    .feed-kind { display:inline-block; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:700; white-space:nowrap; background:#eef1f4; color:#344054; }
+    .kind-new_listing { background:#e8f0fe; color:#1a56db; } .kind-drop { background:#e3f5ea; color:var(--yes); }
+    .kind-price_change:not(.kind-drop) { background:#fff4d6; color:#8a6d00; } .kind-off_market { background:#fde8e7; color:var(--no); }
+    .kind-back_on_market { background:#e3f5ea; color:var(--yes); } .kind-new_site { background:#f0e8fe; color:#6b3fd4; }
+    .feed-thumb img, .feed-thumb span { display:block; width:64px; height:46px; object-fit:cover; border-radius:6px; background:#ddd; }
+    .feed-listing { min-width:200px; } .feed-summary { min-width:220px; }
     .panel-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
     .panel-head h3 { margin:0; }
     button.refresh { padding:5px 10px; border:1px solid var(--accent); border-radius:999px; background:var(--card); color:var(--accent);
@@ -187,6 +203,7 @@
     <a class="brand" href="{% url 'listing_list' %}">Condo Finder</a>
     <nav>
       <a href="{{ listings_url }}">Listings</a>
+      <a href="{% url 'feed' %}">Feed{% if feed_unread %} <span class="nav-badge">{{ feed_unread }}</span>{% endif %}</a>
       <a href="{% url 'sources' %}">Sources</a>
       <a href="/admin/">Admin</a>
     </nav>
