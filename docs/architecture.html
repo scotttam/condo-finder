@@ -172,7 +172,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="lbl" x="430" y="435">after all sources</text>
 
       <rect class="box scrape" x="322" y="442" width="200" height="48" rx="7"/>
-      <text class="t" x="334" y="462">re-extract + geocode</text><text class="s" x="334" y="480">features · map points</text>
+      <text class="t" x="334" y="462">dedupe, re-extract, geocode</text><text class="s" x="334" y="480">unit pairs · features · pins</text>
       <path class="edge scrape" d="M322 476 C 280 476, 250 502, 216 502" marker-end="url(#ahs)"/>
       <text class="lbl a-t" x="232" y="546">up to 200 per run</text>
 
@@ -241,7 +241,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
   <p>The runner works through the sources one at a time. A broken source records its error on the Sources page and the run moves on to the next one.</p>
   <figure class="wide">
     <div class="scroll">
-    <svg viewBox="0 0 1040 330" role="img" aria-label="For each source: fetch search pages, fetch detail pages within a budget, stop if zero results, ingest each item into a merged listing with prices and feed events, then count misses for listings not seen. After all sources, re-extract features and geocode.">
+    <svg viewBox="0 0 1040 330" role="img" aria-label="For each source: fetch search pages, fetch detail pages within a budget, stop if zero results, ingest each item into a merged listing with prices and feed events, then count misses for listings not seen. After all sources, merge unit duplicates, re-extract features and geocode.">
       <defs>
         <marker id="bh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah scrape" d="M0,0 L10,5 L0,10 z"/></marker>
         <marker id="bg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
@@ -297,9 +297,9 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <!-- after all -->
       <text class="cap" x="606" y="222">AFTER ALL SOURCES</text>
       <rect class="box scrape" x="606" y="232" width="200" height="72" rx="8"/>
-      <text class="t" x="618" y="254">Re-extract</text>
-      <text class="s" x="618" y="274">re-run W/D, AC, furnished, parking</text>
-      <text class="s" x="618" y="290">rules on stored text</text>
+      <text class="t" x="618" y="254">Merge, re-extract</text>
+      <text class="s" x="618" y="274">fold with/without-unit pairs;</text>
+      <text class="s" x="618" y="290">re-run feature rules on text</text>
       <rect class="box scrape" x="824" y="232" width="200" height="72" rx="8"/>
       <text class="t" x="836" y="254">Geocode</text>
       <text class="s" x="836" y="274">new addresses → map pin,</text>
@@ -408,6 +408,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
   <ul class="rules">
     <li><b>One worker, one scheduler</b>Gunicorn must stay at <code>workers = 1</code>. More workers would each start a scheduler.</li>
     <li><b>Units never cross-merge</b>Two units at one address from the same site stay separate. Hidden addresses never merge.</li>
+    <li><b>A missing unit number still matches</b>Redfin often drops the unit. A listing without one joins the single listing at that address with one, from another site, with the same beds and size (or price when a size is missing). Ambiguous matches stay separate. When copies merge, the one with notes or a status wins; if both have them, notes and statuses combine.</li>
     <li><b>Gone takes proof</b>A listing needs three missed runs, or a direct page check, before it's marked gone.</li>
     <li><b>Rents stay plausible</b>Anything over $25,000 is treated as a sale price or home value and ignored.</li>
     <li><b>Polite by default</b>Every source has a delay and a detail-page budget. Redfin stops at the first bot challenge.</li>
