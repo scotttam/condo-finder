@@ -1,17 +1,20 @@
 """Market statistics for the Trends page, computed from stored listings and their price history.
 
 "Comparable" listings are the kind we're shopping for (2+ bed, 2+ bath, not an apartment complex).
-Weekly series are snapshots taken on the same weekday for the last N weeks, ending today.
+Weekly series are snapshots taken on the same weekday for the last N weeks, ending today. Weeks
+before our first scrape are left blank: back then we only know the listings that were still up when
+we arrived, which skews those weeks toward slow-renting, price-cut places.
 """
 
 from datetime import timedelta
 from statistics import median
 
 from django.conf import settings
+from django.db.models import Min
 from django.utils import timezone
 
 from .ingest import MAX_PLAUSIBLE_RENT
-from .models import Listing, PropertyType
+from .models import Listing, PropertyType, SourceRun
 
 MIN_SAMPLE = 3  # fewer listings than this in a week says nothing; the chart leaves a gap
 
@@ -22,6 +25,11 @@ def comparable_listings():
         .exclude(property_type=PropertyType.APARTMENT)
         .prefetch_related("price_changes")
     )
+
+
+def tracking_start():
+    first = SourceRun.objects.aggregate(first=Min("started_at"))["first"]
+    return timezone.localdate(first) if first else None
 
 
 def _start(listing):
@@ -62,7 +70,14 @@ def weekly_series(weeks=8, today=None):
     cities = settings.TARGET_CITIES
     rent_by_city = {city: [] for city in cities}
     cut_share, median_dom = [], []
+    since = tracking_start()
     for day in days:
+        if since and day < since:
+            for city in cities:
+                rent_by_city[city].append(None)
+            cut_share.append(None)
+            median_dom.append(None)
+            continue
         on_market = [(listing, history) for listing, history in listings if _on_market(listing, day)]
         prices = {listing.pk: _price_on(listing, day, history) for listing, history in on_market}
         for city in cities:
@@ -72,6 +87,7 @@ def weekly_series(weeks=8, today=None):
         median_dom.append(_median([(day - _start(l)).days for l, _ in on_market]))
     return {
         "weeks": [day.isoformat() for day in days],
+        "tracking_since": since.isoformat() if since else None,
         "median_rent_by_city": rent_by_city,
         "cut_share": cut_share,
         "median_dom": median_dom,

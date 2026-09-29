@@ -119,3 +119,18 @@ def test_empty_database():
     series = trend_stats.weekly_series(weeks=2, today=TODAY)
     assert series["cut_share"] == [None, None]
     assert trend_stats.market_snapshot(today=TODAY)["median_rent"] is None
+
+
+def test_weeks_before_tracking_started_are_blank():
+    # Before our first scrape we only know listings that were still up when we arrived, which
+    # skews old weeks toward slow-renting, price-cut places. Those weeks are left out.
+    from listings.models import SourceRun
+    from tests.helpers import make_source
+
+    SourceRun.objects.create(source=make_source(), started_at=at(date(2026, 9, 20)))
+    for _ in range(3):
+        listing(first_seen=date(2026, 9, 20), listed_at=date(2026, 8, 1))
+    series = trend_stats.weekly_series(weeks=3, today=TODAY)
+    assert series["tracking_since"] == "2026-09-20"
+    assert series["median_rent_by_city"]["Portland"] == [None, 3000, 3000]
+    assert series["cut_share"][0] is None and series["median_dom"][0] is None
