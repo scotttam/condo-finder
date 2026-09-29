@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Condo Finder Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; three wide figures, each in its own horizontal scroller. */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --fg: #1c2622;
+  --muted: #5b6863;
+  --line: #b9c4bf;
+  --accent: #1f7a5a;      /* evergreen: the scrape path */
+  --warm: #b8651b;        /* amber: the web / people path */
+  --tint: #e7f1ec;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201d; --fg: #e3ebe7; --muted: #95a39d; --line: #3d4a45;
+    --accent: #5cc79c; --warm: #e59a52; --tint: #1b2b24; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201d; --fg: #e3ebe7; --muted: #95a39d; --line: #3d4a45;
+  --accent: #5cc79c; --warm: #e59a52; --tint: #1b2b24; color-scheme: dark;
+}
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); }
+main { max-width: 1080px; margin: 0 auto; padding: 40px 20px 64px; display: grid; gap: 40px; }
+header { display: grid; gap: 8px; max-width: 68ch; }
+h1 { font: 700 clamp(28px, 4vw, 40px)/1.1 var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h2 { font: 600 22px/1.2 var(--display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.lede { color: var(--muted); font-size: 17px; }
+section { display: grid; gap: 14px; min-width: 0; }
+section > p { max-width: 68ch; }
+code { font: 0.88em var(--mono); background: var(--tint); padding: 1px 5px; border-radius: 4px; }
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+svg { display: block; width: 100%; height: auto; color: var(--fg); font-family: var(--body); }
+.wide svg { min-width: 820px; }
+figcaption { color: var(--muted); font-size: 14.5px; max-width: 75ch; }
+
+/* SVG styling, all through tokens */
+.box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+.box.scrape { stroke: var(--accent); }
+.box.web { stroke: var(--warm); }
+.box.ext { fill: var(--bg); }
+.zone { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 6 5; }
+.fill-tint { fill: var(--tint); stroke: var(--line); }
+.t { fill: var(--fg); font-size: 13.5px; font-weight: 600; }
+.s { fill: var(--muted); font: 11px var(--mono); }
+.lbl { fill: var(--muted); font-size: 11.5px; }
+.cap { fill: var(--muted); font: 500 10.5px var(--mono); letter-spacing: 0.08em; }
+.edge { fill: none; stroke: var(--fg); stroke-width: 1.3; opacity: 0.75; }
+.edge.scrape { stroke: var(--accent); opacity: 1; stroke-width: 1.8; }
+.edge.web { stroke: var(--warm); opacity: 1; stroke-width: 1.8; }
+.edge.dash { stroke-dasharray: 5 4; }
+.ah { fill: var(--fg); opacity: 0.75; }
+.ah.scrape { fill: var(--accent); opacity: 1; }
+.ah.web { fill: var(--warm); opacity: 1; }
+.a-t { fill: var(--accent); }
+.w-t { fill: var(--warm); }
+
+.key { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: 8px; }
+.key i { width: 22px; height: 0; border-top: 2px solid; display: inline-block; }
+.key .k-scrape { border-color: var(--accent); }
+.key .k-web { border-color: var(--warm); }
+.key .k-dash { border-top-style: dashed; border-color: var(--fg); opacity: .7; }
+
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.tbl { overflow-x: auto; }
+th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td:first-child { white-space: nowrap; font-weight: 600; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 28px; margin: 0; padding: 0; list-style: none; }
+.rules li { border-top: 2px solid var(--accent); padding-top: 8px; font-size: 15px; }
+.rules b { display: block; font-family: var(--display); font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+</style>
+
+<main>
+<header>
+  <h1>How Condo Finder works</h1>
+  <p class="lede">One Django process on the Mac mini at home does everything. A scheduler inside it scrapes twelve listing sites five times a day into SQLite, and the same process serves the pages you two browse over Tailscale.</p>
+</header>
+
+<section>
+  <h2>The whole system</h2>
+  <div class="key" aria-hidden="true">
+    <span><i class="k-scrape"></i>Scrape path: data coming in</span>
+    <span><i class="k-web"></i>Web path: the two of you</span>
+    <span><i class="k-dash"></i>Triggered by hand</span>
+  </div>
+  <figure class="wide">
+    <div class="scroll">
+    <svg viewBox="0 0 1040 590" role="img" aria-label="Listing sites feed scrapers inside a single gunicorn process on the Mac mini. The scheduler triggers runs, ingest writes to SQLite, the web views read and write the same database, and browsers reach the views over Tailscale.">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ahs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah scrape" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ahw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah web" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <!-- Listing sites -->
+      <text class="cap" x="28" y="52">LISTING SITES (12)</text>
+      <rect class="zone" x="16" y="60" width="210" height="372" rx="10"/>
+      <g>
+        <rect class="box ext" x="28" y="72" width="186" height="48" rx="7"/>
+        <text class="t" x="40" y="92">Property managers ×6</text><text class="s" x="40" y="110">AppFolio · JSON</text>
+        <rect class="box ext" x="28" y="132" width="186" height="48" rx="7"/>
+        <text class="t" x="40" y="152">Property managers ×2</text><text class="s" x="40" y="170">Nesthub · HTML</text>
+        <rect class="box ext" x="28" y="192" width="186" height="48" rx="7"/>
+        <text class="t" x="40" y="212">Chroma</text><text class="s" x="40" y="230">RentEngine · Chromium</text>
+        <rect class="box ext" x="28" y="252" width="186" height="48" rx="7"/>
+        <text class="t" x="40" y="272">Zillow</text><text class="s" x="40" y="290">search + detail pages</text>
+        <rect class="box ext" x="28" y="312" width="186" height="48" rx="7"/>
+        <text class="t" x="40" y="332">Redfin</text><text class="s" x="40" y="350">API + slow detail pages</text>
+        <rect class="box ext" x="28" y="372" width="186" height="48" rx="7"/>
+        <text class="t" x="40" y="392">Craigslist</text><text class="s" x="40" y="410">search + post pages</text>
+      </g>
+      <!-- converge to scrapers -->
+      <g class="edge scrape" style="stroke-width:1.3">
+        <path class="edge scrape" style="stroke-width:1.2" d="M214 96 C 245 96, 245 329, 262 329"/>
+        <path class="edge scrape" style="stroke-width:1.2" d="M214 156 C 245 156, 245 329, 262 329"/>
+        <path class="edge scrape" style="stroke-width:1.2" d="M214 216 C 245 216, 245 329, 262 329"/>
+        <path class="edge scrape" style="stroke-width:1.2" d="M214 276 C 245 276, 245 329, 262 329"/>
+        <path class="edge scrape" style="stroke-width:1.2" d="M214 336 C 245 336, 245 329, 262 329"/>
+        <path class="edge scrape" style="stroke-width:1.2" d="M214 396 C 245 396, 245 329, 262 329"/>
+      </g>
+      <line class="edge scrape" x1="262" y1="329" x2="320" y2="329" marker-end="url(#ahs)"/>
+      <text class="lbl a-t" x="262" y="318">fetched</text>
+
+      <!-- Nominatim -->
+      <text class="cap" x="28" y="470">ADDRESS LOOKUP</text>
+      <rect class="box ext" x="28" y="478" width="186" height="48" rx="7"/>
+      <text class="t" x="40" y="498">Nominatim (OSM)</text><text class="s" x="40" y="516">address → lat/lng, area</text>
+
+      <!-- Mac mini -->
+      <rect class="zone" x="290" y="28" width="510" height="546" rx="12"/>
+      <text class="cap" x="306" y="50">MAC MINI · HOME NETWORK</text>
+      <rect class="fill-tint" x="306" y="62" width="478" height="36" rx="7"/>
+      <text class="t" x="320" y="85">launchd</text><text class="s" x="384" y="85">starts at login · restarts on crash · install.sh</text>
+      <line class="edge" x1="545" y1="98" x2="545" y2="118" marker-end="url(#ah)"/>
+
+      <rect class="box" x="306" y="120" width="478" height="440" rx="9"/>
+      <text class="t" x="320" y="142">gunicorn</text><text class="s" x="392" y="142">1 worker × 4 threads · Django · port 8000</text>
+
+      <!-- scrape column -->
+      <rect class="box scrape" x="322" y="162" width="200" height="48" rx="7"/>
+      <text class="t" x="334" y="182">APScheduler</text><text class="s" x="334" y="200">7 · 11 · 15 · 19 · 23 h</text>
+      <line class="edge scrape" x1="422" y1="210" x2="422" y2="236" marker-end="url(#ahs)"/>
+      <text class="lbl" x="430" y="227">triggers</text>
+
+      <rect class="box scrape" x="322" y="238" width="200" height="48" rx="7"/>
+      <text class="t" x="334" y="258">runner.run_all</text><text class="s" x="334" y="276">one run at a time</text>
+      <line class="edge scrape" x1="422" y1="286" x2="422" y2="304" marker-end="url(#ahs)"/>
+      <text class="lbl" x="430" y="299">each source</text>
+
+      <rect class="box scrape" x="322" y="306" width="200" height="48" rx="7"/>
+      <text class="t" x="334" y="326">scrapers/</text><text class="s" x="334" y="344">paced · detail budget</text>
+      <line class="edge scrape" x1="422" y1="354" x2="422" y2="372" marker-end="url(#ahs)"/>
+      <text class="lbl" x="430" y="367">items</text>
+
+      <rect class="box scrape" x="322" y="374" width="200" height="48" rx="7"/>
+      <text class="t" x="334" y="394">ingest</text><text class="s" x="334" y="412">merge · price · gone</text>
+      <line class="edge scrape" x1="422" y1="422" x2="422" y2="440" marker-end="url(#ahs)"/>
+      <text class="lbl" x="430" y="435">after all sources</text>
+
+      <rect class="box scrape" x="322" y="442" width="200" height="48" rx="7"/>
+      <text class="t" x="334" y="462">re-extract + geocode</text><text class="s" x="334" y="480">features · map points</text>
+      <path class="edge scrape" d="M322 476 C 280 476, 250 502, 216 502" marker-end="url(#ahs)"/>
+      <text class="lbl a-t" x="232" y="546">up to 200 per run</text>
+
+      <!-- SQLite -->
+      <path class="box" d="M569 400 a90 12 0 0 0 180 0 v74 a90 12 0 0 1 -180 0 z"/>
+      <ellipse class="box" cx="659" cy="400" rx="90" ry="12"/>
+      <text class="t" x="659" y="438" text-anchor="middle">SQLite (WAL)</text>
+      <text class="s" x="659" y="456" text-anchor="middle">db.sqlite3</text>
+
+      <path class="edge scrape" d="M522 398 L 567 420" marker-end="url(#ahs)"/>
+      <text class="lbl a-t" x="528" y="388">writes</text>
+      <path class="edge scrape" d="M522 466 L 567 452" marker-end="url(#ahs)"/>
+
+      <!-- web column -->
+      <rect class="box web" x="560" y="162" width="198" height="72" rx="7"/>
+      <text class="t" x="572" y="182">views + templates</text>
+      <text class="s" x="572" y="200">listings · listing</text>
+      <text class="s" x="572" y="216">feed · sources · admin</text>
+      <line class="edge web" x1="659" y1="234" x2="659" y2="386" marker-start="url(#ahw)" marker-end="url(#ahw)"/>
+      <text class="lbl w-t" x="667" y="300">reads; saves</text>
+      <text class="lbl w-t" x="667" y="315">status, notes,</text>
+      <text class="lbl w-t" x="667" y="330">price history</text>
+
+      <path class="edge dash" d="M560 212 C 540 212, 545 262, 524 262" marker-end="url(#ah)"/>
+      <path class="edge dash" d="M560 226 C 548 226, 552 330, 524 330" marker-end="url(#ah)"/>
+      <text class="lbl" x="566" y="262">Scrape now</text>
+      <text class="lbl" x="566" y="352">Refresh one</text>
+      <text class="lbl" x="566" y="366">listing</text>
+
+      <!-- people -->
+      <text class="cap" x="846" y="142">YOU TWO</text>
+      <rect class="zone" x="836" y="150" width="196" height="134" rx="10"/>
+      <rect class="box web" x="846" y="162" width="176" height="48" rx="7"/>
+      <text class="t" x="858" y="182">Laptop &amp; phone</text><text class="s" x="858" y="200">browser</text>
+      <rect class="box web" x="846" y="222" width="176" height="48" rx="7"/>
+      <text class="t" x="858" y="242">Partner's phone</text><text class="s" x="858" y="260">shared machine</text>
+      <path class="edge web" d="M836 198 L 760 198" marker-end="url(#ahw)"/>
+      <text class="lbl w-t" x="798" y="188" text-anchor="middle">HTMX</text>
+      <text class="lbl" x="798" y="216" text-anchor="middle">via</text>
+      <text class="lbl" x="798" y="230" text-anchor="middle">Tailscale</text>
+
+      <!-- browser-loaded assets -->
+      <text class="cap" x="846" y="412">LOADED BY THE BROWSER</text>
+      <rect class="box ext" x="846" y="420" width="176" height="48" rx="7"/>
+      <text class="t" x="858" y="440">OSM map tiles</text><text class="s" x="858" y="458">tile.openstreetmap.org</text>
+      <rect class="box ext" x="846" y="480" width="176" height="48" rx="7"/>
+      <text class="t" x="858" y="500">HTMX · Leaflet</text><text class="s" x="858" y="518">jsDelivr · cdnjs</text>
+      <path class="edge dash" d="M1027 270 C 1036 330, 1036 420, 1024 444" marker-end="url(#ah)"/>
+    </svg>
+    </div>
+    <figcaption>Scraping and serving share one process. Gunicorn runs exactly one worker because the scheduler lives inside it, and a second worker would scrape twice. You two reach it at <code>http://&lt;mac-mini&gt;:8000</code> over Tailscale. Only the scrape path and address lookups leave the house; the Mac mini's home IP is what keeps Zillow and Redfin willing to answer.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>One scrape run, source by source</h2>
+  <p>The runner works through the sources one at a time. A broken source records its error on the Sources page and the run moves on to the next one.</p>
+  <figure class="wide">
+    <div class="scroll">
+    <svg viewBox="0 0 1040 330" role="img" aria-label="For each source: fetch search pages, fetch detail pages within a budget, stop if zero results, ingest each item into a merged listing with prices and feed events, then count misses for listings not seen. After all sources, re-extract features and geocode.">
+      <defs>
+        <marker id="bh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah scrape" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="bg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <text class="cap" x="16" y="24">PER SOURCE</text>
+
+      <rect class="box scrape" x="16" y="36" width="180" height="120" rx="8"/>
+      <text class="t" x="28" y="58">1 · Search pages</text>
+      <text class="s" x="28" y="80">every current listing:</text>
+      <text class="s" x="28" y="96">id, price, address,</text>
+      <text class="s" x="28" y="112">beds, baths, photo</text>
+
+      <rect class="box scrape" x="226" y="36" width="190" height="120" rx="8"/>
+      <text class="t" x="238" y="58">2 · Detail pages</text>
+      <text class="s" x="238" y="80">only new or stale ids</text>
+      <text class="s" x="238" y="96">default-filter matches</text>
+      <text class="s" x="238" y="112">first · capped per run</text>
+      <text class="s" x="238" y="128">Redfin skips Zillow's</text>
+      <text class="s" x="238" y="144">20 s apart, 10 max</text>
+
+      <rect class="box scrape" x="446" y="36" width="130" height="120" rx="8"/>
+      <text class="t" x="458" y="58">3 · Sanity</text>
+      <text class="s" x="458" y="80">0 results?</text>
+      <text class="s" x="458" y="96">fail the run,</text>
+      <text class="s" x="458" y="112">touch nothing</text>
+
+      <rect class="box scrape" x="606" y="36" width="220" height="120" rx="8"/>
+      <text class="t" x="618" y="58">4 · Ingest each item</text>
+      <text class="s" x="618" y="80">match address+unit+zip</text>
+      <text class="s" x="618" y="96">site's own last_price</text>
+      <text class="s" x="618" y="112">listing price = lowest</text>
+      <text class="s" x="618" y="128">import site's history</text>
+      <text class="s" x="618" y="144">new / changed → Feed</text>
+
+      <rect class="box scrape" x="856" y="36" width="168" height="120" rx="8"/>
+      <text class="t" x="868" y="58">5 · Not seen</text>
+      <text class="s" x="868" y="80">missed_runs + 1</text>
+      <text class="s" x="868" y="96">3 misses → gone</text>
+      <text class="s" x="868" y="112">Craigslist: open the</text>
+      <text class="s" x="868" y="128">post first to confirm</text>
+
+      <line class="edge scrape" x1="196" y1="96" x2="224" y2="96" marker-end="url(#bh)"/>
+      <line class="edge scrape" x1="416" y1="96" x2="444" y2="96" marker-end="url(#bh)"/>
+      <line class="edge scrape" x1="576" y1="96" x2="604" y2="96" marker-end="url(#bh)"/>
+      <line class="edge scrape" x1="826" y1="96" x2="854" y2="96" marker-end="url(#bh)"/>
+
+      <!-- failure branch -->
+      <line class="edge dash" x1="511" y1="156" x2="511" y2="200" marker-end="url(#bg)"/>
+      <rect class="box" x="426" y="202" width="170" height="44" rx="7"/>
+      <text class="t" x="438" y="221">Sources page</text>
+      <text class="s" x="438" y="238">error + failure count</text>
+
+      <!-- after all -->
+      <text class="cap" x="606" y="222">AFTER ALL SOURCES</text>
+      <rect class="box scrape" x="606" y="232" width="200" height="72" rx="8"/>
+      <text class="t" x="618" y="254">Re-extract</text>
+      <text class="s" x="618" y="274">re-run W/D, AC, parking</text>
+      <text class="s" x="618" y="290">rules on stored text</text>
+      <rect class="box scrape" x="824" y="232" width="200" height="72" rx="8"/>
+      <text class="t" x="836" y="254">Geocode</text>
+      <text class="s" x="836" y="274">new addresses → map pin,</text>
+      <text class="s" x="836" y="290">neighborhood, quadrant</text>
+      <line class="edge scrape" x1="806" y1="268" x2="822" y2="268" marker-end="url(#bh)"/>
+    </svg>
+    </div>
+    <figcaption>Step 3 exists because a blocked or redesigned site returns nothing, and without it every listing on that site would slowly be marked gone. A price change is recorded only when one site changes its own price, so two sites that disagree don't create a fake drop.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>What's stored</h2>
+  <p>A <code>Listing</code> is the apartment. A <code>SourceListing</code> is one site's ad for it. The same unit on Zillow, Redfin and Craigslist is one Listing with three SourceListings.</p>
+  <figure class="wide">
+    <div class="scroll">
+    <svg viewBox="0 0 1040 300" role="img" aria-label="Source has many SourceRuns and many SourceListings. Each SourceListing belongs to one Listing. A Listing has many PriceChanges and FeedEvents.">
+      <defs>
+        <marker id="ch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <!-- Source -->
+      <rect class="box" x="16" y="30" width="190" height="116" rx="8"/>
+      <text class="t" x="28" y="52">Source</text>
+      <text class="s" x="28" y="74">key · name · platform</text>
+      <text class="s" x="28" y="90">last_success_at</text>
+      <text class="s" x="28" y="106">consecutive_failures</text>
+      <text class="s" x="28" y="122">last_error</text>
+
+      <rect class="box" x="16" y="196" width="190" height="84" rx="8"/>
+      <text class="t" x="28" y="218">SourceRun</text>
+      <text class="s" x="28" y="240">started · ok · count</text>
+      <text class="s" x="28" y="256">new_count · error</text>
+      <line class="edge" x1="111" y1="146" x2="111" y2="194" marker-end="url(#ch)"/>
+      <text class="lbl" x="119" y="176">one per scrape</text>
+
+      <!-- SourceListing -->
+      <rect class="box scrape" x="266" y="30" width="210" height="132" rx="8"/>
+      <text class="t" x="278" y="52">SourceListing</text>
+      <text class="s" x="278" y="74">external_id · url</text>
+      <text class="s" x="278" y="90">last_price</text>
+      <text class="s" x="278" y="106">is_active · missed_runs</text>
+      <text class="s" x="278" y="122">details_version</text>
+      <text class="s" x="278" y="138">first/last_seen_at</text>
+      <line class="edge" x1="206" y1="88" x2="264" y2="88" marker-end="url(#ch)"/>
+      <text class="lbl" x="235" y="80" text-anchor="middle">ads</text>
+
+      <!-- Listing -->
+      <rect class="box web" x="536" y="30" width="236" height="250" rx="8"/>
+      <text class="t" x="548" y="52">Listing</text>
+      <text class="s" x="548" y="74">address · unit · zip_code</text>
+      <text class="s" x="548" y="90">city · neighborhood · quadrant</text>
+      <text class="s" x="548" y="106">latitude · longitude</text>
+      <text class="s" x="548" y="122">price (lowest active site)</text>
+      <text class="s" x="548" y="138">beds · baths · sqft</text>
+      <text class="s" x="548" y="154">parking_spaces · has_parking</text>
+      <text class="s" x="548" y="170">has_washer_dryer · has_ac</text>
+      <text class="s" x="548" y="186">has_outdoor_space</text>
+      <text class="s" x="548" y="202">property_type</text>
+      <text class="s" x="548" y="218">description · photo_url</text>
+      <text class="s" x="548" y="240" style="fill:var(--warm)">status · notes (yours)</text>
+      <text class="s" x="548" y="256" style="fill:var(--warm)">overrides (admin fixes)</text>
+      <line class="edge" x1="476" y1="96" x2="534" y2="96" marker-end="url(#ch)"/>
+      <text class="lbl" x="505" y="88" text-anchor="middle">many → 1</text>
+
+      <!-- PriceChange / FeedEvent -->
+      <rect class="box" x="832" y="30" width="192" height="100" rx="8"/>
+      <text class="t" x="844" y="52">PriceChange</text>
+      <text class="s" x="844" y="74">seen_at · price</text>
+      <text class="s" x="844" y="90">event · source</text>
+      <text class="s" x="844" y="106">scraped or typed in</text>
+      <rect class="box" x="832" y="170" width="192" height="100" rx="8"/>
+      <text class="t" x="844" y="192">FeedEvent</text>
+      <text class="s" x="844" y="214">kind · summary</text>
+      <text class="s" x="844" y="230">happened_at</text>
+      <text class="s" x="844" y="246">created_at (we learned)</text>
+      <line class="edge" x1="772" y1="80" x2="830" y2="80" marker-end="url(#ch)"/>
+      <line class="edge" x1="772" y1="220" x2="830" y2="220" marker-end="url(#ch)"/>
+      <text class="lbl" x="801" y="72" text-anchor="middle">history</text>
+      <text class="lbl" x="801" y="212" text-anchor="middle">Feed</text>
+    </svg>
+    </div>
+    <figcaption>The scrape writes everything in black and green; only the amber fields on Listing belong to you. Re-scrapes never overwrite status and notes, and admin overrides are re-applied after every update.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>The pages</h2>
+  <div class="tbl">
+  <table>
+    <thead><tr><th>Page</th><th>What it does</th><th>How it talks to the server</th></tr></thead>
+    <tbody>
+      <tr><td>Listings</td><td>Filter bar, list or table beside the map, "Search this area"</td><td>Any filter change sends a GET. HTMX swaps in <code>#results</code> and updates the URL.</td></tr>
+      <tr><td>Listing</td><td>Price and stats, sources, map, status pills, notes, price history</td><td>Status and notes POST as you type. History add, edit, delete and "Refresh from sites" swap the history panel.</td></tr>
+      <tr><td>Feed</td><td>New listings and changes to listings you've given a status</td><td>Plain GET. A <code>feed_seen_at</code> cookie tracks unread items per browser.</td></tr>
+      <tr><td>Sources</td><td>Each site's last success, count and last error</td><td>"Scrape now" starts a run in a background thread.</td></tr>
+      <tr><td>Admin</td><td>Django admin for correcting data</td><td>Standard Django forms</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Rules the design depends on</h2>
+  <ul class="rules">
+    <li><b>One worker, one scheduler</b>Gunicorn must stay at <code>workers = 1</code>. More workers would each start a scheduler.</li>
+    <li><b>Units never cross-merge</b>Two units at one address from the same site stay separate. Hidden addresses never merge.</li>
+    <li><b>Gone takes proof</b>A listing needs three missed runs, or a direct page check, before it's marked gone.</li>
+    <li><b>Rents stay plausible</b>Anything over $25,000 is treated as a sale price or home value and ignored.</li>
+    <li><b>Polite by default</b>Every source has a delay and a detail-page budget. Redfin stops at the first bot challenge.</li>
+    <li><b>Deploy is one script</b><code>git pull &amp;&amp; ./deploy/install.sh</code> syncs, migrates, collects static files and restarts through launchd.</li>
+  </ul>
+</section>
+</main>
