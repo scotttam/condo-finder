@@ -1,16 +1,20 @@
 # CLAUDE.md
 
 Handoff notes for working on Condo Finder from any machine. Read `INTENT.md` for why the app
-exists and `README.md` for setup and deploy. This file is the current state of the work and how to
-continue it.
+exists and `README.md` for setup and deploy. `docs/architecture.html` has diagrams of the whole
+system: open it in a browser (it's also published privately at
+https://claude.ai/artifact/MASfMv25dYKcHeYTx6eUgq). This file is the current state of the work and
+how to continue it.
 
 > **Keep this file current.** Any change that affects what's below (new features, sources, models,
 > conventions, open work, known issues) updates this file in the same PR. Update "Current state"
-> whenever PRs merge or open.
+> whenever PRs merge or open. If a change alters what the diagrams show (components, the scrape
+> flow, models, pages), update `docs/architecture.html` too, and republish it to the artifact URL
+> above.
 
 ## Current state (updated 2026-09-29)
 
-- **Everything is merged to `main` through PR #45.** No PRs are open. 386 tests pass.
+- **Everything is merged to `main` through PR #46.** 386 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -87,7 +91,7 @@ its own data. Production data lives only on the Mac mini.
   2 parking, a $2,000 minimum, and apartments hidden.
 - `deploy/`: `install.sh`, the launchd plist template, `launchd-restart.sh` (waits for bootout
   before bootstrapping) and `gunicorn.conf.py`.
-- Design docs: `docs/superpowers/specs/` and `plans/`.
+- Design docs: `docs/superpowers/specs/` and `plans/`. Architecture diagrams: `docs/architecture.html`.
 
 ## Conventions
 
