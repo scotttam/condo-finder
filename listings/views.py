@@ -33,6 +33,7 @@ def listing_list(request):
     )
     return render(request, "listings/list.html", {
         "form": form,
+        "filter_defaults": default_filter_data(),
         "view": view,
         "page_obj": page_obj,
         "listings": page_obj.object_list,
