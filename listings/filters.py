@@ -38,6 +38,10 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(property_type__in=data["types"])
     if data.get("statuses"):
         queryset = queryset.filter(status__in=data["statuses"])
+    if data.get("furnished") == "hide":
+        queryset = queryset.exclude(is_furnished=True)
+    elif data.get("furnished") == "only":
+        queryset = queryset.filter(is_furnished=True)
     if data.get("specials"):
         queryset = queryset.exclude(special_offer="")
     if data.get("price_reduced"):

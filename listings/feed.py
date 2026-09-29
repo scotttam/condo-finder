@@ -17,6 +17,7 @@ DETAIL_FIELDS = {
     "has_washer_dryer": "W/D",
     "has_ac": "AC",
     "has_outdoor_space": "Outdoor space",
+    "is_furnished": "Furnished",
     "available": "Available",
     "special": "Special",
 }
@@ -49,6 +50,7 @@ def snapshot(listing):
         "has_washer_dryer": listing.has_washer_dryer,
         "has_ac": listing.has_ac,
         "has_outdoor_space": listing.has_outdoor_space,
+        "is_furnished": listing.is_furnished,
         "available": listing.available or "?",
         "special": listing.special_label or "none",
     }

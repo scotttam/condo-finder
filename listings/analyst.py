@@ -92,6 +92,7 @@ def compact_facts(listing):
         "wd": _yes_no(listing.has_washer_dryer),
         "ac": _yes_no(listing.has_ac),
         "outdoor": _yes_no(listing.has_outdoor_space),
+        "furnished": _yes_no(listing.is_furnished),
         "available": listing.available,
         "special_offer": listing.special_offer,
         "effective_rent_12mo": listing.effective_rent,

@@ -89,6 +89,7 @@ class Listing(models.Model):
     has_washer_dryer = models.BooleanField(null=True, blank=True)
     has_ac = models.BooleanField(null=True, blank=True)
     has_outdoor_space = models.BooleanField(null=True, blank=True)
+    is_furnished = models.BooleanField(null=True, blank=True)
     property_type = models.CharField(
         max_length=20, choices=PropertyType.choices, default=PropertyType.UNKNOWN
     )

@@ -19,6 +19,7 @@
         {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
         {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
         {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
+        {% include "listings/_furnished.html" %}
       </td>
       <td>{{ listing.get_property_type_display }}</td>
       <td class="quadrant">{{ listing.quadrant|default:"–" }}</td>

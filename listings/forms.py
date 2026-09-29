@@ -12,6 +12,7 @@ PRICE_SLIDER_STEP = 100
 BED_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
 BATH_CHOICES = [("", "Any"), ("1", "1+"), ("1.5", "1.5+"), ("2", "2+"), ("3", "3+")]
 PARKING_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+")]
+FURNISHED_CHOICES = [("any", "Any"), ("hide", "Hide furnished"), ("only", "Furnished only")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
 
 
@@ -28,6 +29,7 @@ def default_filter_data():
         "wd": "yes_or_unknown",
         "ac": "yes_or_unknown",
         "outdoor": "yes_or_unknown",
+        "furnished": "any",
         "sort": "price",
     }
 
@@ -57,6 +59,7 @@ class ListingFilterForm(forms.Form):
     wd = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="In-unit W/D")
     ac = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="AC")
     outdoor = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Outdoor space")
+    furnished = forms.ChoiceField(required=False, choices=FURNISHED_CHOICES, label="Furnished")
     price_reduced = forms.BooleanField(required=False, label="Price reduced")
     specials = forms.BooleanField(required=False, label="Move-in specials only")
     show_inactive = forms.BooleanField(required=False, label="Show off-market")

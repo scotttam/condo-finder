@@ -41,6 +41,34 @@ _AC_YES = r"air[\s-]condition|\ba/c\b|\bac\b|central air|ductless|mini[\s-]split
 _OUTDOOR_NONE = r"\bno (?:balcony|patio|deck|yard|outdoor space)"
 _OUTDOOR_YES = r"balcon|patio|\bdecks?\b|\byard\b|back ?yard|terrace|porch|veranda|lanai"
 
+# Offered either way: "furnished or unfurnished", "fully furnished if desired", "furnished options".
+_FURNISHED_OPTIONAL = re.compile(
+    r"\bfurnished\s*(?:or|/|&|and)\s*un-?furnished|\bun-?furnished\s*(?:or|/|&|and)\s*(?:fully\s+)?furnished"
+    r"|\bfurnished\s+(?:if\s+desired|would\s+be|upon\s+request|options?\b)|\b(?:can\s+be|optionally)\s+furnished",
+    re.I,
+)
+# Phrases that say nothing about this unit: an apartment building's "Furnished apartments available",
+# "Available furnished" in amenity lists, partial furnishing, photos taken empty.
+_FURNISHED_IGNORED = re.compile(
+    r"(?:(?:fully|partially)\s+)?furnished\s+(?:available|apartments?\b|apartment\s+homes|homes\b|units\b)"
+    r"|\bavailable\s+(?:fully\s+)?furnished|partially\s+furnished|furnished\s+\(partially\)"
+    r"|photos?\s+(?:shown\s+)?(?:are\s+)?un-?furnished",
+    re.I,
+)
+_FURNISHED_NONE = re.compile(
+    r"\bun-?furnished\b|\b(?:not|non)[\s-]furnished\b|\bfurnishings?\s+(?:are\s+)?not\s+included"
+    r"|does\s+not\s+include\s+any\s+furnishing",
+    re.I,
+)
+_FURNISHED_YES = re.compile(
+    r"\b(?:fully|completely|comfortably|beautifully|thoughtfully|tastefully|luxury|designer)[\s-]+furnished\b"
+    r"|\b(?:comes|delivered|provided|rented|offered|is|be)\s+(?:fully\s+)?furnished\b"
+    r"|\bfurnished\s+(?:(?:\d|one|two|three|four|five)[\s-]*(?:bed|br|bd)|home\b|house\b|townho(?:me|use)\b|condo\b"
+    r"|rentals?\b|residence|sublet|corporate|executive|mid-century|craftsman|bungalow|historic|floating|with\s+everything)"
+    r"|(?:^|\n)\W*furnished\b|\bfurnished[.!]",
+    re.I,
+)
+
 _TYPE_HINTS = [
     ("condo", PropertyType.CONDO),
     ("town", PropertyType.TOWNHOME),
@@ -119,6 +147,20 @@ def has_ac(text):
 
 def has_outdoor_space(text):
     return _tri_state(text, _OUTDOOR_NONE, _OUTDOOR_YES)
+
+
+def is_furnished(text):
+    """True for a furnished rental, False when it says unfurnished, None when it doesn't say or is
+    offered either way ("available furnished or unfurnished", an apartment building's "furnished
+    apartments available")."""
+    if _FURNISHED_OPTIONAL.search(text or ""):
+        return None
+    text = _FURNISHED_IGNORED.sub(" ", text or "")
+    unfurnished = bool(_FURNISHED_NONE.search(text))
+    furnished = bool(_FURNISHED_YES.search(_FURNISHED_NONE.sub(" ", text)))
+    if furnished and unfurnished:
+        return None  # e.g. separate furnished and unfurnished rents
+    return True if furnished else False if unfurnished else None
 
 
 def _type_from_hint(hint):
