@@ -1,0 +1,55 @@
+{% load humanize %}
+{# Price history panel. Add / edit / delete swap this whole panel in place (HTMX). #}
+<div class="panel" id="price-history">
+  <h3>Price history</h3>
+  {% if listing.price_drop %}<p class="drop">↓ ${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%) since listed</p>{% endif %}
+  <table class="history">
+    <tr><th>Date</th><th>Price</th><th>Change</th><th>Event</th><th></th></tr>
+    {% for row in listing.price_history_rows %}
+      {% if row.change.pk == editing %}
+      <tr class="editing">
+        <td colspan="5">
+          <form class="history-form" hx-post="{% url 'history_edit' listing.pk row.change.pk %}" hx-target="#price-history" hx-swap="outerHTML">
+            {% csrf_token %}
+            <input type="date" name="date" value="{{ edit_form.date.value|date:'Y-m-d'|default:edit_form.date.value }}" required>
+            <input type="number" name="price" value="{{ edit_form.price.value|default_if_none:'' }}" min="1" step="1" placeholder="Rent" required>
+            <input type="text" name="event" value="{{ edit_form.event.value|default_if_none:'' }}" list="history-events" placeholder="What happened">
+            <button type="submit">Save</button>
+            <button type="button" class="link" hx-get="{% url 'history_edit' listing.pk row.change.pk %}?cancel=1"
+                    hx-target="#price-history" hx-swap="outerHTML">Cancel</button>
+            {% for field in edit_form %}{% for error in field.errors %}<div class="form-error">{{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td class="nowrap">{{ row.change.seen_at|date:"M j, Y" }}</td>
+        <td>${{ row.change.price|intcomma }}</td>
+        <td class="nowrap{% if row.is_drop %} drop{% endif %}">{{ row.label }}</td>
+        <td>{{ row.change.event|default:"Entered by hand" }}{% if row.change.source %}<div class="muted">{{ row.change.source }}</div>{% endif %}</td>
+        <td class="row-actions nowrap">
+          <button type="button" class="link" title="Edit this entry"
+                  hx-get="{% url 'history_edit' listing.pk row.change.pk %}" hx-target="#price-history" hx-swap="outerHTML">Edit</button>
+          <button type="button" class="link danger" title="Delete this entry"
+                  hx-post="{% url 'history_delete' listing.pk row.change.pk %}" hx-target="#price-history" hx-swap="outerHTML"
+                  hx-confirm="Delete the {{ row.change.seen_at|date:'M j' }} ${{ row.change.price|intcomma }} entry?">✕</button>
+        </td>
+      </tr>
+      {% endif %}
+    {% empty %}
+      <tr><td colspan="5" class="muted">No price history yet.</td></tr>
+    {% endfor %}
+  </table>
+
+  <form class="history-form add" hx-post="{% url 'history_add' listing.pk %}" hx-target="#price-history" hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="panel-title">Add an entry</div>
+    <input type="date" name="date" value="{{ add_form.date.value|date:'Y-m-d'|default:add_form.date.value }}" required>
+    <input type="number" name="price" value="{{ add_form.price.value|default_if_none:'' }}" min="1" step="1" placeholder="Rent">
+    <input type="text" name="event" value="{{ add_form.event.value|default_if_none:'' }}" list="history-events" placeholder="What happened">
+    <button type="submit">Add</button>
+    {% for field in add_form %}{% for error in field.errors %}<div class="form-error">{{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
+  </form>
+  <datalist id="history-events">{% for event in history_events %}<option value="{{ event }}">{% endfor %}</datalist>
+  <p class="muted small">Entries are history only; the listing's current price comes from the sites (or an override in admin).</p>
+</div>

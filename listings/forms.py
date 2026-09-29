@@ -1,5 +1,8 @@
+from datetime import datetime, time
+
 from django import forms
 from django.conf import settings
+from django.utils import timezone
 
 from .models import Listing, PropertyType, Quadrant, Source, Status
 
@@ -67,6 +70,25 @@ class ListingFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["cities"].choices = [(city, city) for city in settings.TARGET_CITIES]
         self.fields["sources"].choices = list(Source.objects.order_by("name").values_list("key", "name"))
+
+
+HISTORY_EVENTS = ["Listed for rent", "Price change", "Listing removed", "Asked the landlord", "Note"]
+
+
+class PriceEntryForm(forms.Form):
+    """A price-history entry added or corrected on the listing page."""
+
+    date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}))
+    price = forms.IntegerField(min_value=1)
+    event = forms.CharField(max_length=40, required=False)
+
+    @classmethod
+    def for_change(cls, change):
+        return cls(initial={"date": timezone.localdate(change.seen_at), "price": change.price, "event": change.event})
+
+    def seen_at(self):
+        day = self.cleaned_data["date"]
+        return timezone.make_aware(datetime.combine(day, time(12)))
 
 
 class TrackingForm(forms.ModelForm):
