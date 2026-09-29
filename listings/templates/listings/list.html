@@ -28,7 +28,10 @@
       {% include "listings/_pagination.html" %}
     {% else %}
       <div class="split">
-        <div class="map-pane"><div id="map"></div></div>
+        <div class="map-pane">
+          <div id="map"></div>
+          <button type="button" class="search-area" data-search-area hidden>Search this area</button>
+        </div>
         <div class="cards-pane">
           <div class="grid">
             {% for listing in listings %}{% include "listings/_card.html" %}{% empty %}<p>No listings match. Try loosening the filters.</p>{% endfor %}
@@ -70,7 +73,31 @@
       pins.set(p.id, marker);
       return marker;
     });
-    if (markers.length) resultsMap.fitBounds(L.featureGroup(markers).getBounds().pad(0.1), {animate: false});
+    const area = areaBounds();
+    if (area) resultsMap.fitBounds(area, {animate: false});  // keep showing the searched area
+    else if (markers.length) resultsMap.fitBounds(L.featureGroup(markers).getBounds().pad(0.1), {animate: false});
+
+    // After the user pans or zooms, offer to limit results to what's on screen.
+    const button = document.querySelector("[data-search-area]");
+    resultsMap.on("moveend", () => { button.hidden = false; });
+    button.onclick = () => {
+      const view = resultsMap.getBounds();
+      setArea({north: view.getNorth(), south: view.getSouth(), east: view.getEast(), west: view.getWest()});
+    };
+  }
+
+  // --- Search this area ---------------------------------------------------------------------
+  const AREA_SIDES = ["north", "south", "east", "west"];
+  const areaInput = side => document.querySelector(`#filters input[name="${side}"]`);
+
+  function areaBounds() {
+    const [north, south, east, west] = AREA_SIDES.map(side => parseFloat(areaInput(side).value));
+    return [north, south, east, west].some(Number.isNaN) ? null : L.latLngBounds([south, west], [north, east]);
+  }
+
+  function setArea(bounds) {
+    AREA_SIDES.forEach(side => { areaInput(side).value = bounds ? bounds[side].toFixed(5) : ""; });
+    htmx.trigger(document.getElementById("filters"), "change");
   }
 
   // --- Card <-> pin linking ---------------------------------------------------------------
@@ -166,6 +193,8 @@
     setChip("type", allTypes ? "" : types.length <= 2 ? types.map(labelOf).join(", ")
       : skipped.length <= 2 ? `No ${skipped.map(labelOf).map(t => t.toLowerCase() + "s").join(", ")}` : `${types.length} types`, "Type");
 
+    filters.querySelector("[data-clear-area]").hidden = !areaBounds();
+
     const changed = DRAWER_FIELDS.filter(name => current(name) !== fallback(name)).length;
     const badge = filters.querySelector("[data-more-count]");
     badge.hidden = !changed;
@@ -190,6 +219,7 @@
     if (event.target.form === filters && !filters.contains(event.target)) htmx.trigger(filters, "change");
   });
 
+  filters.querySelector("[data-clear-area]").addEventListener("click", () => setArea(null));
   filters.addEventListener("input", refreshFilterBar);
   filters.addEventListener("change", refreshFilterBar);
   refreshFilterBar();

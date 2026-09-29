@@ -57,6 +57,11 @@ class ListingFilterForm(forms.Form):
     price_reduced = forms.BooleanField(required=False, label="Price reduced")
     show_inactive = forms.BooleanField(required=False, label="Show off-market")
     sort = forms.ChoiceField(required=False, choices=SORT_CHOICES)
+    # "Search this area": the map's visible bounds, set by the map script.
+    north = forms.FloatField(required=False, widget=forms.HiddenInput)
+    south = forms.FloatField(required=False, widget=forms.HiddenInput)
+    east = forms.FloatField(required=False, widget=forms.HiddenInput)
+    west = forms.FloatField(required=False, widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

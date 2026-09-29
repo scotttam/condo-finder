@@ -22,6 +22,10 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(price__gte=data["min_price"])
     if data.get("max_price") is not None and data["max_price"] < PRICE_SLIDER_MAX:  # slider top = no max
         queryset = queryset.filter(price__lte=data["max_price"])
+    bounds = [data.get(side) for side in ("north", "south", "east", "west")]
+    if all(value is not None for value in bounds):
+        north, south, east, west = bounds
+        queryset = queryset.filter(latitude__range=(south, north), longitude__range=(west, east))
     if data.get("cities"):
         queryset = queryset.filter(city__in=data["cities"])
     if data.get("quadrants"):
