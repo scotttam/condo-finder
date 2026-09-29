@@ -92,6 +92,18 @@ REMOVED_MARKERS = ("This posting has been deleted", "This posting has expired", 
 class CraigslistScraper(Scraper):
     platform = "craigslist"
 
+    def refresh_listing(self, url):
+        try:
+            html = self.fetcher.get(url)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in (404, 410):
+                return {"removed": True}
+            raise
+        if any(marker in html for marker in REMOVED_MARKERS):
+            return {"removed": True}
+        detail = parse_detail(html)
+        return {key: detail[key] for key in ("price", "description", "amenities", "baths")}
+
     def check_listing(self, url):
         """Search only shows the newest few hundred posts, so an older post that's still up drops out
         of it. Before calling a post gone, look at the post itself."""

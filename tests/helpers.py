@@ -37,7 +37,7 @@ class FakeFetcher:
             page = self.pages[url]
             return page if isinstance(page, FakeResponse) else FakeResponse(page)
         if self.default is not None:
-            return FakeResponse(self.default)
+            return self.default if isinstance(self.default, FakeResponse) else FakeResponse(self.default)
         raise httpx.HTTPError(f"no fake page for {url}")
 
     def get(self, url, **kwargs):
@@ -85,4 +85,7 @@ def scraped(**overrides):
 def make_source(key="pearl"):
     from listings.models import Source
 
-    return Source.objects.get_or_create(key=key, defaults={"name": key.title(), "platform": "appfolio"})[0]
+    from listings.scrapers.registry import PLATFORMS
+
+    platform = key if key in PLATFORMS else "appfolio"  # e.g. make_source("zillow") is a Zillow source
+    return Source.objects.get_or_create(key=key, defaults={"name": key.title(), "platform": platform})[0]

@@ -90,6 +90,8 @@ def parse_detail(html):
             lines.append(f"{label}: {', '.join(value) if isinstance(value, list) else value}")
     glance = {fact.get("factLabel"): fact.get("factValue") for fact in facts.get("atAGlanceFacts") or []}
     return {
+        "for_rent": prop.get("homeStatus") == "FOR_RENT",
+        "price": prop.get("price"),
         "description": prop.get("description") or "",
         "amenities": "\n".join(lines),
         "home_type": _type_label(prop.get("homeType")),
@@ -149,6 +151,14 @@ class ZillowScraper(Scraper):
             item.listed_at = detail["listed_at"]
             item.details_version = self.details_version
         return items
+
+    def refresh_listing(self, url):
+        detail = parse_detail(self.fetcher.get(url))
+        # Once a rental ends, Zillow's page shows the home (status e.g. OTHER) and "price" becomes the
+        # home's value estimate, with no rental history. That means it's no longer listed for rent.
+        if not detail["for_rent"]:
+            return {"removed": True}
+        return detail
 
     def _search(self, slug):
         page_url = SEARCH_PAGE.format(slug=slug)

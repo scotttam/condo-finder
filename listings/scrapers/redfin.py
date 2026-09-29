@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from .base import ScrapedListing, Scraper, detail_priority, is_candidate
+from .base import RefreshBlocked, ScrapedListing, Scraper, detail_priority, is_candidate
 
 log = logging.getLogger(__name__)
 
@@ -129,6 +129,20 @@ class RedfinScraper(Scraper):
     platform = "redfin"
     details_version = 2  # 2: listing pages (description, amenities, rental history); 1 had none
 
+    def _listing_page(self, url):
+        try:
+            response = self.fetcher.request("GET", url)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in (403, 429):
+                raise RefreshBlocked(exc.response.status_code) from exc
+            raise
+        if response.status_code == 202 or "x-amzn-waf-action" in response.headers:
+            raise RefreshBlocked("challenge")
+        return response.text
+
+    def refresh_listing(self, url):
+        return parse_detail(self._listing_page(url))
+
     def scrape(self):
         by_id = {}
         for region_id in self.options["region_ids"]:
@@ -151,22 +165,14 @@ class RedfinScraper(Scraper):
                 continue
             fetched += 1
             try:
-                response = self.fetcher.request("GET", item.url)
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code in (403, 429):
-                    log.warning("Redfin blocked listing pages (%s); stopping until the next run", exc.response.status_code)
-                    break
-                log.warning("Redfin listing page failed for %s: %s", item.url, exc)
-                continue
+                detail = parse_detail(self._listing_page(item.url))
+            except RefreshBlocked as exc:
+                # Redfin's bot protection is challenging us; more requests only prolong the block.
+                log.warning("Redfin is blocking listing pages (%s); stopping until the next run", exc)
+                break
             except httpx.HTTPError as exc:
                 log.warning("Redfin listing page failed for %s: %s", item.url, exc)
                 continue
-            if response.status_code == 202 or "x-amzn-waf-action" in response.headers:
-                # Redfin's bot protection is challenging us; more requests only prolong the block.
-                log.warning("Redfin is challenging listing pages; stopping until the next run")
-                break
-            try:
-                detail = parse_detail(response.text)
             except (ValueError, KeyError) as exc:
                 log.warning("Redfin listing page failed for %s: %s", item.url, exc)
                 continue
