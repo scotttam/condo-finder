@@ -2,54 +2,83 @@
 {% load humanize %}
 {% block title %}{{ listing.street }} · Condo Finder{% endblock %}
 {% block content %}
-<p><a href="{{ listings_url }}">← Back to listings</a></p>
-<div class="detail">
-  <section>
-    {% if listing.photo_url %}<img class="hero" src="{{ listing.photo_url }}" alt="">{% endif %}
-    <h1>{{ listing.address }}</h1>
-    {% if listing.title %}<h3>{{ listing.title }}</h3>{% endif %}
-    <p class="price">{% if listing.price %}${{ listing.price|intcomma }}/mo{% else %}Price ?{% endif %}
-      {% if not listing.is_active %}<span class="offmarket">Off market</span>{% endif %}</p>
+<p class="back"><a href="{{ listings_url }}">← Back to listings</a></p>
+
+<section class="listing-header">
+  <div class="listing-photo">
+    {% if listing.photo_url %}<img src="{{ listing.photo_url }}" alt="">{% else %}<div class="no-photo">No photo</div>{% endif %}
+  </div>
+  <div class="listing-summary">
+    <h1>{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}</h1>
+    <div class="muted listing-where">{{ listing.location_label }} · {{ listing.get_property_type_display }}{% if listing.zip_code %} · {{ listing.zip_code }}{% endif %}</div>
+    {% if listing.title %}<p class="listing-title">{{ listing.title }}</p>{% endif %}
+
+    <div class="price-row">
+      <div class="listing-price">{% if listing.price %}${{ listing.price|intcomma }}<span>/mo</span>{% else %}Price ?{% endif %}</div>
+      {% if listing.price_drop %}<span class="drop-pill">↓ ${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%) since listed</span>{% endif %}
+      {% if not listing.is_active %}<span class="offmarket-pill">Off market</span>{% endif %}
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-value">{{ listing.beds|default_if_none:"?" }}</div><div class="stat-label">Beds</div></div>
+      <div class="stat"><div class="stat-value">{{ listing.baths|floatformat:"-1"|default:"?" }}</div><div class="stat-label">Baths</div></div>
+      <div class="stat"><div class="stat-value">{% if listing.sqft %}{{ listing.sqft|intcomma }}{% if listing.price_per_sqft %}<small>${{ listing.price_per_sqft }}/sqft</small>{% endif %}{% else %}?{% endif %}</div><div class="stat-label">Sq ft</div></div>
+      <div class="stat"><div class="stat-value">{% if listing.parking_spaces is not None %}{{ listing.parking_spaces }}{% elif listing.has_parking %}Yes<small>spaces not stated</small>{% elif listing.has_parking is False %}None<small>street parking</small>{% else %}?{% endif %}</div><div class="stat-label">Parking</div></div>
+      <div class="stat"><div class="stat-value">{% if listing.listed_at and listing.listed_at < listing.first_seen_at.date %}{{ listing.listed_at|date:"M j, Y" }}{% else %}{{ listing.first_seen_at|date:"M j, Y" }}{% endif %}<small>{{ listing.days_on_market }} days on market</small></div><div class="stat-label">Listed</div></div>
+      <div class="stat"><div class="stat-value">{{ listing.available|default:"?" }}</div><div class="stat-label">Available</div></div>
+    </div>
+
+    <div class="badge-row">
+      {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
+      {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
+      {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
+    </div>
+    <div class="source-row">
+      <span class="muted">Listed on</span>
+      {% for sl in listing.source_listings.all %}
+        <a class="source-link{% if not sl.is_active %} gone{% endif %}" href="{{ sl.url }}" target="_blank" rel="noopener"
+           title="{% if sl.is_active %}Open on {{ sl.source.name }}{% else %}No longer listed on {{ sl.source.name }}{% endif %}">{{ sl.source.name }}{% if not sl.is_active %} (gone){% endif %} ↗</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<div class="listing-body">
+  <section class="listing-main">
     <div class="panel">
-      <table>
-        <tr><th>Beds / Baths</th><td>{{ listing.beds }} / {{ listing.baths|floatformat:"-1" }}</td></tr>
-        <tr><th>Square feet</th><td>{{ listing.sqft|default:"?" }}{% if listing.price_per_sqft %} (${{ listing.price_per_sqft }}/sqft){% endif %}</td></tr>
-        <tr><th>Parking</th><td>{% if listing.parking_spaces is not None %}{{ listing.parking_spaces }} space{{ listing.parking_spaces|pluralize }}{% elif listing.has_parking %}Yes, number of spaces not stated{% elif listing.has_parking is False %}None (street parking){% else %}Unknown{% endif %}</td></tr>
-        <tr><th>Type</th><td>{{ listing.get_property_type_display }}</td></tr>
-        <tr><th>Available</th><td>{{ listing.available|default:"?" }}</td></tr>
-        <tr><th>Location</th><td>{{ listing.location_label }}</td></tr>
-        <tr><th>Listed</th><td>{% if listing.listed_at and listing.listed_at < listing.first_seen_at.date %}{{ listing.listed_at|date:"M j, Y" }}{% else %}{{ listing.first_seen_at|date:"M j, Y" }}{% endif %} ({{ listing.days_on_market }} days on market)</td></tr>
-        <tr><th>Features</th><td>
-          {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
-          {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
-          {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
-        </td></tr>
-      </table>
+      <h3>About this place</h3>
+      {% if listing.description %}
+        <div class="description{% if listing.description|length > 700 %} collapsible{% endif %}" id="description">{{ listing.description }}</div>
+        {% if listing.description|length > 700 %}<button type="button" class="link" data-expand="description">Show more</button>{% endif %}
+      {% else %}
+        <p class="muted">Full details haven't been fetched from the listing site yet. They're filled in over the next few scrapes, starting with listings that match the default filters. Until then, use the source link.</p>
+      {% endif %}
     </div>
-    {% if listing.description %}
-      <div class="panel description">{{ listing.description }}</div>
-    {% else %}
-      <div class="panel muted">Full details haven't been fetched from the listing site yet. They're filled in over the next few scrapes, starting with listings that match the default filters. Until then, use the source link.</div>
-    {% endif %}
+    <div class="panel">
+      <h3>Location</h3>
+      {% if listing.latitude is not None %}<div id="map" class="listing-map"></div>
+      {% else %}<p class="muted">Map will appear once this address is located. Locations are looked up after each scrape.</p>{% endif %}
+      <p class="muted small">{{ listing.address }}</p>
+    </div>
   </section>
-  <aside>
+  <aside class="listing-side">
     <div class="panel"><h3>Our notes</h3>{% include "listings/_tracking.html" %}</div>
-    <div class="panel"><h3>Sources</h3>
-      <ul>{% for sl in listing.source_listings.all %}
-        <li><a href="{{ sl.url }}" target="_blank" rel="noopener">{{ sl.source.name }}</a>{% if not sl.is_active %} <span class="muted">(gone)</span>{% endif %}</li>
-      {% endfor %}</ul>
-    </div>
     {% include "listings/_history.html" %}
-    {% if listing.latitude is not None %}<div id="map" style="height:260px"></div>
-    {% else %}<div class="panel muted">Map will appear once this address is located. Locations are looked up after each scrape.</div>{% endif %}
-    <p><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>
+    <p class="small"><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>
   </aside>
 </div>
 {% endblock %}
 {% block scripts %}
+<script>
+  document.querySelectorAll("[data-expand]").forEach(button => button.addEventListener("click", () => {
+    const text = document.getElementById(button.dataset.expand);
+    const open = text.classList.toggle("expanded");
+    button.textContent = open ? "Show less" : "Show more";
+  }));
+</script>
 {% if listing.latitude is not None %}
 <script>
-  const map = L.map("map").setView([{{ listing.latitude }}, {{ listing.longitude }}], 15);
+  const map = L.map("map", {scrollWheelZoom: false}).setView([{{ listing.latitude }}, {{ listing.longitude }}], 15);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"}).addTo(map);
   L.marker([{{ listing.latitude }}, {{ listing.longitude }}]).addTo(map);
 </script>

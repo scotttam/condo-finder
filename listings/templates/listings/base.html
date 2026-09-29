@@ -106,6 +106,34 @@
     th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top; }
     .detail { display:grid; grid-template-columns:minmax(0, 1fr) 420px; gap:24px; }
     .detail img.hero { width:100%; max-height:420px; object-fit:cover; border-radius:10px; }
+    /* Listing page */
+    .back { margin:0 0 12px; font-size:14px; }
+    .listing-header { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(0, 1fr); gap:24px; background:var(--card);
+                      border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:20px; }
+    .listing-photo img, .no-photo { width:100%; height:100%; min-height:300px; max-height:420px; object-fit:cover; border-radius:10px; background:#ddd; display:block; }
+    .no-photo { display:flex; align-items:center; justify-content:center; color:var(--muted); }
+    .listing-summary h1 { margin:0; font-size:26px; line-height:1.2; }
+    .listing-where { margin-top:4px; font-size:14px; }
+    .listing-title { margin:10px 0 0; font-weight:600; }
+    .price-row { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin:14px 0 12px; }
+    .listing-price { font-size:32px; font-weight:800; } .listing-price span { font-size:16px; font-weight:600; color:var(--muted); margin-left:2px; }
+    .drop-pill, .offmarket-pill { padding:3px 10px; border-radius:999px; font-size:13px; font-weight:700; }
+    .drop-pill { background:#e3f5ea; color:var(--yes); } .offmarket-pill { background:#fde8e7; color:var(--no); }
+    .stats { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+    .stat { border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:#fafaf8; }
+    .stat-value { font-size:18px; font-weight:700; line-height:1.2; overflow-wrap:anywhere; }
+    .stat-value small { display:block; font-size:12px; font-weight:500; color:var(--muted); }
+    .stat-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin-top:2px; }
+    .badge-row { margin:12px 0 6px; } .badge-row .feat { font-size:13px; padding:2px 10px; }
+    .source-row { display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; }
+    .source-link { padding:3px 10px; border:1px solid var(--line); border-radius:999px; text-decoration:none; font-weight:600; background:var(--card); }
+    .source-link:hover { border-color:var(--accent); } .source-link.gone { opacity:.5; text-decoration:line-through; }
+    .listing-body { display:grid; grid-template-columns:minmax(0, 1fr) 420px; gap:20px; align-items:start; }
+    .listing-body h3 { margin-top:0; }
+    .description.collapsible { max-height:9.5em; overflow:hidden; position:relative; }
+    .description.collapsible::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3em; background:linear-gradient(transparent, var(--card)); }
+    .description.collapsible.expanded { max-height:none; } .description.collapsible.expanded::after { display:none; }
+    .listing-map { height:340px; border-radius:10px; }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
     .description { white-space:pre-line; }
     .saved { color:var(--yes); margin-left:8px; }
@@ -172,6 +200,12 @@
     .map-toggle, .mini-card, .chip-backdrop { display:none; }
     @media (max-width: 800px) {
       main { padding:12px; }
+      header { flex-wrap:wrap; gap:6px 16px; padding:10px 12px; }
+      header .brand { font-size:17px; white-space:nowrap; }
+      header nav { display:flex; flex-wrap:wrap; gap:4px 14px; } header nav a { margin-right:0; }
+      .listing-header, .listing-body { grid-template-columns:1fr; }
+      .listing-photo img, .no-photo { min-height:220px; max-height:280px; }
+      .stats { grid-template-columns:repeat(2, minmax(0, 1fr)); }
       .layout, .detail, .split { grid-template-columns:1fr; }
       .drawer-grid { grid-template-columns:1fr; }
       /* Filter bar scrolls sideways; chip panels open as full-width sheets below it. */
