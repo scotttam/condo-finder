@@ -194,3 +194,30 @@ class PriceChange(models.Model):
 
     class Meta:
         ordering = ["seen_at"]
+
+
+class FeedEvent(models.Model):
+    """Something worth knowing about a listing, for the Feed page."""
+
+    class Kind(models.TextChoices):
+        NEW_LISTING = "new_listing", "New listing"
+        PRICE_CHANGE = "price_change", "Price change"
+        OFF_MARKET = "off_market", "Off market"
+        BACK_ON_MARKET = "back_on_market", "Back on market"
+        NEW_SITE = "new_site", "Listed on another site"
+        DETAILS_CHANGED = "details_changed", "Details changed"
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="feed_events")
+    kind = models.CharField(max_length=20, choices=Kind.choices)
+    happened_at = models.DateTimeField()  # when it happened (e.g. a price change's date in a site's history)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)  # when we found out
+    summary = models.CharField(max_length=300)
+    source = models.CharField(max_length=100, blank=True)
+    old_price = models.IntegerField(null=True, blank=True)
+    new_price = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+
+    def __str__(self):
+        return f"{self.get_kind_display()}: {self.summary}"

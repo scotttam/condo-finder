@@ -16,7 +16,8 @@ from .extract import (
     has_parking,
     has_washer_dryer,
 )
-from .models import Listing, PriceChange, PropertyType, SourceListing
+from . import feed
+from .models import FeedEvent, Listing, PriceChange, PropertyType, SourceListing
 
 log = logging.getLogger(__name__)
 
@@ -50,10 +51,19 @@ def ingest(source, items, now=None, verify=None):
             result.skipped += 1
             continue
         with transaction.atomic():
-            listing, created = _upsert_listing(address, item, now, source)
-            source_listing, previous_price = _upsert_source_listing(source, listing, item, now)
+            listing, created, was_active, before = _upsert_listing(address, item, now, source)
+            source_listing, previous_price, joined = _upsert_source_listing(source, listing, item, now)
             _update_price(listing, previous_price, item, now, source.name, created)
-            _import_history(listing, item.price_history, source.name)
+            # A new listing's own history isn't news; history revealing changes on a known one is.
+            _import_history(listing, item.price_history, source.name, announce_at=None if created else now)
+            if created:
+                feed.record(listing, FeedEvent.Kind.NEW_LISTING, feed.listing_summary(listing), now, source.name)
+            else:
+                if not was_active:
+                    feed.record(listing, FeedEvent.Kind.BACK_ON_MARKET, f"Listed again on {source.name}", now, source.name)
+                if joined:
+                    feed.record(listing, FeedEvent.Kind.NEW_SITE, f"Now also on {source.name}", now, source.name)
+                feed.record_detail_changes(listing, before, now, source.name)
         seen_ids.add(source_listing.pk)
         result.seen += 1
         if created:
@@ -91,12 +101,14 @@ def _upsert_listing(address, item, now, source):
     created = listing is None
     if created:
         listing = Listing(address_key=key, first_seen_at=now)
+    was_active = created or listing.is_active
+    before = None if created else feed.snapshot(listing)
     _apply_scraped(listing, address, item)
     _apply_overrides(listing)
     listing.is_active = True
     listing.last_seen_at = now
     listing.save()
-    return listing, created
+    return listing, created, was_active, before
 
 
 def _plausible_rent(price, source=None):
@@ -130,15 +142,18 @@ def _update_price(listing, previous_price, item, now, source_name, created):
         PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now, event="First seen", source=source_name)
     elif previous_price is not None and item.price != previous_price:
         PriceChange.objects.create(listing=listing, price=item.price, seen_at=now, event="Price change", source=source_name)
+        feed.record(listing, FeedEvent.Kind.PRICE_CHANGE, f"{source_name}: ${previous_price:,} → ${item.price:,}", now,
+                    source_name, old_price=previous_price, new_price=item.price)
 
 
 def _history_time(day):
     return timezone.make_aware(datetime.combine(day, time(12)))
 
 
-def _import_history(listing, entries, source_name):
+def _import_history(listing, entries, source_name, announce_at=None):
     """Add a listing site's own rental history. Entries already present (same day and price, e.g.
-    typed in by hand) are labelled rather than duplicated."""
+    typed in by hand) are labelled rather than duplicated. With announce_at, newly found price
+    changes go to the feed (dated when they happened, announced now)."""
     if not entries:
         return
     imported = []
@@ -148,6 +163,12 @@ def _import_history(listing, entries, source_name):
             existing = PriceChange.objects.create(
                 listing=listing, price=price, seen_at=_history_time(day), event=event, source=source_name
             )
+            if announce_at and event == "Price change":
+                earlier = listing.price_changes.filter(seen_at__lt=existing.seen_at).order_by("-seen_at").first()
+                old = earlier.price if earlier else None
+                summary = f"{source_name}: " + (f"${old:,} → ${price:,}" if old else f"${price:,}") + f" on {day:%b} {day.day}"
+                feed.record(listing, FeedEvent.Kind.PRICE_CHANGE, summary, announce_at, source_name,
+                            happened_at=existing.seen_at, old_price=old, new_price=price)
         elif not existing.event:
             existing.event, existing.source = event, source_name
             existing.save(update_fields=["event", "source"])
@@ -240,7 +261,7 @@ def _upsert_source_listing(source, listing, item, now):
     if _plausible_rent(item.price, source) is not None:
         source_listing.last_price = item.price
     source_listing.save()
-    return source_listing, previous_price
+    return source_listing, previous_price, created and source_listing.listing.source_listings.count() > 1
 
 
 def _refresh_known(source, item, now, result, seen_ids):
@@ -252,10 +273,12 @@ def _refresh_known(source, item, now, result, seen_ids):
         return False
     listing = source_listing.listing
     with transaction.atomic():
+        if not listing.is_active:
+            feed.record(listing, FeedEvent.Kind.BACK_ON_MARKET, f"Listed again on {source.name}", now, source.name)
         listing.is_active = True
         listing.last_seen_at = now
         listing.save()
-        _, previous_price = _upsert_source_listing(source, listing, item, now)
+        _, previous_price, _ = _upsert_source_listing(source, listing, item, now)
         _update_price(listing, previous_price, item, now, source.name, created=False)
     seen_ids.add(source_listing.pk)
     result.seen += 1
@@ -305,6 +328,7 @@ def _mark_missing(source, seen_ids, now, verify=None):
         if not active.exists():
             listing.is_active = False
             listing.save(update_fields=["is_active", "updated_at"])
+            feed.record(listing, FeedEvent.Kind.OFF_MARKET, "No longer listed on any site", now, source.name)
         else:
             _recompute_price(listing)  # another site still lists it
 
@@ -323,9 +347,11 @@ def refresh_source_listing(source_listing, details, parser_version, now=None):
         else:
             listing.is_active = False
             listing.save(update_fields=["is_active", "updated_at"])
+            feed.record(listing, FeedEvent.Kind.OFF_MARKET, "No longer listed on any site", now, source.name)
         return {"new_entries": 0, "price": None, "removed": True}
 
     entries_before = listing.price_changes.count()
+    before = feed.snapshot(listing)
     with transaction.atomic():
         if details.get("description") or details.get("amenities"):
             listing.description = "\n\n".join(p for p in (details.get("description"), details.get("amenities")) if p)
@@ -336,7 +362,8 @@ def refresh_source_listing(source_listing, details, parser_version, now=None):
             listing.listed_at = details["listed_at"]
         _apply_overrides(listing)
         listing.save()
-        _import_history(listing, details.get("price_history") or [], source.name)
+        feed.record_detail_changes(listing, before, now, source.name)
+        _import_history(listing, details.get("price_history") or [], source.name, announce_at=now)
         # The page proves it's still listed, and carries this site's current price.
         _still_listed(source_listing, details.get("price"), now, source.name)
         source_listing.details_version = max(source_listing.details_version, parser_version)
@@ -356,6 +383,8 @@ def _still_listed(source_listing, price, now, source_name):
         source_listing.last_price = price
     source_listing.save(update_fields=["is_active", "missed_runs", "last_seen_at", "last_price"])
     listing = source_listing.listing
+    if not listing.is_active:
+        feed.record(listing, FeedEvent.Kind.BACK_ON_MARKET, f"Still listed on {source_name}", now, source_name)
     listing.is_active = True
     listing.last_seen_at = now
     listing.save(update_fields=["is_active", "last_seen_at", "updated_at"])
