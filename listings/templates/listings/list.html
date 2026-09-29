@@ -25,14 +25,19 @@
     </div>
     {% if view == "list" %}
       {% include "listings/_table.html" %}
+      {% include "listings/_pagination.html" %}
     {% else %}
-      <div id="map"></div>
-      <div class="grid">
-        {% for listing in listings %}{% include "listings/_card.html" %}{% empty %}<p>No listings match. Try loosening the filters.</p>{% endfor %}
+      <div class="split">
+        <div class="map-pane"><div id="map"></div></div>
+        <div class="cards-pane">
+          <div class="grid">
+            {% for listing in listings %}{% include "listings/_card.html" %}{% empty %}<p>No listings match. Try loosening the filters.</p>{% endfor %}
+          </div>
+          {% include "listings/_pagination.html" %}
+        </div>
       </div>
       {{ map_points|json_script:"map-points" }}
     {% endif %}
-    {% include "listings/_pagination.html" %}
   </section>
 </div>
 {% endblock %}
@@ -50,16 +55,54 @@
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19, attribution: "&copy; OpenStreetMap contributors",
     }).addTo(resultsMap);
+    pins.clear();
     const markers = points.map(p => {
-      const marker = L.marker([p.lat, p.lng]).addTo(resultsMap);
-      const link = document.createElement("a");
-      link.href = p.url;
-      link.textContent = p.label;
-      marker.bindPopup(link);
+      const classes = ["pin", p.drop && "pin-drop", p.status === "interested" && "pin-liked", !p.active && "pin-off"];
+      const label = `${p.status === "interested" ? "♥ " : ""}${p.drop ? "↓" : ""}${p.short}`;
+      const marker = L.marker([p.lat, p.lng], {
+        icon: L.divIcon({className: "pin-wrap", html: `<span class="${classes.filter(Boolean).join(" ")}">${label}</span>`,
+                         iconSize: null, iconAnchor: [0, 0]}),
+        riseOnHover: true,
+      }).addTo(resultsMap);
+      marker.on("mouseover", () => highlight(p.id, true));
+      marker.on("mouseout", () => highlight(p.id, false));
+      marker.on("click", () => showCard(p.id));
+      pins.set(p.id, marker);
       return marker;
     });
     if (markers.length) resultsMap.fitBounds(L.featureGroup(markers).getBounds().pad(0.1), {animate: false});
   }
+
+  // --- Card <-> pin linking ---------------------------------------------------------------
+  const pins = new Map();
+  const cardFor = id => document.querySelector(`.card[data-listing-id="${id}"]`);
+
+  function highlight(id, on) {
+    const marker = pins.get(id);
+    if (marker) {
+      marker.getElement()?.classList.toggle("pin-hover", on);
+      marker.setZIndexOffset(on ? 1000 : 0);
+    }
+    cardFor(id)?.classList.toggle("card-hover", on);
+  }
+
+  function showCard(id) {
+    const card = cardFor(id);
+    if (!card) return;
+    card.scrollIntoView({behavior: "smooth", block: "center"});
+    card.classList.remove("card-flash");
+    void card.offsetWidth;  // restart the flash animation
+    card.classList.add("card-flash");
+  }
+
+  document.addEventListener("mouseover", event => {
+    const card = event.target.closest(".card[data-listing-id]");
+    if (card && !card.contains(event.relatedTarget)) highlight(+card.dataset.listingId, true);
+  });
+  document.addEventListener("mouseout", event => {
+    const card = event.target.closest(".card[data-listing-id]");
+    if (card && !card.contains(event.relatedTarget)) highlight(+card.dataset.listingId, false);
+  });
 
   drawMap();
   // Tear the old map down before HTMX replaces its container; removing it afterwards (mid-animation)

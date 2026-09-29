@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -13,7 +12,6 @@ from .runner import is_running, run_all_in_background, sync_sources
 from .scheduler import next_run_time
 
 PAGE_SIZE = 50
-MAX_MAP_POINTS = 3000
 VIEWS = ("map", "list")
 NON_FILTER_PARAMS = {"view", "page"}
 
@@ -37,7 +35,7 @@ def listing_list(request):
         "view": view,
         "page_obj": page_obj,
         "listings": page_obj.object_list,
-        "map_points": _map_points(queryset) if view == "map" else [],
+        "map_points": _map_points(page_obj.object_list) if view == "map" else [],
         "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
         "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
         "map_url": _url_with(request, view="map"),
@@ -45,18 +43,27 @@ def listing_list(request):
     })
 
 
-def _map_points(queryset):
-    """Pins for every matching listing (not just the current page)."""
-    rows = queryset.filter(latitude__isnull=False).values("pk", "latitude", "longitude", "price", "beds", "street")
+def _short_price(price):
+    if not price:
+        return "?"
+    return f"${price // 1000}k" if price % 1000 == 0 else f"${price / 1000:.2f}".rstrip("0") + "k"
+
+
+def _map_points(listings):
+    """Pins for the listings on this page, so every pin has a card beside it."""
     return [
         {
-            "id": row["pk"],
-            "lat": row["latitude"],
-            "lng": row["longitude"],
-            "label": f"${row['price']:,} · {row['beds']}bd · {row['street']}" if row["price"] else row["street"],
-            "url": reverse("listing_detail", args=[row["pk"]]),
+            "id": listing.pk,
+            "lat": listing.latitude,
+            "lng": listing.longitude,
+            "short": _short_price(listing.price),
+            "drop": bool(listing.price_drop),
+            "status": listing.status,
+            "active": listing.is_active,
+            "url": listing.get_absolute_url(),
         }
-        for row in rows[:MAX_MAP_POINTS]
+        for listing in listings
+        if listing.latitude is not None and listing.longitude is not None
     ]
 
 

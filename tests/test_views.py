@@ -144,11 +144,12 @@ def test_out_of_range_page_shows_last_page(client):
     assert client.get("/?view=list&page=99").context["page_obj"].number == 2
 
 
-def test_map_shows_every_match_not_just_the_page(client):
+def test_map_pins_match_the_cards_on_the_current_page(client):
     many_listings(60)
     response = client.get("/")
-    assert len(response.context["map_points"]) == 60
-    assert response.content.decode().count('class="card"') == 50
+    cards = response.content.decode().count('class="card"')
+    assert cards == 50 and len(response.context["map_points"]) == 50
+    assert len(client.get("/?page=2").context["map_points"]) == 10
 
 
 def test_filters_apply_on_change_without_button(client):
