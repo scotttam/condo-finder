@@ -14,6 +14,7 @@ from .extract import (
     has_ac,
     has_outdoor_space,
     has_parking,
+    is_furnished,
     has_washer_dryer,
 )
 from . import feed
@@ -28,7 +29,7 @@ RECHECK_DROPPED_WITHIN = timedelta(days=14)
 
 OVERRIDABLE_FIELDS = {
     "price", "beds", "baths", "sqft", "parking_spaces", "has_parking", "has_washer_dryer", "has_ac",
-    "has_outdoor_space", "property_type", "neighborhood", "quadrant", "available", "title",
+    "has_outdoor_space", "is_furnished", "property_type", "neighborhood", "quadrant", "available", "title",
     "latitude", "longitude", "special_offer",
 }
 
@@ -214,6 +215,7 @@ def _apply_extracted(listing, text, hint=""):
         "has_washer_dryer": has_washer_dryer(text),
         "has_ac": has_ac(text),
         "has_outdoor_space": has_outdoor_space(text),
+        "is_furnished": is_furnished(text),
     }
     for name, value in extracted.items():
         if value is not None:
@@ -233,7 +235,8 @@ def _apply_overrides(listing):
 
 
 REEXTRACTED_FIELDS = [
-    "parking_spaces", "has_parking", "has_washer_dryer", "has_ac", "has_outdoor_space", "property_type", "special_offer",
+    "parking_spaces", "has_parking", "has_washer_dryer", "has_ac", "has_outdoor_space", "is_furnished", "property_type",
+    "special_offer",
 ]
 
 

@@ -38,6 +38,7 @@
         {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
         {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
         {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
+        {% include "listings/_furnished.html" %}
         <span class="feat {% if listing.parking_spaces >= 2 %}yes{% elif listing.parking_spaces is not None or listing.has_parking is False %}no{% else %}unk{% endif %}">Parking {% if listing.parking_spaces is not None %}{{ listing.parking_spaces }}{% elif listing.has_parking %}✓{% else %}?{% endif %}</span>
       {% else %}
         {{ event.summary }}

@@ -181,7 +181,7 @@
   // --- Filter bar -------------------------------------------------------------------------
   const filters = document.getElementById("filters");
   const defaults = JSON.parse(document.getElementById("filter-defaults").textContent);
-  const DRAWER_FIELDS = ["min_parking", "parking_unknown", "wd", "ac", "outdoor", "price_reduced", "specials",
+  const DRAWER_FIELDS = ["min_parking", "parking_unknown", "wd", "ac", "outdoor", "furnished", "price_reduced", "specials",
                          "show_inactive", "statuses", "sources"];
 
   const controls = name => [...filters.querySelectorAll(`[name="${name}"]`)];
