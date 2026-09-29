@@ -31,6 +31,7 @@
         <div class="map-pane">
           <div id="map"></div>
           <button type="button" class="search-area" data-search-area hidden>Search this area</button>
+          <a class="mini-card" hidden></a>
         </div>
         <div class="cards-pane">
           <div class="grid">
@@ -40,6 +41,7 @@
         </div>
       </div>
       {{ map_points|json_script:"map-points" }}
+      <button type="button" class="map-toggle" data-map-toggle>Map</button>
     {% endif %}
   </section>
 </div>
@@ -113,14 +115,51 @@
     cardFor(id)?.classList.toggle("card-hover", on);
   }
 
+  const isPhone = () => window.matchMedia("(max-width: 800px)").matches;
+
   function showCard(id) {
     const card = cardFor(id);
     if (!card) return;
+    if (isPhone()) return showMiniCard(card);
     card.scrollIntoView({behavior: "smooth", block: "center"});
     card.classList.remove("card-flash");
     void card.offsetWidth;  // restart the flash animation
     card.classList.add("card-flash");
   }
+
+  // --- Phone: full-screen map toggle and pin mini card ---------------------------------------
+  function showMiniCard(card) {
+    const mini = document.querySelector(".mini-card");
+    const link = card.querySelector(".body a[href]");
+    const photo = card.querySelector(".card-photo img");
+    mini.href = link ? link.href : "#";
+    mini.innerHTML = "";
+    if (photo && photo.getAttribute("src")) mini.append(Object.assign(document.createElement("img"), {src: photo.src, alt: ""}));
+    const text = document.createElement("div");
+    for (const selector of [".price", ".body > div:nth-of-type(2)", ".body > a", ".body .muted"]) {
+      const source = card.querySelector(selector);
+      if (source) text.append(Object.assign(document.createElement("div"), {className: selector === ".price" ? "price" : "",
+                                                                          textContent: source.textContent.trim().replace(/\s+/g, " ")}));
+    }
+    mini.append(text);
+    mini.hidden = false;
+  }
+
+  function setMapOpen(open) {
+    document.body.classList.toggle("map-open", open);
+    const toggle = document.querySelector("[data-map-toggle]");
+    if (toggle) toggle.textContent = open ? "List" : "Map";
+    const mini = document.querySelector(".mini-card");
+    if (mini && !open) mini.hidden = true;
+    if (open && resultsMap) setTimeout(() => resultsMap.invalidateSize(), 0);  // Leaflet needs the new size
+  }
+
+  document.addEventListener("click", event => {
+    if (event.target.closest("[data-map-toggle]")) setMapOpen(!document.body.classList.contains("map-open"));
+  });
+  document.body.addEventListener("htmx:afterSettle", () => {
+    if (document.body.classList.contains("map-open")) setMapOpen(true);
+  });
 
   document.addEventListener("mouseover", event => {
     const card = event.target.closest(".card[data-listing-id]");
@@ -206,9 +245,12 @@
   minPrice.addEventListener("input", () => { if (+minPrice.value > +maxPrice.value) minPrice.value = maxPrice.value; });
   maxPrice.addEventListener("input", () => { if (+maxPrice.value < +minPrice.value) maxPrice.value = minPrice.value; });
 
-  // One open chip at a time; clicking elsewhere closes it.
+  // One open chip at a time; clicking elsewhere closes it. On phones a backdrop catches that tap,
+  // so it closes the sheet instead of opening whatever listing was underneath.
+  const backdrop = filters.querySelector("[data-chip-backdrop]");
   filters.querySelectorAll("details.chip").forEach(chip => chip.addEventListener("toggle", () => {
     if (chip.open) filters.querySelectorAll("details.chip[open]").forEach(other => other !== chip && (other.open = false));
+    backdrop.hidden = !filters.querySelector("details.chip[open]");
   }));
   document.addEventListener("click", event => {
     if (!event.target.closest("details.chip")) filters.querySelectorAll("details.chip[open]").forEach(chip => chip.open = false);
