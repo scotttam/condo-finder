@@ -14,7 +14,7 @@ how to continue it.
 
 ## Current state (updated 2026-09-29)
 
-- **Merged to `main` through PR #53** (move-in specials). **Open: furnished label** (`furnished`);
+- **Merged to `main` through PR #53** (move-in specials). **Open: furnished label, #54** (`furnished`);
   migration 0007. 517 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
