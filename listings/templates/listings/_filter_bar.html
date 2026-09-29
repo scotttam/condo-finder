@@ -5,6 +5,10 @@
       hx-push-url="true" hx-trigger="change, input delay:500ms" hx-sync="this:replace"
       hx-indicator="#results">
   <input type="hidden" name="view" value="{{ view }}">
+  <input type="hidden" name="north" value="{{ form.north.value|default_if_none:'' }}">
+  <input type="hidden" name="south" value="{{ form.south.value|default_if_none:'' }}">
+  <input type="hidden" name="east" value="{{ form.east.value|default_if_none:'' }}">
+  <input type="hidden" name="west" value="{{ form.west.value|default_if_none:'' }}">
 
   <details class="chip" data-chip="price">
     <summary><span data-label>Price</span></summary>
@@ -101,6 +105,7 @@
     </div>
   </details>
 
+  <button type="button" class="area-chip" data-clear-area hidden title="Stop limiting results to the map area">Map area ✕</button>
   <a class="reset" href="{% url 'listing_list' %}{% if view == 'list' %}?view=list{% endif %}">Reset</a>
   <noscript><button type="submit">Apply filters</button></noscript>
 </form>
