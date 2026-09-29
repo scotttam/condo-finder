@@ -1,0 +1,77 @@
+{% extends "listings/base.html" %}
+{% load humanize %}
+{% block title %}Trends · Condo Finder{% endblock %}
+{% block content %}
+<div class="trends-head">
+  <div>
+    <h1>Trends</h1>
+    <div class="muted">
+      {% if report %}{{ report.get_trigger_display }} report · {{ report.created_at|date:"D M j, g:i A" }} · cost ${{ report.cost_usd|floatformat:2 }}
+      {% else %}No report yet{% endif %}
+    </div>
+  </div>
+  <form class="trends-run" method="post" action="{% url 'trends_run' %}">
+    {% csrf_token %}
+    <button type="submit"{% if not configured or running or runs_left < 1 %} disabled{% endif %}>{% if report %}↻ Re-run now{% else %}Run the analysis{% endif %}</button>
+    <div class="muted small">{% if configured %}{{ runs_left }} of {{ runs_per_day }} re-runs left today · runs daily after the morning scrape{% endif %}</div>
+  </form>
+</div>
+
+{% if running %}{% include "listings/_trend_status.html" %}{% endif %}
+
+{% if not configured %}
+<div class="panel notice">
+  <strong>Connect Claude to turn on the analysis.</strong>
+  Create an API key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>,
+  add <code>ANTHROPIC_API_KEY=…</code> to the <code>.env</code> file, and restart the app (<code>./deploy/install.sh</code> on the Mac mini).
+  The market charts below work without it.
+</div>
+{% endif %}
+
+{% if failed %}
+<div class="panel notice error"><strong>The last run failed</strong> ({{ failed.created_at|date:"M j, g:i A" }}): {{ failed.error }}</div>
+{% endif %}
+
+{% if report.summary %}<p class="trends-summary">{{ report.summary }}</p>{% endif %}
+
+<div class="trends-body">
+  <section class="picks">
+    {% for pick in picks %}
+      {% include "listings/_trend_pick.html" %}
+    {% empty %}
+      <div class="panel empty-picks">
+        <h3>No picks yet</h3>
+        <p class="muted">{% if configured %}Run the analysis and Claude will rank the five best current options, using your notes and the "What we're looking for" box.{% else %}Picks appear here once Claude is connected.{% endif %}</p>
+      </div>
+    {% endfor %}
+  </section>
+  <aside class="trends-side">
+    <div class="panel">
+      <h3>What we're looking for</h3>
+      {% include "listings/_priorities.html" %}
+    </div>
+    <div class="panel">
+      <h3>Market right now</h3>
+      <div class="stats market-stats">
+        <div class="stat"><div class="stat-value">{% if snapshot.median_rent %}${{ snapshot.median_rent|intcomma }}{% else %}?{% endif %}</div><div class="stat-label">Median rent</div></div>
+        <div class="stat"><div class="stat-value">{% if snapshot.cut_share is not None %}{% widthratio snapshot.cut_share 1 100 %}%{% else %}?{% endif %}</div><div class="stat-label">Have cut price</div></div>
+        <div class="stat"><div class="stat-value">{% if snapshot.median_dom is not None %}{{ snapshot.median_dom }} days{% else %}?{% endif %}</div><div class="stat-label">Median on market</div></div>
+        <div class="stat"><div class="stat-value">{{ snapshot.active_count|default:0 }}</div><div class="stat-label">Comparable listings</div></div>
+      </div>
+      {% if snapshot.median_rent_by_city %}
+      <table class="city-rents">{% for city, rent in snapshot.median_rent_by_city.items %}<tr><td>{{ city }}</td><td>${{ rent|intcomma }}</td></tr>{% endfor %}</table>
+      {% endif %}
+      <p class="muted small">2+ bed, 2+ bath, not apartment complexes.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="market">
+  <h2>Market trends</h2>
+  {% if report.market_read %}<div class="market-read">{{ report.market_read|linebreaks }}</div>{% endif %}
+  <div class="charts">
+    {% for item in charts %}{% include "listings/_trend_chart.html" with title=item.title chart=item.chart %}{% endfor %}
+  </div>
+  <p class="muted small">Weekly snapshots of comparable listings.{% if tracking_since %} Tracking since {{ tracking_since|date:"M j" }}.{% endif %}</p>
+</section>
+{% endblock %}

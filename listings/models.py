@@ -62,6 +62,8 @@ class SourceRun(models.Model):
 
 
 class Listing(models.Model):
+    STATUS_CHOICES = Status.choices  # for templates
+
     address_key = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     street = models.CharField(max_length=255)

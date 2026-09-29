@@ -1,0 +1,45 @@
+{% load humanize %}
+{# One ranked pick. pick is the saved snapshot; pick.listing is the live Listing, or None if it was deleted. #}
+{% with l=pick.listing %}
+<article class="pick" id="pick-{{ pick.rank }}">
+  <div class="pick-rank" aria-label="Rank {{ pick.rank }}">{{ pick.rank }}</div>
+  <div class="pick-photo">
+    {% if l %}<a href="{{ l.get_absolute_url }}">{% endif %}
+    {% if pick.photo_url %}<img src="{{ pick.photo_url }}" alt="" loading="lazy">{% else %}<div class="no-photo">No photo</div>{% endif %}
+    {% if l %}</a>{% endif %}
+  </div>
+  <div class="pick-body">
+    <div class="pick-top">
+      <div class="pick-where">
+        <h2>{% if l %}<a href="{{ l.get_absolute_url }}">{{ pick.address }}</a>{% else %}{{ pick.address }}{% endif %}</h2>
+        {% if l %}<div class="muted">{{ l.location_label }} · {{ l.get_property_type_display }}</div>{% endif %}
+      </div>
+      <div class="pick-price">
+        {% if l.price %}${{ l.price|intcomma }}<span>/mo</span>{% elif pick.price_at_pick %}${{ pick.price_at_pick|intcomma }}<span>/mo</span>{% endif %}
+        {% if l and l.price and pick.price_at_pick and l.price != pick.price_at_pick %}<div class="muted">${{ pick.price_at_pick|intcomma }} when picked</div>{% endif %}
+      </div>
+    </div>
+    <div class="pick-facts">
+      {% if l %}
+      <span>{{ l.beds|default_if_none:"?" }} bd</span><span>{{ l.baths|floatformat:"-1"|default:"?" }} ba</span>
+      {% if l.sqft %}<span>{{ l.sqft|intcomma }} sq ft</span>{% endif %}
+      <span>{% if l.parking_spaces is not None %}{{ l.parking_spaces }} parking{% elif l.has_parking %}parking, spaces?{% else %}parking ?{% endif %}</span>
+      {% if l.price_drop %}<span class="drop-pill">↓ ${{ l.price_drop|intcomma }} since listed</span>{% endif %}
+      {% endif %}
+      {% if not l or not l.is_active %}<span class="offmarket-pill">Off market</span>{% endif %}
+    </div>
+    <p class="pick-headline">{{ pick.headline }}</p>
+    <p class="pick-why">{{ pick.why }}</p>
+    <div class="leverage">
+      <div class="panel-title">Negotiating</div>
+      <p>{{ pick.leverage }}</p>
+      {% if pick.offer_low %}<div class="offer">Offer {% if pick.offer_high and pick.offer_high != pick.offer_low %}${{ pick.offer_low|intcomma }}–${{ pick.offer_high|intcomma }}{% else %}${{ pick.offer_low|intcomma }}{% endif %}</div>{% endif %}
+    </div>
+    <div class="pick-lists">
+      {% if pick.concerns %}<div><div class="panel-title">Concerns</div><ul>{% for item in pick.concerns %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+      {% if pick.questions %}<div><div class="panel-title">Ask about</div><ul>{% for item in pick.questions %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+    </div>
+    {% if l %}<div class="pick-actions">{% include "listings/_status_pills.html" with listing=l %}<a href="{{ l.get_absolute_url }}">Open listing →</a></div>{% endif %}
+  </div>
+</article>
+{% endwith %}

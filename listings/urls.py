@@ -12,6 +12,10 @@ urlpatterns = [
     path("listing/<int:pk>/history/<int:change_pk>/edit/", views.history_edit, name="history_edit"),
     path("listing/<int:pk>/history/<int:change_pk>/delete/", views.history_delete, name="history_delete"),
     path("feed/", views.feed_page, name="feed"),
+    path("trends/", views.trends_page, name="trends"),
+    path("trends/run/", views.trends_run, name="trends_run"),
+    path("trends/priorities/", views.trends_priorities, name="trends_priorities"),
+    path("trends/status/", views.trends_status, name="trends_status"),
     path("sources/", views.sources, name="sources"),
     path("sources/scrape/", views.scrape_now, name="scrape_now"),
 ]

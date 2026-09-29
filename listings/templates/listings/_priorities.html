@@ -1,0 +1,12 @@
+{# "What we're looking for": shared free text, saved a moment after typing stops and read by the next report. #}
+<form id="priorities" method="post" action="{% url 'trends_priorities' %}"
+      hx-post="{% url 'trends_priorities' %}" hx-trigger="keyup changed delay:800ms, change"
+      hx-target="find .save-state" hx-select=".save-state" hx-swap="outerHTML" hx-sync="this:replace">
+  {% csrf_token %}
+  <textarea name="text" rows="7" placeholder="e.g. Walkable to groceries and coffee. Top floor or no one above us. A second bedroom that works as an office. Under $4,000 if we can.">{{ priorities.text }}</textarea>
+  <div class="tracking-foot">
+    {% if saved %}<span class="save-state saved">Saved ✓ {% now "g:i A" %}</span>
+    {% else %}<span class="save-state muted">Used by the next analysis. Saves automatically.</span>{% endif %}
+  </div>
+  <noscript><button type="submit">Save</button></noscript>
+</form>
