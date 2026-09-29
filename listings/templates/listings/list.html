@@ -62,10 +62,8 @@
     }).addTo(resultsMap);
     pins.clear();
     const markers = points.map(p => {
-      const classes = ["pin", p.drop && "pin-drop", p.status === "interested" && "pin-liked", !p.active && "pin-off"];
-      const label = `${p.status === "interested" ? "♥ " : ""}${p.drop ? "↓" : ""}${p.short}`;
       const marker = L.marker([p.lat, p.lng], {
-        icon: L.divIcon({className: "pin-wrap", html: `<span class="${classes.filter(Boolean).join(" ")}">${label}</span>`,
+        icon: L.divIcon({className: "pin-wrap", html: `<span class="${p.classes}">${p.label}</span>`,
                          iconSize: null, iconAnchor: [0, 0]}),
         riseOnHover: true,
       }).addTo(resultsMap);
