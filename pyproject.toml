@@ -3,6 +3,7 @@ name = "condo-finder"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "anthropic>=1.9.0",
     "apscheduler>=3.10,<4",
     "beautifulsoup4>=4.15.0",
     "django>=6.1.1",
