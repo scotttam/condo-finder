@@ -140,7 +140,7 @@ price. Use the asking price for both if there's no leverage.
 
 Only pick ids from the shortlist, never one they rejected. Then write market_read: 2-4 short paragraphs \
 on how rents are moving, where the negotiating room is, and what that means for their timing. Finish \
-with summary: one sentence for the top of the page."""
+with summary: one sentence for the top of the page. Write plain text throughout, without Markdown."""
 
 SHORTLIST_SCHEMA = {
     "type": "object",

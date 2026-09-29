@@ -1,6 +1,9 @@
+from datetime import date
+
+from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -8,8 +11,9 @@ from django.views.decorators.http import require_POST
 
 from .filters import apply_filters
 from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
-from .models import Listing, PriceChange, Source, SourceRun, Status
-from . import feed
+from .models import Listing, PriceChange, SearchPriorities, Source, SourceRun, Status, TrendReport
+from . import analyst, feed, trend_stats
+from .charts import line_chart
 from .ingest import refresh_source_listing
 from .runner import is_running, run_all_in_background, sync_sources
 from .scrapers.base import RefreshBlocked, Scraper
@@ -259,7 +263,8 @@ def set_status(request, pk):
     listing.status = status
     listing.save(update_fields=["status", "updated_at"])
     if request.headers.get("HX-Request"):
-        return render(request, "listings/_status.html", {"listing": listing})
+        template = "listings/_status_pills.html" if request.POST.get("variant") == "pills" else "listings/_status.html"
+        return render(request, template, {"listing": listing})
     referer = request.META.get("HTTP_REFERER", "")
     if url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}):
         return redirect(referer)
@@ -284,3 +289,68 @@ def scrape_now(request):
         run_all_in_background()
         messages.success(request, "Scrape started. Refresh this page in a few minutes.")
     return redirect("sources")
+
+
+def _trend_charts(weekly):
+    weeks = weekly.get("weeks", [])
+    return [
+        {"title": "Median asking rent", "chart": line_chart(weekly.get("median_rent_by_city", {}), weeks, fmt="dollars")},
+        {"title": "Listings with a price cut", "chart": line_chart({"Share": weekly.get("cut_share", [])}, weeks, fmt="percent")},
+        {"title": "Median days on market", "chart": line_chart({"Days": weekly.get("median_dom", [])}, weeks, fmt="days")},
+    ]
+
+
+def trends_page(request):
+    report = TrendReport.objects.filter(status=TrendReport.Status.DONE).first()
+    latest = TrendReport.objects.first()
+    stats = report.stats if report else {}
+    snapshot = stats.get("now") or trend_stats.market_snapshot()
+    weekly = stats.get("weekly") or trend_stats.weekly_series()
+    picks = report.picks if report else []
+    listings = Listing.objects.in_bulk([pick["listing_id"] for pick in picks])
+    return render(request, "listings/trends.html", {
+        "report": report,
+        "failed": latest if latest and latest.status == TrendReport.Status.FAILED else None,
+        "picks": [{**pick, "listing": listings.get(pick["listing_id"])} for pick in picks],
+        "snapshot": snapshot,
+        "tracking_since": date.fromisoformat(weekly["tracking_since"]) if weekly.get("tracking_since") else None,
+        "charts": _trend_charts(weekly),
+        "priorities": SearchPriorities.get(),
+        "configured": analyst.is_configured(),
+        "running": analyst.is_running(),
+        "runs_left": analyst.manual_runs_left(),
+        "runs_per_day": settings.TRENDS_MANUAL_RUNS_PER_DAY,
+    })
+
+
+@require_POST
+def trends_run(request):
+    if not analyst.is_configured():
+        messages.error(request, "Add ANTHROPIC_API_KEY to .env and restart the app to run the analysis.")
+    elif analyst.manual_runs_left() <= 0:
+        limit = settings.TRENDS_MANUAL_RUNS_PER_DAY
+        messages.info(request, f"You've used all {limit} re-runs for today. The daily report still runs after the morning scrape.")
+    elif analyst.start_report(TrendReport.Trigger.MANUAL):
+        messages.success(request, "Analysis started. It takes a minute or two.")
+    else:
+        messages.info(request, "An analysis is already running.")
+    return redirect("trends")
+
+
+@require_POST
+def trends_priorities(request):
+    priorities = SearchPriorities.get()
+    priorities.text = request.POST.get("text", "")
+    priorities.save()
+    if request.headers.get("HX-Request"):
+        return render(request, "listings/_priorities.html", {"priorities": priorities, "saved": True})
+    return redirect("trends")
+
+
+def trends_status(request):
+    """Polled while an analysis runs; tells HTMX to reload the page once it's finished."""
+    if analyst.is_running():
+        return render(request, "listings/_trend_status.html")
+    response = HttpResponse("")
+    response["HX-Refresh"] = "true"
+    return response

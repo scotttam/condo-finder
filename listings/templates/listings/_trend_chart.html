@@ -1,0 +1,26 @@
+{# One small line chart. chart comes from listings.charts.line_chart. #}
+<figure class="chart-card">
+  <figcaption>{{ title }}</figcaption>
+  {% if chart.empty %}
+  <div class="chart-empty">Not enough data yet</div>
+  {% else %}
+  <svg class="trend-chart" viewBox="0 0 {{ chart.width }} {{ chart.height }}" role="img" aria-label="{{ title }} by week">
+    {% for tick in chart.y_ticks %}
+    <line class="grid" x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ tick.y }}" y2="{{ tick.y }}"></line>
+    <text class="axis" x="{{ chart.left|add:'-8' }}" y="{{ tick.y }}" text-anchor="end" dominant-baseline="middle">{{ tick.label }}</text>
+    {% endfor %}
+    {% for tick in chart.x_ticks %}
+    <text class="axis" x="{{ tick.x }}" y="{{ chart.height|add:'-8' }}" text-anchor="{{ tick.anchor }}">{{ tick.label }}</text>
+    {% endfor %}
+    {% for line in chart.lines %}
+    <g class="series series-{{ forloop.counter }}">
+      {% for path in line.paths %}<path d="{{ path }}"></path>{% endfor %}
+      {% for point in line.points %}<circle cx="{{ point.x }}" cy="{{ point.y }}" r="{% if forloop.last %}4.5{% else %}3{% endif %}"><title>{{ line.name }}: {{ point.label }}</title></circle>{% endfor %}
+    </g>
+    {% endfor %}
+  </svg>
+  {% if chart.lines|length > 1 %}
+  <div class="chart-legend">{% for line in chart.lines %}<span class="series-{{ forloop.counter }}"><i></i>{{ line.name }}{% with last=line.points|last %} {{ last.label }}{% endwith %}</span>{% endfor %}</div>
+  {% endif %}
+  {% endif %}
+</figure>
