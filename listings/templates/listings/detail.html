@@ -39,20 +39,7 @@
         <li><a href="{{ sl.url }}" target="_blank" rel="noopener">{{ sl.source.name }}</a>{% if not sl.is_active %} <span class="muted">(gone)</span>{% endif %}</li>
       {% endfor %}</ul>
     </div>
-    <div class="panel"><h3>Price history</h3>
-      {% if listing.price_drop %}<p class="drop">↓ ${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%) since listed</p>{% endif %}
-      <table class="history">
-        <tr><th>Date</th><th>Price</th><th>Change</th><th>Event</th></tr>
-        {% for row in listing.price_history_rows %}
-        <tr>
-          <td class="nowrap">{{ row.change.seen_at|date:"M j, Y" }}</td>
-          <td>${{ row.change.price|intcomma }}</td>
-          <td class="nowrap{% if row.is_drop %} drop{% endif %}">{{ row.label }}</td>
-          <td>{{ row.change.event|default:"Entered by hand" }}{% if row.change.source %}<div class="muted">{{ row.change.source }}</div>{% endif %}</td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
+    {% include "listings/_history.html" %}
     {% if listing.latitude is not None %}<div id="map" style="height:260px"></div>
     {% else %}<div class="panel muted">Map will appear once this address is located. Locations are looked up after each scrape.</div>{% endif %}
     <p><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>

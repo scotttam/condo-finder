@@ -2,12 +2,13 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .filters import apply_filters
-from .forms import ListingFilterForm, TrackingForm, default_filter_data
-from .models import Listing, Source, SourceRun, Status
+from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
+from .models import Listing, PriceChange, Source, SourceRun, Status
 from .runner import is_running, run_all_in_background, sync_sources
 from .scheduler import next_run_time
 
@@ -92,7 +93,61 @@ def listing_detail(request, pk):
     listing = get_object_or_404(
         Listing.objects.prefetch_related("source_listings__source", "price_changes"), pk=pk
     )
-    return render(request, "listings/detail.html", {"listing": listing, "tracking_form": TrackingForm(instance=listing)})
+    return render(request, "listings/detail.html", {
+        "listing": listing,
+        "tracking_form": TrackingForm(instance=listing),
+        "add_form": PriceEntryForm(initial={"date": timezone.localdate(), "price": listing.price}),
+        "history_events": HISTORY_EVENTS,
+    })
+
+
+def _history_response(request, listing, add_form=None, editing=None, edit_form=None):
+    """The price history panel (HTMX swaps it in place), or back to the listing without HTMX."""
+    if not request.headers.get("HX-Request"):
+        return redirect(listing)
+    listing = Listing.objects.prefetch_related("price_changes").get(pk=listing.pk)  # fresh history
+    return render(request, "listings/_history.html", {
+        "listing": listing,
+        "add_form": add_form or PriceEntryForm(initial={"date": timezone.localdate(), "price": listing.price}),
+        "editing": editing,
+        "edit_form": edit_form,
+        "history_events": HISTORY_EVENTS,
+    })
+
+
+@require_POST
+def history_add(request, pk):
+    listing = get_object_or_404(Listing, pk=pk)
+    form = PriceEntryForm(request.POST)
+    if form.is_valid():
+        PriceChange.objects.create(listing=listing, price=form.cleaned_data["price"], seen_at=form.seen_at(),
+                                   event=form.cleaned_data["event"])
+        return _history_response(request, listing)
+    return _history_response(request, listing, add_form=form)
+
+
+def history_edit(request, pk, change_pk):
+    listing = get_object_or_404(Listing, pk=pk)
+    change = get_object_or_404(PriceChange, pk=change_pk, listing=listing)
+    if request.GET.get("cancel"):
+        return _history_response(request, listing)
+    if request.method == "POST":
+        form = PriceEntryForm(request.POST)
+        if form.is_valid():
+            change.seen_at = form.seen_at()
+            change.price = form.cleaned_data["price"]
+            change.event = form.cleaned_data["event"]
+            change.save(update_fields=["seen_at", "price", "event"])
+            return _history_response(request, listing)
+        return _history_response(request, listing, editing=change.pk, edit_form=form)
+    return _history_response(request, listing, editing=change.pk, edit_form=PriceEntryForm.for_change(change))
+
+
+@require_POST
+def history_delete(request, pk, change_pk):
+    listing = get_object_or_404(Listing, pk=pk)
+    get_object_or_404(PriceChange, pk=change_pk, listing=listing).delete()
+    return _history_response(request, listing)
 
 
 @require_POST

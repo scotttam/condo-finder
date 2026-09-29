@@ -104,7 +104,7 @@
     .offmarket { color:var(--no); font-weight:600; font-size:12px; }
     table { border-collapse:collapse; width:100%; background:var(--card); }
     th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top; }
-    .detail { display:grid; grid-template-columns:1fr 360px; gap:24px; }
+    .detail { display:grid; grid-template-columns:minmax(0, 1fr) 420px; gap:24px; }
     .detail img.hero { width:100%; max-height:420px; object-fit:cover; border-radius:10px; }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
     .description { white-space:pre-line; }
@@ -127,7 +127,22 @@
     .nowrap { white-space:nowrap; }
     .drop { color:var(--yes); font-weight:600; font-size:13px; }
     .price .drop { margin-left:6px; }
-    table.history td, table.history th { font-size:13px; padding:5px 6px; }
+    table.history { table-layout:fixed; width:100%; }
+    table.history td, table.history th { font-size:13px; padding:5px 6px; overflow-wrap:anywhere; }
+    table.history th:nth-child(1) { width:27%; } table.history th:nth-child(2) { width:17%; }
+    table.history th:nth-child(3) { width:22%; } table.history th:nth-child(5) { width:52px; }
+    .history-form { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:10px; }
+    .history-form .panel-title { width:100%; margin:6px 0 0; }
+    .history-form input { padding:5px 6px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:13px; }
+    .history-form input { min-width:0; }
+    .history-form input[type=date] { flex:1 1 9.5em; } .history-form input[type=number] { flex:1 1 5.5em; }
+    .history-form input[type=text] { flex:2 1 100%; }
+    .history-form button[type=submit] { padding:5px 12px; border:0; border-radius:6px; background:var(--accent); color:#fff; font:inherit; font-size:13px; cursor:pointer; }
+    button.link { border:0; background:none; padding:0 4px; color:var(--accent); font:inherit; font-size:13px; cursor:pointer; }
+    button.link.danger { color:var(--no); }
+    .row-actions { text-align:right; }
+    .form-error { width:100%; color:var(--no); font-size:12px; }
+    .small { font-size:12px; }
     .pagination { display:flex; justify-content:center; align-items:center; gap:18px; margin:20px 0 8px; }
     .pagination a, .pagination .disabled { padding:6px 14px; border:1px solid var(--line); border-radius:8px; background:var(--card); text-decoration:none; }
     .pagination .disabled { color:var(--muted); opacity:.5; }
