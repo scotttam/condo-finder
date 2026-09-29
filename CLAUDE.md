@@ -14,12 +14,15 @@ how to continue it.
 
 ## Current state (updated 2026-09-29)
 
-- **Everything is merged to `main` through PR #46.** 386 tests pass.
+- **Merged to `main` through PR #47.** 442 tests pass on the Trends stack.
+- **Open: the Trends stack, #48 → #51** (`trends/01-data` … `trends/04-history`). Merge bottom-up, then
+  add `ANTHROPIC_API_KEY` to `.env` on the Mac mini and run `./deploy/install.sh` (migration 0005).
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
   migrates, collects static files and restarts the service.
 - **Recently shipped:**
+  - Trends page (in review): Claude's top 5 picks with negotiating angles, market charts, report history.
   - Listing page redesign: header card, stat tiles, status pills, notes that save themselves (#43, #44).
   - Feed page with unread markers (#41, #42).
   - Editing price history in place and "Refresh from sites" (earlier PRs).
@@ -83,8 +86,21 @@ its own data. Production data lives only on the Mac mini.
 - `listings/feed.py` records `FeedEvent` rows for new listings and for changes to listings with a
   status. `happened_at` is when the change happened; `created_at` is when we learned of it. Unread
   state is per browser, in the `feed_seen_at` cookie.
+- **Trends** (spec: `docs/superpowers/specs/2026-09-29-trends-design.md`):
+  - `listings/trend_stats.py` computes weekly median rent by city, the price-cut share and days on
+    market over comparable listings. Weeks before the first scrape are blank on purpose (only
+    survivors are known for them).
+  - `listings/analyst.py` makes two Claude calls (Opus 5.5, structured JSON output, server-side
+    fallback). Pass 1 shortlists 25 candidates from compact facts; pass 2 ranks the top 5 from full
+    descriptions, notes, rejected listings and "What we're looking for" (`SearchPriorities`).
+  - Each run is saved as a `TrendReport` with usage and cost. One runs at a time in a background
+    thread. The scheduler starts the daily report after the first scrape of the day; manual re-runs
+    are capped by `TRENDS_MANUAL_RUNS_PER_DAY`.
+  - Tests use a `FakeClient` (`tests/test_analyst.py`) and never call the API. A real run costs
+    about $0.50.
 - `listings/views.py`:
   - List/map page: the filter bar in `_filter_bar.html`, the split map, "Search this area".
+  - Trends page, run/priorities/status endpoints, and the chart helper in `listings/charts.py`.
   - Detail page, Feed, history add/edit/delete, refresh listing, tracking, and Sources (scraper
     health).
 - `listings/forms.py` holds `ListingFilterForm`, which carries the default filters: 2 bd / 2 ba /

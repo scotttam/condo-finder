@@ -221,9 +221,18 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <rect class="box ext" x="846" y="480" width="176" height="48" rx="7"/>
       <text class="t" x="858" y="500">HTMX · Leaflet</text><text class="s" x="858" y="518">jsDelivr · cdnjs</text>
       <path class="edge dash" d="M1027 270 C 1036 330, 1036 420, 1024 444" marker-end="url(#ah)"/>
+
+      <!-- Trends analyst -->
+      <rect class="box web" x="569" y="500" width="180" height="48" rx="7"/>
+      <text class="t" x="581" y="520">Trends analyst</text><text class="s" x="581" y="538">daily + Re-run</text>
+      <line class="edge web" x1="659" y1="500" x2="659" y2="490" marker-end="url(#ahw)"/>
+      <rect class="box ext" x="846" y="540" width="176" height="46" rx="7"/>
+      <text class="t" x="858" y="559">Claude API</text><text class="s" x="858" y="576">Opus 5.5 · 2 calls a run</text>
+      <path class="edge web" d="M749 524 C 800 524, 800 563, 844 563" marker-end="url(#ahw)"/>
+      <text class="lbl w-t" x="760" y="514">picks</text>
     </svg>
     </div>
-    <figcaption>Scraping and serving share one process. Gunicorn runs exactly one worker because the scheduler lives inside it, and a second worker would scrape twice. You two reach it at <code>http://&lt;mac-mini&gt;:8000</code> over Tailscale. Only the scrape path and address lookups leave the house; the Mac mini's home IP is what keeps Zillow and Redfin willing to answer.</figcaption>
+    <figcaption>Scraping and serving share one process. Gunicorn runs exactly one worker because the scheduler lives inside it, and a second worker would scrape twice. You two reach it at <code>http://&lt;mac-mini&gt;:8000</code> over Tailscale. Only the scrape path, address lookups and the Trends analyst's calls to Claude leave the house; the Mac mini's home IP is what keeps Zillow and Redfin willing to answer.</figcaption>
   </figure>
 </section>
 
@@ -305,6 +314,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
 <section>
   <h2>What's stored</h2>
   <p>A <code>Listing</code> is the apartment. A <code>SourceListing</code> is one site's ad for it. The same unit on Zillow, Redfin and Craigslist is one Listing with three SourceListings.</p>
+  <p>The Trends page adds two standalone tables. <code>TrendReport</code> keeps each analysis: the ranked picks (with a snapshot of address, photo and price when picked), Claude's market read, the statistics it was given, token usage and cost, and what changed since the previous report. <code>SearchPriorities</code> is one shared row holding "What we're looking for".</p>
   <figure class="wide">
     <div class="scroll">
     <svg viewBox="0 0 1040 300" role="img" aria-label="Source has many SourceRuns and many SourceListings. Each SourceListing belongs to one Listing. A Listing has many PriceChanges and FeedEvents.">
@@ -384,6 +394,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
     <tbody>
       <tr><td>Listings</td><td>Filter bar, list or table beside the map, "Search this area"</td><td>Any filter change sends a GET. HTMX swaps in <code>#results</code> and updates the URL.</td></tr>
       <tr><td>Listing</td><td>Price and stats, sources, map, status pills, notes, price history</td><td>Status and notes POST as you type. History add, edit, delete and "Refresh from sites" swap the history panel.</td></tr>
+      <tr><td>Trends</td><td>Claude's top 5 picks with negotiating angles, market charts, "What we're looking for", older reports</td><td>Re-run POSTs start a background analysis; a banner polls every 4 s and reloads when it's done. Pick-card status pills and the priorities box save as you use them.</td></tr>
       <tr><td>Feed</td><td>New listings and changes to listings you've given a status</td><td>Plain GET. A <code>feed_seen_at</code> cookie tracks unread items per browser.</td></tr>
       <tr><td>Sources</td><td>Each site's last success, count and last error</td><td>"Scrape now" starts a run in a background thread.</td></tr>
       <tr><td>Admin</td><td>Django admin for correcting data</td><td>Standard Django forms</td></tr>
@@ -400,6 +411,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
     <li><b>Gone takes proof</b>A listing needs three missed runs, or a direct page check, before it's marked gone.</li>
     <li><b>Rents stay plausible</b>Anything over $25,000 is treated as a sale price or home value and ignored.</li>
     <li><b>Polite by default</b>Every source has a delay and a detail-page budget. Redfin stops at the first bot challenge.</li>
+    <li><b>Claude sees a digest, not the database</b>Pass 1 gets compact facts for about 600 candidates; only its 25-listing shortlist gets full descriptions in pass 2. That keeps a run near $0.50.</li>
     <li><b>Deploy is one script</b><code>git pull &amp;&amp; ./deploy/install.sh</code> syncs, migrates, collects static files and restarts through launchd.</li>
   </ul>
 </section>
