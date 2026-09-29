@@ -14,15 +14,16 @@ how to continue it.
 
 ## Current state (updated 2026-09-29)
 
-- **Merged to `main` through PR #47.** 442 tests pass on the Trends stack.
-- **Open: the Trends stack, #48 → #51** (`trends/01-data` … `trends/04-history`). Merge bottom-up, then
-  add `ANTHROPIC_API_KEY` to `.env` on the Mac mini and run `./deploy/install.sh` (migration 0005).
+- **Merged to `main` through PR #51** (Trends). **Open: specials, #52 → #53** (`specials/01-detect`,
+  `specials/02-display`); migration 0006. 484 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
   migrates, collects static files and restarts the service.
 - **Recently shipped:**
-  - Trends page (in review): Claude's top 5 picks with negotiating angles, market charts, report history.
+  - Move-in specials (in review): detected in listing text, shown on cards, pins, the listing page,
+    the Feed and Trends, with a "Move-in specials only" filter.
+  - Trends page: Claude's top 5 picks with negotiating angles, market charts, report history.
   - Listing page redesign: header card, stat tiles, status pills, notes that save themselves (#43, #44).
   - Feed page with unread markers (#41, #42).
   - Editing price history in place and "Refresh from sites" (earlier PRs).
@@ -81,6 +82,10 @@ its own data. Production data lives only on the Mac mini.
   - **Implausible rents:** anything over `MAX_PLAUSIBLE_RENT` (25k) is rejected, e.g. Zillow home
     values.
   - **Empty scrapes:** a scrape that returns 0 items counts as a failure and never marks listings gone.
+- `listings/specials.py` finds move-in specials ("4 weeks free", "$500 off first month") and their
+  value; `Listing.special_offer` holds the sentence. Unlike features, it's re-read from the listing's
+  current text on every update, so it clears when a site drops it (admin override `special_offer: ""`
+  silences a false match). `effective_rent` spreads the offer over a 12-month lease.
 - `listings/extract.py` and `parsing.py` parse parking, W/D, AC, outdoor space and property type from
   listing text. `reextract_all()` re-runs them over stored text after a parser change.
 - `listings/feed.py` records `FeedEvent` rows for new listings and for changes to listings with a

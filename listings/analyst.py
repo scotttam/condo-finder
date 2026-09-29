@@ -93,6 +93,8 @@ def compact_facts(listing):
         "ac": _yes_no(listing.has_ac),
         "outdoor": _yes_no(listing.has_outdoor_space),
         "available": listing.available,
+        "special_offer": listing.special_offer,
+        "effective_rent_12mo": listing.effective_rent,
         "days_on_market": listing.days_on_market,
         "on_market": listing.is_active,
         "price_history": [
@@ -117,7 +119,9 @@ Their budget reaches about $5,000 a month.
 
 You are given listings gathered from property-manager sites, Zillow, Redfin and Craigslist. Parking and \
 amenities were parsed from listing text: "unknown" means the listing didn't say, not that it's missing. \
-Each listing's price history shows how its asking rent has moved. Their own notes and statuses \
+Each listing's price history shows how its asking rent has moved, and special_offer quotes any \
+move-in special (weeks free, dollars off), with effective_rent_12mo when its value is stated: count \
+specials toward value, and note that a landlord already offering one may have more room to negotiate. Their own notes and statuses \
 (interested, toured, applied, rejected) are the strongest signal of their taste: favor what they liked, \
 steer away from what they rejected and why, and weigh what they wrote under "What we're looking for" \
 above your own assumptions.

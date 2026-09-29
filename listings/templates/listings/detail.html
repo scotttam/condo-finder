@@ -16,8 +16,12 @@
     <div class="price-row">
       <div class="listing-price">{% if listing.price %}${{ listing.price|intcomma }}<span>/mo</span>{% else %}Price ?{% endif %}</div>
       {% if listing.price_drop %}<span class="drop-pill">↓ ${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%) since listed</span>{% endif %}
+      {% include "listings/_special.html" %}
       {% if not listing.is_active %}<span class="offmarket-pill">Off market</span>{% endif %}
     </div>
+    {% if listing.special_offer %}
+    <p class="special-note">“{{ listing.special_offer }}”{% if listing.effective_rent %} <span>≈${{ listing.effective_rent|intcomma }}/mo over a 12-month lease</span>{% endif %}</p>
+    {% endif %}
 
     <div class="stats">
       <div class="stat"><div class="stat-value">{{ listing.beds|default_if_none:"?" }}</div><div class="stat-label">Beds</div></div>
