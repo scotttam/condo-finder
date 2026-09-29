@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Listing, PriceChange, Source, SourceListing, SourceRun
+from .models import FeedEvent, Listing, PriceChange, Source, SourceListing, SourceRun
 
 
 class SourceListingInline(admin.TabularInline):
@@ -37,3 +37,10 @@ class SourceAdmin(admin.ModelAdmin):
 class SourceRunAdmin(admin.ModelAdmin):
     list_display = ("source", "started_at", "ok", "count", "new_count")
     list_filter = ("source", "ok")
+
+
+@admin.register(FeedEvent)
+class FeedEventAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "kind", "listing", "summary", "source")
+    list_filter = ("kind", "source")
+    search_fields = ("summary", "listing__address")
