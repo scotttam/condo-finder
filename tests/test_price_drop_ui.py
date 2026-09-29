@@ -63,3 +63,12 @@ def test_detail_shows_history_with_changes_and_listed_date(client):
     assert "Aug 22, 2026" in content and "days on market" in content
     assert "Listed for rent" in content and "Price change" in content and "Zillow" in content
     assert "−$200 (−4%)" in content  # Sep 22 vs Aug 22
+
+
+def test_detail_history_lists_newest_first(client):
+    listing = cornell(key=3)
+    content = client.get(f"/listing/{listing.pk}/").content.decode()
+    table = content[content.index('class="history"'):]
+    assert table.index("Sep 22, 2026") < table.index("Aug 22, 2026") < table.index("Nov 25, 2020")
+    rows = [(r["change"].price, r["label"]) for r in listing.price_history_rows]
+    assert rows == [(4600, "−$200 (−4%)"), (4800, ""), (5200, "")]  # changes still compare to the entry before in time

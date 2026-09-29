@@ -49,6 +49,19 @@ def _short_price(price):
     return f"${price // 1000}k" if price % 1000 == 0 else f"${price / 1000:.2f}".rstrip("0") + "k"
 
 
+PIN_MARKS = {Status.INTERESTED: ("♥ ", "pin-liked"), Status.REJECTED: ("✕ ", "pin-rejected")}
+
+
+def _pin_style(listing):
+    mark, status_class = PIN_MARKS.get(listing.status, ("", ""))
+    drop = listing.price_drop
+    classes = ["pin", drop and "pin-drop", status_class, not listing.is_active and "pin-off"]
+    return {
+        "label": f"{mark}{'↓' if drop else ''}{_short_price(listing.price)}",
+        "classes": " ".join(c for c in classes if c),
+    }
+
+
 def _map_points(listings):
     """Pins for the listings on this page, so every pin has a card beside it."""
     return [
@@ -60,6 +73,7 @@ def _map_points(listings):
             "drop": bool(listing.price_drop),
             "status": listing.status,
             "active": listing.is_active,
+            **_pin_style(listing),
             "url": listing.get_absolute_url(),
         }
         for listing in listings

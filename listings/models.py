@@ -142,7 +142,7 @@ class Listing(models.Model):
 
     @property
     def price_history_rows(self):
-        """Price history oldest first, each with its change from the previous entry. A new
+        """Price history newest first, each with its change from the entry before it in time. A new
         'Listed for rent' starts a new rental period, so it isn't shown as a change."""
         rows, previous = [], None
         for change in self.price_changes.all():
@@ -153,7 +153,7 @@ class Listing(models.Model):
                 label = f"{sign}${abs(delta):,} ({sign}{abs(round(delta * 100 / previous))}%)"
             rows.append({"change": change, "label": label, "is_drop": label.startswith("−")})
             previous = change.price
-        return rows
+        return rows[::-1]
 
     @property
     def days_on_market(self):

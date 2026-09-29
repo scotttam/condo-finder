@@ -48,3 +48,13 @@ def test_pin_data_is_embedded_for_the_map_script(client):
     content = client.get("/").content.decode()
     data = json.loads(content.split('id="map-points" type="application/json">')[1].split("</script>")[0])
     assert data[0]["id"] == home.pk and data[0]["url"] == f"/listing/{home.pk}/"
+
+
+def test_pin_labels_and_classes_by_status(client):
+    liked = listing("liked", price=3100, status=Status.INTERESTED)
+    rejected = listing("rejected", price=2400, status=Status.REJECTED)
+    plain = listing("plain", price=2850)
+    points = {p["id"]: p for p in client.get("/?statuses=new&statuses=interested&statuses=rejected").context["map_points"]}
+    assert points[liked.pk]["label"] == "♥ $3.1k" and "pin-liked" in points[liked.pk]["classes"]
+    assert points[rejected.pk]["label"] == "✕ $2.4k" and "pin-rejected" in points[rejected.pk]["classes"]
+    assert points[plain.pk]["label"] == "$2.85k" and points[plain.pk]["classes"] == "pin"
