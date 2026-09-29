@@ -16,7 +16,8 @@ uv run pytest
 
 ## Run on the Mac mini (always on)
 
-1. `cp .env.example .env` and set `DJANGO_SECRET_KEY` to a long random string (other values are optional).
+1. `cp .env.example .env` and set `DJANGO_SECRET_KEY` to a long random string. For the Trends page, also set
+   `ANTHROPIC_API_KEY` (create one at console.anthropic.com). Other values are optional.
 2. `./deploy/install.sh` — installs a launchd agent that starts gunicorn at login, restarts it on crash,
    and runs scheduled scrapes (default 7am, 11am, 3pm, 7pm, 11pm).
 3. System Settings → Users & Groups → enable automatic login for your user (LaunchAgents start at login),

@@ -9,6 +9,16 @@
       {% if report %}{{ report.get_trigger_display }} report · {{ report.created_at|date:"D M j, g:i A" }} · cost ${{ report.cost_usd|floatformat:2 }}
       {% else %}No report yet{% endif %}
     </div>
+    {% if reports|length > 1 %}
+    <form class="report-picker" method="get" action="{% url 'trends' %}">
+      <label>Report
+        <select name="report" onchange="this.form.submit()">
+          {% for item in reports %}<option value="{{ item.pk }}"{% if item.pk == report.pk %} selected{% endif %}>{{ item.created_at|date:"M j, g:i A" }} · {{ item.get_trigger_display }}</option>{% endfor %}
+        </select>
+      </label>
+      <noscript><button type="submit">Open</button></noscript>
+    </form>
+    {% endif %}
   </div>
   <form class="trends-run" method="post" action="{% url 'trends_run' %}">
     {% csrf_token %}
@@ -30,6 +40,21 @@
 
 {% if failed %}
 <div class="panel notice error"><strong>The last run failed</strong> ({{ failed.created_at|date:"M j, g:i A" }}): {{ failed.error }}</div>
+{% endif %}
+
+{% if report and not is_latest %}
+<div class="panel notice">You're viewing an older report from {{ report.created_at|date:"M j" }}. Prices and statuses below are current. <a href="{% url 'trends' %}">Back to the latest</a></div>
+{% endif %}
+
+{% if changes %}
+<section class="changes">
+  <h3>What changed since the previous report</h3>
+  <ul>
+    {% for pick in changes.added %}<li>New pick: <a href="/listing/{{ pick.listing_id }}/">{{ pick.address }}</a> (#{{ pick.rank }})</li>{% endfor %}
+    {% for item in changes.dropped %}<li>Dropped: {{ item.address|default:item.headline }}{% if item.why %} ({{ item.why }}){% endif %}</li>{% endfor %}
+    {% for move in changes.price_moves %}<li>Price: <a href="/listing/{{ move.id }}/">{{ move.address }}</a> ${{ move.from|intcomma }} → ${{ move.to|intcomma }}</li>{% endfor %}
+  </ul>
+</section>
 {% endif %}
 
 {% if report.summary %}<p class="trends-summary">{{ report.summary }}</p>{% endif %}

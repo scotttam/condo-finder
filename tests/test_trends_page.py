@@ -170,3 +170,41 @@ def test_failed_latest_report_shows_its_error(client):
     TrendReport.objects.create(status=TrendReport.Status.FAILED, error="Claude declined this request.")
     content = page(client)
     assert "The last run failed" in content and "Claude declined this request." in content
+
+
+def test_older_reports_open_from_the_dropdown(client):
+    item = listing()
+    old = done_report([pick_for(item, 1, headline="Old headline")], summary="Old summary")
+    done_report([pick_for(item, 1, headline="New headline")], summary="New summary")
+    content = page(client)
+    assert "New summary" in content and "Old summary" not in content
+    assert re.search(rf'<option value="{old.pk}"[^>]*>', content)
+    content = page(client, f"/trends/?report={old.pk}")
+    assert "Old summary" in content and "Old headline" in content
+    assert "You're viewing an older report" in content
+
+
+def test_unknown_report_id_falls_back_to_the_latest(client):
+    done_report([], summary="Latest summary")
+    assert "Latest summary" in page(client, "/trends/?report=9999")
+    assert "Latest summary" in page(client, "/trends/?report=abc")
+
+
+def test_what_changed_panel(client):
+    kept, added = listing(), listing()
+    done_report(
+        [pick_for(kept, 1), pick_for(added, 2)],
+        changes={"added": [added.pk],
+                 "dropped": [{"id": 999, "headline": "Gone one", "address": "5 Old Rd", "why": "you rejected it"}],
+                 "price_moves": [{"id": kept.pk, "address": kept.street, "from": 3200, "to": 3000}]},
+    )
+    content = page(client)
+    panel = content[content.index('<section class="changes"'):content.index("</section>", content.index('<section class="changes"'))]
+    assert f"New pick: <a href=\"/listing/{added.pk}/\">" in panel
+    assert "Dropped: 5 Old Rd (you rejected it)" in panel
+    assert "$3,200 → $3,000" in panel
+
+
+def test_no_changes_panel_without_changes(client):
+    done_report([])
+    assert '<section class="changes"' not in page(client)

@@ -13,11 +13,15 @@ _scheduler = None
 def _scheduled_run():
     from django.db import close_old_connections
 
-    from .runner import run_all
+    from . import analyst, runner
 
     try:
-        run_all()
+        runner.run_all()
     finally:
+        try:
+            analyst.run_daily_if_due()  # the day's Trends report, after the first scrape of the day
+        except Exception:
+            log.exception("Could not start the daily trend report")
         close_old_connections()
 
 

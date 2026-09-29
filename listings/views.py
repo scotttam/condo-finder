@@ -301,7 +301,10 @@ def _trend_charts(weekly):
 
 
 def trends_page(request):
-    report = TrendReport.objects.filter(status=TrendReport.Status.DONE).first()
+    done = TrendReport.objects.filter(status=TrendReport.Status.DONE)
+    newest = done.first()
+    requested = request.GET.get("report", "")
+    report = (done.filter(pk=requested).first() if requested.isdigit() else None) or newest
     latest = TrendReport.objects.first()
     stats = report.stats if report else {}
     snapshot = stats.get("now") or trend_stats.market_snapshot()
@@ -310,6 +313,9 @@ def trends_page(request):
     listings = Listing.objects.in_bulk([pick["listing_id"] for pick in picks])
     return render(request, "listings/trends.html", {
         "report": report,
+        "is_latest": report == newest,
+        "reports": done[:30],
+        "changes": _trend_changes(report),
         "failed": latest if latest and latest.status == TrendReport.Status.FAILED else None,
         "picks": [{**pick, "listing": listings.get(pick["listing_id"])} for pick in picks],
         "snapshot": snapshot,
@@ -321,6 +327,18 @@ def trends_page(request):
         "runs_left": analyst.manual_runs_left(),
         "runs_per_day": settings.TRENDS_MANUAL_RUNS_PER_DAY,
     })
+
+
+def _trend_changes(report):
+    changes = report.changes if report else {}
+    if not any(changes.get(key) for key in ("added", "dropped", "price_moves")):
+        return None
+    picks = {pick["listing_id"]: pick for pick in report.picks}
+    return {
+        "added": [picks[pk] for pk in changes.get("added", []) if pk in picks],
+        "dropped": changes.get("dropped", []),
+        "price_moves": changes.get("price_moves", []),
+    }
 
 
 @require_POST
