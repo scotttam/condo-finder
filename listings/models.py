@@ -2,6 +2,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from .specials import effective_rent, special_label
+
 
 class PropertyType(models.TextChoices):
     CONDO = "condo", "Condo"
@@ -91,6 +93,8 @@ class Listing(models.Model):
         max_length=20, choices=PropertyType.choices, default=PropertyType.UNKNOWN
     )
     available = models.CharField(max_length=100, blank=True)
+    # The sentence stating a move-in special ("4 weeks free", "$500 off first month"), blank if none.
+    special_offer = models.CharField(max_length=200, blank=True)
     photo_url = models.URLField(max_length=500, blank=True)
     overrides = models.JSONField(
         default=dict,
@@ -119,6 +123,15 @@ class Listing(models.Model):
     @property
     def location_label(self):
         return " · ".join(part for part in (self.city, self.quadrant, self.neighborhood) if part)
+
+    @property
+    def special_label(self):
+        return special_label(self.special_offer) if self.special_offer else ""
+
+    @property
+    def effective_rent(self):
+        """Average monthly rent over a 12-month lease with the special applied, when it says how much."""
+        return effective_rent(self.price, self.special_offer) if self.special_offer else None
 
     @property
     def price_per_sqft(self):

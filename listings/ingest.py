@@ -17,6 +17,7 @@ from .extract import (
     has_washer_dryer,
 )
 from . import feed
+from .specials import extract_special
 from .models import FeedEvent, Listing, PriceChange, PropertyType, SourceListing
 
 log = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ RECHECK_DROPPED_WITHIN = timedelta(days=14)
 OVERRIDABLE_FIELDS = {
     "price", "beds", "baths", "sqft", "parking_spaces", "has_parking", "has_washer_dryer", "has_ac",
     "has_outdoor_space", "property_type", "neighborhood", "quadrant", "available", "title",
-    "latitude", "longitude",
+    "latitude", "longitude", "special_offer",
 }
 
 
@@ -220,6 +221,9 @@ def _apply_extracted(listing, text, hint=""):
     property_type = classify_property_type(hint, text)
     if property_type != PropertyType.UNKNOWN:
         listing.property_type = property_type
+    # Unlike features, a special ends: read it from the listing's current text, so it clears when
+    # the site drops it (and one site's text without it doesn't erase another's).
+    listing.special_offer = extract_special(f"{listing.title}\n{listing.description}") or ""
 
 
 def _apply_overrides(listing):
@@ -228,7 +232,9 @@ def _apply_overrides(listing):
             setattr(listing, name, value)
 
 
-REEXTRACTED_FIELDS = ["parking_spaces", "has_parking", "has_washer_dryer", "has_ac", "has_outdoor_space", "property_type"]
+REEXTRACTED_FIELDS = [
+    "parking_spaces", "has_parking", "has_washer_dryer", "has_ac", "has_outdoor_space", "property_type", "special_offer",
+]
 
 
 def reextract_all():

@@ -18,6 +18,7 @@ DETAIL_FIELDS = {
     "has_ac": "AC",
     "has_outdoor_space": "Outdoor space",
     "available": "Available",
+    "special": "Special",
 }
 
 
@@ -49,6 +50,7 @@ def snapshot(listing):
         "has_ac": listing.has_ac,
         "has_outdoor_space": listing.has_outdoor_space,
         "available": listing.available or "?",
+        "special": listing.special_label or "none",
     }
 
 
