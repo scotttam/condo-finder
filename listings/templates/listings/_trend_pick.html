@@ -24,6 +24,7 @@
       <span>{{ l.beds|default_if_none:"?" }} bd</span><span>{{ l.baths|floatformat:"-1"|default:"?" }} ba</span>
       {% if l.sqft %}<span>{{ l.sqft|intcomma }} sq ft</span>{% endif %}
       <span>{% if l.parking_spaces is not None %}{{ l.parking_spaces }} parking{% elif l.has_parking %}parking, spaces?{% else %}parking ?{% endif %}</span>
+      {% include "listings/_special.html" with listing=l %}
       {% if l.price_drop %}<span class="drop-pill">↓ ${{ l.price_drop|intcomma }} since listed</span>{% endif %}
       {% endif %}
       {% if not l or not l.is_active %}<span class="offmarket-pill">Off market</span>{% endif %}

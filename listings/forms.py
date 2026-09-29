@@ -58,6 +58,7 @@ class ListingFilterForm(forms.Form):
     ac = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="AC")
     outdoor = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Outdoor space")
     price_reduced = forms.BooleanField(required=False, label="Price reduced")
+    specials = forms.BooleanField(required=False, label="Move-in specials only")
     show_inactive = forms.BooleanField(required=False, label="Show off-market")
     sort = forms.ChoiceField(required=False, choices=SORT_CHOICES)
     # "Search this area": the map's visible bounds, set by the map script.

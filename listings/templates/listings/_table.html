@@ -10,6 +10,7 @@
       <td><a href="{{ listing.get_absolute_url }}">{% if listing.photo_url %}<img class="thumb" src="{{ listing.photo_url }}" alt="" loading="lazy">{% else %}<span class="thumb"></span>{% endif %}</a></td>
       <td class="nowrap"><strong>{% if listing.price %}${{ listing.price|intcomma }}{% else %}?{% endif %}</strong>
         {% if listing.price_drop %}<div class="drop" title="Down {{ listing.price_drop_percent }}% since listed">↓ ${{ listing.price_drop|intcomma }}</div>{% endif %}
+        {% if listing.special_offer %}<div>{% include "listings/_special.html" %}</div>{% endif %}
         {% if not listing.is_active %}<div class="offmarket">Off market</div>{% endif %}</td>
       <td class="nowrap">{{ listing.beds }} / {{ listing.baths|floatformat:"-1" }}</td>
       <td>{{ listing.sqft|intcomma|default:"?" }}</td>

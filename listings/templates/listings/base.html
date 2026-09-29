@@ -85,6 +85,7 @@
            border:1.5px solid var(--ink); color:var(--ink); font:600 12px/1.4 -apple-system, BlinkMacSystemFont, sans-serif;
            white-space:nowrap; box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:pointer; transition:transform .1s; }
     .pin-drop { border-color:var(--yes); color:var(--yes); }
+    .pin-special { border-color:#7c3aed; color:#6d28d9; }
     .pin-liked { background:#c0265f; border-color:#c0265f; color:#fff; }
     .pin-rejected { background:#f2f2f0; border-color:#98a2b3; color:#667085; text-decoration:line-through; opacity:.8; }
     .pin-off { opacity:.45; }
@@ -101,6 +102,8 @@
     .status-interested { background:#e3f5ea; } .status-rejected { background:#fde8e7; } .status-toured, .status-applied { background:#fff4d6; }
     .status-controls { display:flex; gap:6px; align-items:center; margin-top:auto; }
     .status-controls button { font-size:12px; padding:3px 8px; border:1px solid var(--line); background:#fff; border-radius:6px; cursor:pointer; }
+    .special-pill { display:inline-block; padding:1px 8px; border-radius:999px; background:#f1eafe; color:#6d28d9; font-size:12px; font-weight:700; white-space:nowrap; cursor:help; }
+    .price-row .special-pill { padding:3px 10px; font-size:13px; }
     .offmarket { color:var(--no); font-weight:600; font-size:12px; }
     table { border-collapse:collapse; width:100%; background:var(--card); }
     th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top; }
@@ -118,7 +121,8 @@
     .price-row { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin:14px 0 12px; }
     .listing-price { font-size:32px; font-weight:800; } .listing-price span { font-size:16px; font-weight:600; color:var(--muted); margin-left:2px; }
     .drop-pill, .offmarket-pill { padding:3px 10px; border-radius:999px; font-size:13px; font-weight:700; }
-    .drop-pill { background:#e3f5ea; color:var(--yes); } .offmarket-pill { background:#fde8e7; color:var(--no); }
+    .drop-pill { background:#e3f5ea; color:var(--yes); }
+    .special-note { margin:-4px 0 12px; font-size:14px; color:#5b21b6; } .special-note span { color:var(--muted); margin-left:6px; } .offmarket-pill { background:#fde8e7; color:var(--no); }
     .stats { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
     .stat { border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:#fafaf8; }
     .stat-value { font-size:18px; font-weight:700; line-height:1.2; overflow-wrap:anywhere; }

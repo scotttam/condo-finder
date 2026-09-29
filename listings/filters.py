@@ -38,6 +38,8 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(property_type__in=data["types"])
     if data.get("statuses"):
         queryset = queryset.filter(status__in=data["statuses"])
+    if data.get("specials"):
+        queryset = queryset.exclude(special_offer="")
     if data.get("price_reduced"):
         # Peak price during the current rental listing (all history when the listed date is unknown).
         in_current_listing = Q(listed_at__isnull=True) | Q(price_changes__seen_at__date__gte=F("listed_at"))
