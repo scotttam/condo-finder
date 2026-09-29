@@ -1,0 +1,107 @@
+{# Filter bar: dropdown chips (native <details>) inside one form. Any change re-fetches the page and #}
+{# swaps in #results; typing waits for a pause. Chip labels are kept current by the page script. #}
+<form id="filters" class="filter-bar" method="get" action="{% url 'listing_list' %}"
+      hx-get="{% url 'listing_list' %}" hx-target="#results" hx-select="#results" hx-swap="outerHTML"
+      hx-push-url="true" hx-trigger="change, input delay:500ms" hx-sync="this:replace"
+      hx-indicator="#results">
+  <input type="hidden" name="view" value="{{ view }}">
+
+  <details class="chip" data-chip="price">
+    <summary><span data-label>Price</span></summary>
+    <div class="chip-panel">
+      <div class="panel-title">Monthly rent</div>
+      <div class="range-slider">
+        <input type="range" name="min_price" value="{{ form.min_price.value|default_if_none:0 }}"
+               min="0" max="{{ form.price_slider_max }}" step="{{ form.price_slider_step }}" aria-label="Minimum rent">
+        <input type="range" name="max_price" value="{{ form.max_price.value|default:form.price_slider_max }}"
+               min="0" max="{{ form.price_slider_max }}" step="{{ form.price_slider_step }}" aria-label="Maximum rent">
+      </div>
+      <div class="range-values"><span data-out="min_price"></span><span data-out="max_price"></span></div>
+    </div>
+  </details>
+
+  <details class="chip" data-chip="beds">
+    <summary><span data-label>Beds &amp; baths</span></summary>
+    <div class="chip-panel">
+      <div class="panel-title">Bedrooms</div>
+      <div class="segmented">
+        {% for value, label in form.bed_choices %}
+        <label><input type="radio" name="min_beds" value="{{ value }}"{% if form.min_beds.value|default_if_none:""|stringformat:"s" == value %} checked{% endif %}><span>{{ label }}</span></label>
+        {% endfor %}
+      </div>
+      <div class="panel-title">Bathrooms</div>
+      <div class="segmented">
+        {% for value, label in form.bath_choices %}
+        <label><input type="radio" name="min_baths" value="{{ value }}"{% if form.min_baths.value|default_if_none:""|stringformat:"s" == value %} checked{% endif %}><span>{{ label }}</span></label>
+        {% endfor %}
+      </div>
+    </div>
+  </details>
+
+  <details class="chip" data-chip="area">
+    <summary><span data-label>Area</span></summary>
+    <div class="chip-panel">
+      <div class="panel-title">Cities</div>
+      <div class="check-list">
+        {% for option in form.cities %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
+      </div>
+      <div class="panel-title">Portland quadrant</div>
+      <div class="quadrant-grid">
+        {% for option in form.quadrants %}
+        <label class="quadrant-tile q-{{ option.data.value }}">{{ option.tag }}<span>{{ option.choice_label }}</span></label>
+        {% endfor %}
+      </div>
+      <div class="panel-title">Neighborhood</div>
+      <input type="text" name="neighborhood" value="{{ form.neighborhood.value|default_if_none:'' }}" placeholder="e.g. Pearl" autocomplete="off">
+    </div>
+  </details>
+
+  <details class="chip" data-chip="type">
+    <summary><span data-label>Type</span></summary>
+    <div class="chip-panel">
+      <div class="check-list">
+        {% for option in form.types %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
+      </div>
+    </div>
+  </details>
+
+  <details class="chip chip-more" data-chip="more">
+    <summary>More filters <span class="more-count" data-more-count hidden></span></summary>
+    <div class="chip-panel drawer">
+      <div class="drawer-grid">
+        <section>
+          <div class="panel-title">Parking</div>
+          <div class="segmented">
+            {% for value, label in form.parking_choices %}
+            <label><input type="radio" name="min_parking" value="{{ value }}"{% if form.min_parking.value|default_if_none:""|stringformat:"s" == value %} checked{% endif %}><span>{{ label }}</span></label>
+            {% endfor %}
+          </div>
+          <label class="inline">{{ form.parking_unknown }} Include listings with unknown parking</label>
+
+          <div class="panel-title">Features</div>
+          <label class="field">In-unit W/D {{ form.wd }}</label>
+          <label class="field">AC {{ form.ac }}</label>
+          <label class="field">Outdoor space {{ form.outdoor }}</label>
+
+          <div class="panel-title">Price</div>
+          <label class="inline">{{ form.price_reduced }} Price reduced only</label>
+          <label class="inline">{{ form.show_inactive }} Show off-market</label>
+        </section>
+        <section>
+          <div class="panel-title">Our status</div>
+          <div class="check-list">
+            {% for option in form.statuses %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
+          </div>
+          <div class="panel-title">Sources</div>
+          <div class="check-list columns">
+            {% for option in form.sources %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
+          </div>
+        </section>
+      </div>
+    </div>
+  </details>
+
+  <a class="reset" href="{% url 'listing_list' %}{% if view == 'list' %}?view=list{% endif %}">Reset</a>
+  <noscript><button type="submit">Apply filters</button></noscript>
+</form>
+{{ filter_defaults|json_script:"filter-defaults" }}

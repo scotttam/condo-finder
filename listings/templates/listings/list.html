@@ -1,27 +1,27 @@
 {% extends "listings/base.html" %}
 {% load humanize %}
 {% block content %}
+{% include "listings/_filter_bar.html" %}
 <div class="layout">
-  {# Any change re-fetches the page and swaps in #results; typing waits for a pause. #}
-  <form class="filters" method="get" action="{% url 'listing_list' %}"
-        hx-get="{% url 'listing_list' %}" hx-target="#results" hx-select="#results" hx-swap="outerHTML"
-        hx-push-url="true" hx-trigger="change, input delay:500ms" hx-sync="this:replace"
-        hx-indicator="#results">
-    <input type="hidden" name="view" value="{{ view }}">
-    {{ form.as_div }}
-    <noscript><button type="submit">Apply filters</button></noscript>
-    <p class="muted"><a href="{% url 'listing_list' %}{% if view == 'list' %}?view=list{% endif %}">Reset to defaults</a></p>
-  </form>
   <section id="results">
     <div class="results-bar">
       <p class="muted">
         {{ page_obj.paginator.count|intcomma }} listing{{ page_obj.paginator.count|pluralize }}
         {% if page_obj.paginator.num_pages > 1 %}· showing {{ page_obj.start_index }}–{{ page_obj.end_index }}{% endif %}
       </p>
+      <div class="results-controls">
+      <label class="sort">Sort
+        <select name="sort" form="filters">
+          {% for value, label in form.fields.sort.choices %}
+          <option value="{{ value }}"{% if form.sort.value == value %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
       <nav class="view-toggle" aria-label="Results view">
         <a href="{{ map_url }}"{% if view == "map" %} class="active" aria-current="page"{% endif %}>Map</a>
         <a href="{{ list_url }}"{% if view == "list" %} class="active" aria-current="page"{% endif %}>List</a>
       </nav>
+      </div>
     </div>
     {% if view == "list" %}
       {% include "listings/_table.html" %}
@@ -58,12 +58,97 @@
       marker.bindPopup(link);
       return marker;
     });
-    if (markers.length) resultsMap.fitBounds(L.featureGroup(markers).getBounds().pad(0.1));
+    if (markers.length) resultsMap.fitBounds(L.featureGroup(markers).getBounds().pad(0.1), {animate: false});
   }
 
   drawMap();
+  // Tear the old map down before HTMX replaces its container; removing it afterwards (mid-animation)
+  // throws Leaflet "_leaflet_pos" errors.
+  document.body.addEventListener("htmx:beforeSwap", event => {
+    if (event.detail.target.id === "results" && resultsMap) { resultsMap.remove(); resultsMap = null; }
+  });
   document.body.addEventListener("htmx:afterSettle", event => {
     if (event.detail.elt.id === "results" || event.detail.target.id === "results") drawMap();
   });
+
+  // --- Filter bar -------------------------------------------------------------------------
+  const filters = document.getElementById("filters");
+  const defaults = JSON.parse(document.getElementById("filter-defaults").textContent);
+  const DRAWER_FIELDS = ["min_parking", "parking_unknown", "wd", "ac", "outdoor", "price_reduced",
+                         "show_inactive", "statuses", "sources"];
+
+  const controls = name => [...filters.querySelectorAll(`[name="${name}"]`)];
+  const values = name => controls(name)
+    .filter(el => !["checkbox", "radio"].includes(el.type) || el.checked).map(el => el.value);
+  const one = name => values(name)[0] ?? "";
+  const labelOf = el => el.closest("label").textContent.trim();
+  const money = n => n >= 1000 ? `$${+(n / 1000).toFixed(1)}k` : `$${n}`;
+
+  function setChip(name, text, fallback) {
+    const chip = filters.querySelector(`[data-chip="${name}"]`);
+    chip.querySelector("[data-label]").textContent = text || fallback;
+    chip.classList.toggle("active", Boolean(text));
+  }
+
+  function current(name) {
+    const els = controls(name);
+    if (els.length === 1 && els[0].type === "checkbox") return els[0].checked ? "on" : "";
+    const picked = values(name);
+    return els.length > 1 && els[0].type === "checkbox" ? picked.sort().join(",") : picked[0] ?? "";
+  }
+
+  function fallback(name) {
+    const value = defaults[name];
+    return Array.isArray(value) ? [...value].sort().join(",") : value ?? "";
+  }
+
+  function refreshFilterBar() {
+    const top = +controls("max_price")[0].max;
+    const min = +one("min_price"), max = +one("max_price");
+    filters.querySelector('[data-out="min_price"]').textContent = min > 0 ? money(min) : "No min";
+    filters.querySelector('[data-out="max_price"]').textContent = max >= top ? "No max" : money(max);
+    setChip("price", min > 0 || max < top ? `${min > 0 ? money(min) : "$0"} – ${max >= top ? money(top) + "+" : money(max)}` : "", "Price");
+
+    const beds = one("min_beds"), baths = one("min_baths");
+    setChip("beds", [beds && `${beds}+ bd`, baths && `${baths}+ ba`].filter(Boolean).join(" · "), "Beds & baths");
+
+    const cities = controls("cities").filter(el => el.checked);
+    const quads = values("quadrants"), hood = one("neighborhood").trim();
+    const cityText = cities.length && cities.length < controls("cities").length ? cities.map(labelOf).join(", ") : "";
+    setChip("area", [cityText, quads.join(" "), hood && `“${hood}”`].filter(Boolean).join(" · "), "Area");
+
+    const types = controls("types").filter(el => el.checked);
+    const skipped = controls("types").filter(el => !el.checked);
+    const allTypes = !types.length || !skipped.length;
+    setChip("type", allTypes ? "" : types.length <= 2 ? types.map(labelOf).join(", ")
+      : skipped.length <= 2 ? `No ${skipped.map(labelOf).map(t => t.toLowerCase() + "s").join(", ")}` : `${types.length} types`, "Type");
+
+    const changed = DRAWER_FIELDS.filter(name => current(name) !== fallback(name)).length;
+    const badge = filters.querySelector("[data-more-count]");
+    badge.hidden = !changed;
+    badge.textContent = changed;
+  }
+
+  // Keep the two price handles from crossing.
+  const [minPrice, maxPrice] = [controls("min_price")[0], controls("max_price")[0]];
+  minPrice.addEventListener("input", () => { if (+minPrice.value > +maxPrice.value) minPrice.value = maxPrice.value; });
+  maxPrice.addEventListener("input", () => { if (+maxPrice.value < +minPrice.value) maxPrice.value = minPrice.value; });
+
+  // One open chip at a time; clicking elsewhere closes it.
+  filters.querySelectorAll("details.chip").forEach(chip => chip.addEventListener("toggle", () => {
+    if (chip.open) filters.querySelectorAll("details.chip[open]").forEach(other => other !== chip && (other.open = false));
+  }));
+  document.addEventListener("click", event => {
+    if (!event.target.closest("details.chip")) filters.querySelectorAll("details.chip[open]").forEach(chip => chip.open = false);
+  });
+
+  // Controls outside the form (the sort menu in the results header) still refresh the results.
+  document.addEventListener("change", event => {
+    if (event.target.form === filters && !filters.contains(event.target)) htmx.trigger(filters, "change");
+  });
+
+  filters.addEventListener("input", refreshFilterBar);
+  filters.addEventListener("change", refreshFilterBar);
+  refreshFilterBar();
 </script>
 {% endblock %}

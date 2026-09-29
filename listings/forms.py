@@ -4,6 +4,11 @@ from django.conf import settings
 from .models import Listing, PropertyType, Quadrant, Source, Status
 
 FEATURE_CHOICES = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
+PRICE_SLIDER_MAX = 8000  # the slider's top value means "no maximum"
+PRICE_SLIDER_STEP = 100
+BED_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
+BATH_CHOICES = [("", "Any"), ("1", "1+"), ("1.5", "1.5+"), ("2", "2+"), ("3", "3+")]
+PARKING_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
 
 
@@ -25,6 +30,13 @@ def default_filter_data():
 
 
 class ListingFilterForm(forms.Form):
+    # Choices for the filter bar's button rows and slider (read by the template).
+    bed_choices = BED_CHOICES
+    bath_choices = BATH_CHOICES
+    parking_choices = PARKING_CHOICES
+    price_slider_max = PRICE_SLIDER_MAX
+    price_slider_step = PRICE_SLIDER_STEP
+
     min_beds = forms.IntegerField(required=False, min_value=0, label="Min beds")
     min_baths = forms.DecimalField(required=False, min_value=0, decimal_places=1, label="Min baths")
     min_parking = forms.IntegerField(required=False, min_value=0, label="Min parking")

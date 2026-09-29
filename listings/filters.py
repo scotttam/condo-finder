@@ -1,4 +1,6 @@
 from django.db.models import ExpressionWrapper, F, FloatField, Max, Q
+
+from .forms import PRICE_SLIDER_MAX
 from django.db.models.functions import Cast
 
 FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space"}
@@ -18,7 +20,7 @@ def apply_filters(queryset, data):
         queryset = queryset.filter(parking)
     if data.get("min_price") is not None:
         queryset = queryset.filter(price__gte=data["min_price"])
-    if data.get("max_price") is not None:
+    if data.get("max_price") is not None and data["max_price"] < PRICE_SLIDER_MAX:  # slider top = no max
         queryset = queryset.filter(price__lte=data["max_price"])
     if data.get("cities"):
         queryset = queryset.filter(city__in=data["cities"])
