@@ -9,7 +9,10 @@ from django.views.decorators.http import require_POST
 from .filters import apply_filters
 from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
 from .models import Listing, PriceChange, Source, SourceRun, Status
+from .ingest import refresh_source_listing
 from .runner import is_running, run_all_in_background, sync_sources
+from .scrapers.base import RefreshBlocked, Scraper
+from .scrapers.registry import PLATFORMS, SOURCES, build_scraper
 from .scheduler import next_run_time
 
 PAGE_SIZE = 50
@@ -94,25 +97,76 @@ def listing_detail(request, pk):
         Listing.objects.prefetch_related("source_listings__source", "price_changes"), pk=pk
     )
     return render(request, "listings/detail.html", {
+        **_history_context(listing),
         "listing": listing,
         "tracking_form": TrackingForm(instance=listing),
+    })
+
+
+REFRESHABLE_PLATFORMS = {
+    name for name, scraper_class in PLATFORMS.items() if scraper_class.refresh_listing is not Scraper.refresh_listing
+}
+
+
+def _refreshable(listing):
+    """This listing's pages on sites that can be re-fetched on demand (they publish price history)."""
+    return [sl for sl in listing.source_listings.select_related("source") if sl.source.platform in REFRESHABLE_PLATFORMS]
+
+
+@require_POST
+def refresh_listing(request, pk):
+    """'Refresh from sites': re-fetch this listing's pages now and report per site."""
+    listing = get_object_or_404(Listing, pk=pk)
+    configs = {config["key"]: config for config in SOURCES}
+    for source_listing in _refreshable(listing):
+        name = source_listing.source.name
+        config = configs.get(source_listing.source.key)
+        if config is None:
+            continue
+        scraper = build_scraper(config)
+        try:
+            summary = refresh_source_listing(source_listing, scraper.refresh_listing(source_listing.url), scraper.details_version)
+        except RefreshBlocked:
+            messages.warning(request, f"{name}: blocking requests right now; try again later.")
+            continue
+        except Exception as exc:  # report and carry on with the other sites
+            messages.error(request, f"{name}: couldn't refresh ({type(exc).__name__}).")
+            continue
+        finally:
+            getattr(scraper.fetcher, "close", lambda: None)()
+        if summary["removed"]:
+            messages.info(request, f"{name}: no longer listed.")
+        else:
+            entries = summary["new_entries"]
+            text = f"{entries} new history entr{'y' if entries == 1 else 'ies'}" if entries else "no new history"
+            price = f", price ${summary['price']:,}" if summary["price"] else ""
+            messages.success(request, f"{name}: {text}{price}.")
+    if request.headers.get("HX-Request"):
+        response = render(request, "listings/_history.html", _history_context(listing))
+        response["HX-Refresh"] = "true"  # price, features and sources may all have changed
+        return response
+    return redirect(listing)
+
+
+def _history_context(listing, **extra):
+    listing = Listing.objects.prefetch_related("price_changes").get(pk=listing.pk)
+    return {
+        "listing": listing,
         "add_form": PriceEntryForm(initial={"date": timezone.localdate(), "price": listing.price}),
         "history_events": HISTORY_EVENTS,
-    })
+        "refreshable": bool(_refreshable(listing)),
+        **extra,
+    }
 
 
 def _history_response(request, listing, add_form=None, editing=None, edit_form=None):
     """The price history panel (HTMX swaps it in place), or back to the listing without HTMX."""
     if not request.headers.get("HX-Request"):
         return redirect(listing)
-    listing = Listing.objects.prefetch_related("price_changes").get(pk=listing.pk)  # fresh history
-    return render(request, "listings/_history.html", {
-        "listing": listing,
-        "add_form": add_form or PriceEntryForm(initial={"date": timezone.localdate(), "price": listing.price}),
-        "editing": editing,
-        "edit_form": edit_form,
-        "history_events": HISTORY_EVENTS,
-    })
+    context = _history_context(listing, editing=editing, edit_form=edit_form)
+    if add_form is not None:
+        context["add_form"] = add_form
+    return render(request, "listings/_history.html", context)
 
 
 @require_POST

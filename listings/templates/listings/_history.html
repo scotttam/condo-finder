@@ -1,7 +1,15 @@
 {% load humanize %}
 {# Price history panel. Add / edit / delete swap this whole panel in place (HTMX). #}
 <div class="panel" id="price-history">
-  <h3>Price history</h3>
+  <div class="panel-head">
+    <h3>Price history</h3>
+    {% if refreshable %}
+    <button type="button" class="refresh" hx-post="{% url 'refresh_listing' listing.pk %}" hx-target="#price-history"
+            hx-swap="outerHTML" hx-disabled-elt="this" title="Re-fetch this listing's pages on Zillow, Redfin and Craigslist now">
+      <span class="idle">↻ Refresh from sites</span><span class="busy">Refreshing…</span>
+    </button>
+    {% endif %}
+  </div>
   {% if listing.price_drop %}<p class="drop">↓ ${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%) since listed</p>{% endif %}
   <table class="history">
     <tr><th>Date</th><th>Price</th><th>Change</th><th>Event</th><th></th></tr>

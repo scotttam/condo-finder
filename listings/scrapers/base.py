@@ -76,6 +76,10 @@ class Fetcher:
         return self.request("GET", url, **kwargs).json()
 
 
+class RefreshBlocked(Exception):
+    """The site is blocking requests (bot protection); try again later."""
+
+
 class Scraper:
     platform = ""
     details_version = 1  # bump when detail parsing gains data, to re-fetch stored listings once
@@ -93,6 +97,12 @@ class Scraper:
         return Fetcher(delay=request_delay)
 
     def scrape(self):
+        raise NotImplementedError
+
+    def refresh_listing(self, url):
+        """Fetch one listing's page now: {"price", "price_history", "listed_at", "description",
+        "amenities", "baths"} (missing keys = not provided), or {"removed": True}. Raises
+        RefreshBlocked when the site is blocking us. Sources without listing history don't implement it."""
         raise NotImplementedError
 
     def check_listing(self, url):

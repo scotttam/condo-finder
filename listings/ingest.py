@@ -20,6 +20,7 @@ from .models import Listing, PriceChange, PropertyType, SourceListing
 
 log = logging.getLogger(__name__)
 
+MAX_PLAUSIBLE_RENT = 25_000  # anything higher is a sale price or value estimate, not rent
 LISTING_CHECKS_PER_RUN = 25  # direct listing-page checks before calling a listing gone (see _mark_missing)
 RECHECK_DROPPED_WITHIN = timedelta(days=14)
 
@@ -98,17 +99,32 @@ def _upsert_listing(address, item, now, source):
     return listing, created
 
 
+def _plausible_rent(price, source=None):
+    if price is not None and price > MAX_PLAUSIBLE_RENT:
+        log.warning("Ignoring implausible rent $%s from %s", f"{price:,}", getattr(source, "name", source))
+        return None
+    return price
+
+
+def _recompute_price(listing):
+    """The lowest current price among the sites still listing it (unless overridden)."""
+    if "price" in (listing.overrides or {}):
+        return
+    prices = listing.source_listings.filter(is_active=True, last_price__isnull=False).values_list("last_price", flat=True)
+    listing.price = min(prices, default=listing.price)
+    listing.save(update_fields=["price", "updated_at"])
+
+
 def _update_price(listing, previous_price, item, now, source_name, created):
     """The listing shows the lowest current price among the sites listing it. A price change is
     recorded only when one site changes its own price: sites disagreeing (a building's "from" price
     vs one unit, say) isn't a change."""
     if "price" in (listing.overrides or {}):
         listing.price = listing.overrides["price"]
+        listing.save(update_fields=["price", "updated_at"])
     else:
-        prices = listing.source_listings.filter(is_active=True, last_price__isnull=False).values_list("last_price", flat=True)
-        listing.price = min(prices, default=listing.price)
-    listing.save(update_fields=["price", "updated_at"])
-    if item.price is None:
+        _recompute_price(listing)
+    if _plausible_rent(item.price) is None:
         return
     if created:
         PriceChange.objects.create(listing=listing, price=listing.price, seen_at=now, event="First seen", source=source_name)
@@ -221,7 +237,7 @@ def _upsert_source_listing(source, listing, item, now):
         source_listing.last_seen_at = now
     source_listing.details_version = max(source_listing.details_version, item.details_version)
     previous_price = source_listing.last_price
-    if item.price is not None:
+    if _plausible_rent(item.price, source) is not None:
         source_listing.last_price = item.price
     source_listing.save()
     return source_listing, previous_price
@@ -289,16 +305,50 @@ def _mark_missing(source, seen_ids, now, verify=None):
         if not active.exists():
             listing.is_active = False
             listing.save(update_fields=["is_active", "updated_at"])
-        elif "price" not in (listing.overrides or {}):
-            # Another site still lists it: show the lowest price among the sites that remain.
-            prices = active.filter(last_price__isnull=False).values_list("last_price", flat=True)
-            listing.price = min(prices, default=listing.price)
-            listing.save(update_fields=["price", "updated_at"])
+        else:
+            _recompute_price(listing)  # another site still lists it
+
+
+def refresh_source_listing(source_listing, details, parser_version, now=None):
+    """Apply one listing page fetched on demand (Scraper.refresh_listing). Returns a summary:
+    {"new_entries": price-history entries added, "price": that site's current price, "removed": bool}."""
+    now = now or timezone.now()
+    source = source_listing.source
+    listing = source_listing.listing
+    if details.get("removed"):
+        source_listing.is_active = False
+        source_listing.save(update_fields=["is_active"])
+        if listing.source_listings.filter(is_active=True).exists():
+            _recompute_price(listing)
+        else:
+            listing.is_active = False
+            listing.save(update_fields=["is_active", "updated_at"])
+        return {"new_entries": 0, "price": None, "removed": True}
+
+    entries_before = listing.price_changes.count()
+    with transaction.atomic():
+        if details.get("description") or details.get("amenities"):
+            listing.description = "\n\n".join(p for p in (details.get("description"), details.get("amenities")) if p)
+            _apply_extracted(listing, f"{listing.title}\n{listing.description}", details.get("home_type", ""))
+        if details.get("baths") is not None:
+            listing.baths = details["baths"]
+        if details.get("listed_at") and (listing.listed_at is None or details["listed_at"] < listing.listed_at):
+            listing.listed_at = details["listed_at"]
+        _apply_overrides(listing)
+        listing.save()
+        _import_history(listing, details.get("price_history") or [], source.name)
+        # The page proves it's still listed, and carries this site's current price.
+        _still_listed(source_listing, details.get("price"), now, source.name)
+        source_listing.details_version = max(source_listing.details_version, parser_version)
+        source_listing.save(update_fields=["details_version"])
+    return {"new_entries": listing.price_changes.count() - entries_before, "price": _plausible_rent(details.get("price")),
+            "removed": False}
 
 
 def _still_listed(source_listing, price, now, source_name):
     """A direct check found the listing still up: keep (or bring back) it and note its price."""
     previous_price = source_listing.last_price
+    price = _plausible_rent(price, source_name)
     source_listing.is_active = True
     source_listing.missed_runs = 0
     source_listing.last_seen_at = now
