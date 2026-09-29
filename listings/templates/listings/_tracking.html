@@ -1,6 +1,19 @@
+{# Status pills + notes. Saves on any change, and a moment after typing stops; only the small #}
+{# "Saved" indicator is swapped in, so the notes box keeps focus while you type. #}
 <form id="tracking" method="post" action="{% url 'update_tracking' listing.pk %}"
-      hx-post="{% url 'update_tracking' listing.pk %}" hx-target="#tracking" hx-swap="outerHTML">
+      hx-post="{% url 'update_tracking' listing.pk %}" hx-trigger="change, keyup delay:800ms"
+      hx-target="find .save-state" hx-select=".save-state" hx-swap="outerHTML" hx-sync="this:replace">
   {% csrf_token %}
-  {{ tracking_form.as_p }}
-  <button type="submit">Save</button>{% if saved %}<span class="saved">Saved ✓</span>{% endif %}
+  <div class="status-pills" role="radiogroup" aria-label="Status">
+    {% for value, label in tracking_form.fields.status.choices %}
+    <label class="status-pill pill-{{ value }}"><input type="radio" name="status" value="{{ value }}"{% if tracking_form.status.value == value %} checked{% endif %}><span>{{ label }}</span></label>
+    {% endfor %}
+  </div>
+  <textarea name="notes" rows="6" placeholder="Thoughts, questions for the landlord, tour notes…">{{ tracking_form.notes.value|default_if_none:"" }}</textarea>
+  <div class="tracking-foot">
+    {% if saved %}<span class="save-state saved">Saved ✓ {% now "g:i A" %}</span>
+    {% elif tracking_form.errors %}<span class="save-state error">Couldn't save: {{ tracking_form.errors.as_text|striptags }}</span>
+    {% else %}<span class="save-state muted">Changes save automatically</span>{% endif %}
+  </div>
+  <noscript><button type="submit">Save</button></noscript>
 </form>

@@ -134,6 +134,18 @@
     .description.collapsible::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3em; background:linear-gradient(transparent, var(--card)); }
     .description.collapsible.expanded { max-height:none; } .description.collapsible.expanded::after { display:none; }
     .listing-map { height:340px; border-radius:10px; }
+    /* Status pills + autosaving notes */
+    .status-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .status-pill { margin:0; } .status-pill input { position:absolute; opacity:0; pointer-events:none; }
+    .status-pill span { display:block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; background:var(--card); }
+    .status-pill input:focus-visible + span { outline:2px solid var(--accent); outline-offset:2px; }
+    .pill-new input:checked + span { background:#eef; border-color:#99a; }
+    .pill-interested input:checked + span { background:#c0265f; border-color:#c0265f; color:#fff; }
+    .pill-toured input:checked + span, .pill-applied input:checked + span { background:#f5c542; border-color:#e0ad1f; color:#3d2e00; }
+    .pill-rejected input:checked + span { background:#667085; border-color:#667085; color:#fff; }
+    #tracking textarea { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:14px; resize:vertical; }
+    .tracking-foot { min-height:20px; margin-top:4px; font-size:12px; }
+    .save-state.saved { color:var(--yes); font-weight:600; } .save-state.error { color:var(--no); }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
     .description { white-space:pre-line; }
     .saved { color:var(--yes); margin-left:8px; }
