@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FeedEvent, Listing, PriceChange, Source, SourceListing, SourceRun
+from .models import FeedEvent, Listing, PriceChange, SearchPriorities, Source, SourceListing, SourceRun, TrendReport
 
 
 class SourceListingInline(admin.TabularInline):
@@ -44,3 +44,17 @@ class FeedEventAdmin(admin.ModelAdmin):
     list_display = ("created_at", "kind", "listing", "summary", "source")
     list_filter = ("kind", "source")
     search_fields = ("summary", "listing__address")
+
+
+@admin.register(TrendReport)
+class TrendReportAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "trigger", "status", "cost_usd", "summary")
+    list_filter = ("status", "trigger")
+
+    def has_add_permission(self, request):
+        return False  # reports come from the Trends page and the daily run
+
+
+@admin.register(SearchPriorities)
+class SearchPrioritiesAdmin(admin.ModelAdmin):
+    list_display = ("updated_at",)

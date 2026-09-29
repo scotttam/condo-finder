@@ -221,3 +221,56 @@ class FeedEvent(models.Model):
 
     def __str__(self):
         return f"{self.get_kind_display()}: {self.summary}"
+
+
+class TrendReport(models.Model):
+    """One run of the Trends analysis: Claude's top picks plus the market statistics it was given."""
+
+    class Status(models.TextChoices):
+        RUNNING = "running", "Running"
+        DONE = "done", "Done"
+        FAILED = "failed", "Failed"
+
+    class Trigger(models.TextChoices):
+        AUTO = "auto", "Daily"
+        MANUAL = "manual", "Re-run"
+
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.RUNNING)
+    trigger = models.CharField(max_length=10, choices=Trigger.choices, default=Trigger.MANUAL)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    error = models.TextField(blank=True)
+    model = models.CharField(max_length=60, blank=True)
+    input_tokens = models.IntegerField(default=0)
+    output_tokens = models.IntegerField(default=0)
+    cache_read_tokens = models.IntegerField(default=0)
+    cache_write_tokens = models.IntegerField(default=0)
+    cost_usd = models.DecimalField(max_digits=8, decimal_places=4, default=0)
+    stats = models.JSONField(default=dict, blank=True)  # chart series + market snapshot given to Claude
+    shortlist = models.JSONField(default=list, blank=True)  # listing ids from the first pass
+    # [{listing_id, rank, headline, why, concerns[], questions[], leverage, offer_low, offer_high,
+    #   price_at_pick, address, photo_url}]
+    picks = models.JSONField(default=list, blank=True)
+    market_read = models.TextField(blank=True)
+    summary = models.TextField(blank=True)
+    changes = models.JSONField(default=dict, blank=True)  # vs the previous done report
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+
+    def __str__(self):
+        return f"{self.get_trigger_display()} report {self.created_at:%Y-%m-%d %H:%M} ({self.status})"
+
+
+class SearchPriorities(models.Model):
+    """What we're looking for, in our own words. One shared row, read by the Trends analysis."""
+
+    text = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "search priorities"
+
+    @classmethod
+    def get(cls):
+        return cls.objects.get_or_create(pk=1)[0]
