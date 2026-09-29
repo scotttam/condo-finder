@@ -19,7 +19,10 @@
     .messages { list-style:none; margin:12px 20px 0; padding:10px 14px; background:#eaf4ef; border-radius:8px; }
     .layout { display:block; }
     /* Filter bar: dropdown chips */
-    .filter-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:-20px -20px 16px; padding:10px 20px;
+    body { overflow-x:clip; }
+    /* Full-bleed bar whose chips line up with the page content */
+    .filter-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:-20px calc(50% - 50vw) 16px;
+                  padding:10px calc(50vw - 50%);
                   background:var(--card); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:1000; }
     .chip { position:relative; }
     .chip > summary { list-style:none; cursor:pointer; user-select:none; padding:7px 14px; border:1px solid var(--line);
@@ -61,6 +64,24 @@
     .results-controls { display:flex; align-items:center; gap:12px; }
     .sort { font-size:14px; color:var(--muted); } .sort select { margin-left:6px; padding:5px 8px; border:1px solid var(--line); border-radius:6px; font:inherit; color:var(--ink); background:var(--card); }
     #map { height:380px; border-radius:10px; border:1px solid var(--line); margin-bottom:16px; }
+    /* Map view: map fixed on the left, cards scrolling on the right */
+    .split { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:16px; align-items:start; }
+    .map-pane { position:sticky; top:72px; }
+    .map-pane #map { height:calc(100vh - 150px); min-height:420px; margin:0; }
+    .cards-pane .grid { grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); }
+    .card { transition:box-shadow .15s, border-color .15s; }
+    .card-hover { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); }
+    .card-flash { animation:card-flash 1.2s ease-out; }
+    @keyframes card-flash { 0%, 40% { box-shadow:0 0 0 4px var(--accent); } 100% { box-shadow:0 0 0 0 transparent; } }
+    /* Price-label pins */
+    .pin-wrap { background:none; border:0; }
+    .pin { display:inline-block; transform:translate(-50%, -100%); padding:2px 7px; border-radius:12px; background:var(--card);
+           border:1.5px solid var(--ink); color:var(--ink); font:600 12px/1.4 -apple-system, BlinkMacSystemFont, sans-serif;
+           white-space:nowrap; box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:pointer; transition:transform .1s; }
+    .pin-drop { border-color:var(--yes); color:var(--yes); }
+    .pin-liked { background:#c0265f; border-color:#c0265f; color:#fff; }
+    .pin-off { opacity:.45; }
+    .pin-hover .pin, .pin.pin-hover { background:var(--accent); border-color:var(--accent); color:#fff; transform:translate(-50%, -100%) scale(1.15); }
     .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
     .card { background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
     .card img { width:100%; height:180px; object-fit:cover; background:#ddd; }
@@ -104,7 +125,8 @@
     .pagination a, .pagination .disabled { padding:6px 14px; border:1px solid var(--line); border-radius:8px; background:var(--card); text-decoration:none; }
     .pagination .disabled { color:var(--muted); opacity:.5; }
     #results.htmx-request { opacity:.55; transition:opacity .15s; }
-    @media (max-width: 800px) { .layout, .detail { grid-template-columns:1fr; } .drawer-grid { grid-template-columns:1fr; } }
+    @media (max-width: 800px) { .layout, .detail, .split { grid-template-columns:1fr; } .drawer-grid { grid-template-columns:1fr; }
+                                .map-pane { position:static; } .map-pane #map { height:320px; } }
   </style>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
