@@ -1,0 +1,65 @@
+{% extends "listings/base.html" %}
+{% load humanize %}
+{% block title %}Feed · Condo Finder{% endblock %}
+{% block content %}
+<div class="feed-head">
+  <h1>Feed {% if unread %}<span class="muted">· {{ unread }} new since your last visit</span>{% endif %}</h1>
+  <div class="feed-controls">
+    <nav class="view-toggle" aria-label="Feed filter">
+      <a href="?tab=all{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "all" %} class="active"{% endif %}>All</a>
+      <a href="?tab=new{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "new" %} class="active"{% endif %}>New listings</a>
+      <a href="?tab=updates{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "updates" %} class="active"{% endif %}>Updates</a>
+    </nav>
+    <a class="toggle-link" href="?tab={{ tab }}{% if not show_apartments %}&amp;apartments=show{% endif %}">
+      {% if show_apartments %}Hide apartments{% else %}Show apartments{% endif %}</a>
+  </div>
+</div>
+<p class="muted">New listings, plus updates to listings you've given a status (Interested, Toured, Applied, Rejected).</p>
+
+{% regroup rows by day as days %}
+{% for day in days %}
+<h2 class="feed-day">{{ day.grouper }}</h2>
+<div class="table-wrap">
+<table class="feed-table">
+  {% for row in day.list %}
+  {% with listing=row.listing event=row.event %}
+  <tr class="feed-row{% if row.unread %} unread{% endif %}">
+    <td class="feed-time nowrap">{{ event.created_at|time:"g:i A" }}</td>
+    <td><span class="feed-kind kind-{{ event.kind }}{% if row.label == '↓ Price drop' %} kind-drop{% endif %}">{{ row.label }}</span></td>
+    <td class="feed-thumb"><a href="{{ listing.get_absolute_url }}">{% if listing.photo_url %}<img src="{{ listing.photo_url }}" alt="" loading="lazy">{% else %}<span></span>{% endif %}</a></td>
+    <td class="feed-listing">
+      <a href="{{ listing.get_absolute_url }}">{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}</a>
+      <div class="muted">{{ listing.location_label }} · {{ listing.get_property_type_display }}</div>
+    </td>
+    <td class="feed-summary">
+      {% if event.kind == "new_listing" %}
+        {% if event.source %}<div class="muted">Found on {{ event.source }}</div>{% endif %}
+        {% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}
+        {% include "listings/_feature.html" with label="AC" value=listing.has_ac %}
+        {% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}
+        <span class="feat {% if listing.parking_spaces >= 2 %}yes{% elif listing.parking_spaces is not None or listing.has_parking is False %}no{% else %}unk{% endif %}">Parking {% if listing.parking_spaces is not None %}{{ listing.parking_spaces }}{% elif listing.has_parking %}✓{% else %}?{% endif %}</span>
+      {% else %}
+        {{ event.summary }}
+        {% if row.happened %}<div class="muted">happened {{ row.happened|date:"M j" }}</div>{% endif %}
+      {% endif %}
+    </td>
+    <td class="nowrap"><strong>{% if listing.price %}${{ listing.price|intcomma }}{% else %}?{% endif %}</strong>
+      <div class="muted">{{ listing.beds }} bd · {{ listing.baths|floatformat:"-1" }} ba{% if not listing.is_active %} · <span class="offmarket">off market</span>{% endif %}</div></td>
+    <td class="nowrap">{% if listing.status != "new" %}<span class="status status-{{ listing.status }}">{{ listing.get_status_display }}</span>{% endif %}</td>
+  </tr>
+  {% endwith %}
+  {% endfor %}
+</table>
+</div>
+{% empty %}
+<p class="muted">Nothing here yet. New listings and updates to listings you're tracking will show up after the next scrape.</p>
+{% endfor %}
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="pagination" aria-label="Pages">
+  {% if prev_url %}<a href="{{ prev_url }}" rel="prev">← Newer</a>{% else %}<span class="disabled">← Newer</span>{% endif %}
+  <span class="muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if next_url %}<a href="{{ next_url }}" rel="next">Older →</a>{% else %}<span class="disabled">Older →</span>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

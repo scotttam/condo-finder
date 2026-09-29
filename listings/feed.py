@@ -1,6 +1,15 @@
-"""Feed events: recorded by ingest when something worth knowing happens to a listing."""
+"""Feed events: recorded by ingest when something worth knowing happens to a listing, and the
+queries behind the Feed page."""
 
-from .models import FeedEvent
+from datetime import datetime, timedelta
+
+from django.db.models import Q
+from django.utils import timezone
+
+from .models import FeedEvent, PropertyType, Status
+
+SEEN_COOKIE = "feed_seen_at"  # per browser, so each person has their own unread state
+FIRST_VISIT_UNREAD = timedelta(days=7)
 
 # Fields whose changes are worth telling you about, with the label used in summaries.
 DETAIL_FIELDS = {
@@ -53,3 +62,42 @@ def record_detail_changes(listing, before, when, source=""):
                for name, label in DETAIL_FIELDS.items() if before[name] != after[name]]
     if changes:
         record(listing, FeedEvent.Kind.DETAILS_CHANGED, " · ".join(changes), when, source)
+
+
+def events(tab="all", show_apartments=False):
+    """New listings, plus updates to listings you've given a status (anything but New)."""
+    tracked = ~Q(listing__status=Status.NEW)
+    queryset = FeedEvent.objects.select_related("listing")
+    if tab == "new":
+        queryset = queryset.filter(kind=FeedEvent.Kind.NEW_LISTING)
+    elif tab == "updates":
+        queryset = queryset.exclude(kind=FeedEvent.Kind.NEW_LISTING).filter(tracked)
+    else:
+        queryset = queryset.filter(Q(kind=FeedEvent.Kind.NEW_LISTING) | tracked)
+    if not show_apartments:
+        queryset = queryset.exclude(listing__property_type=PropertyType.APARTMENT)
+    return queryset.order_by("-created_at", "-pk")
+
+
+def seen_at(request):
+    try:
+        return datetime.fromisoformat(request.COOKIES[SEEN_COOKIE])
+    except (KeyError, ValueError):
+        return timezone.now() - FIRST_VISIT_UNREAD
+
+
+def unread_count(request):
+    return events().filter(created_at__gt=seen_at(request)).count()
+
+
+def label(event):
+    if event.kind == FeedEvent.Kind.PRICE_CHANGE and event.old_price and event.new_price:
+        return "↓ Price drop" if event.new_price < event.old_price else "↑ Price increase"
+    return {
+        FeedEvent.Kind.NEW_LISTING: "New",
+        FeedEvent.Kind.PRICE_CHANGE: "Price change",
+        FeedEvent.Kind.OFF_MARKET: "Off market",
+        FeedEvent.Kind.BACK_ON_MARKET: "Back on market",
+        FeedEvent.Kind.NEW_SITE: "New site",
+        FeedEvent.Kind.DETAILS_CHANGED: "Details",
+    }[event.kind]
