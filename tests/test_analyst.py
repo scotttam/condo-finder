@@ -260,6 +260,8 @@ def test_start_report_refuses_while_the_lock_is_held(monkeypatch):
 
 
 def test_run_daily_skips_groups_that_already_have_todays_report(monkeypatch, owner):
+    owner.last_login = timezone.now()
+    owner.save(update_fields=["last_login"])
     started = []
     monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: started.append(trigger) or True)
     monkeypatch.setattr(analyst, "is_configured", lambda: True)
@@ -270,6 +272,8 @@ def test_run_daily_skips_groups_that_already_have_todays_report(monkeypatch, own
 
 
 def test_run_daily_retries_after_a_failed_daily_run(monkeypatch, owner):
+    owner.last_login = timezone.now()
+    owner.save(update_fields=["last_login"])
     monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: True)
     monkeypatch.setattr(analyst, "is_configured", lambda: True)
     TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.AUTO, status=TrendReport.Status.FAILED)
