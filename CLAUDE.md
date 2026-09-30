@@ -12,16 +12,17 @@ how to continue it.
 > flow, models, pages), update `docs/architecture.html` too, and republish it to the artifact URL
 > above.
 
-## Current state (updated 2026-09-29)
+## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #53** (move-in specials). **Open: furnished label, #54** (`furnished`);
-  migration 0007. 517 tests pass.
+- **Merged to `main` through PR #54** (furnished label, migration 0007). **Open:** #55 (merge listings
+  that differ only by a missing unit number) and #56 (`map-zoom-focus`: the first click on a map no
+  longer scrolls the page and shifts the zoom buttons). 518 tests pass on #56.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
   migrates, collects static files and restarts the service.
 - **Recently shipped:**
-  - Furnished label (in review): `is_furnished` detected in listing text, a "Furnished" pill on cards,
+  - Furnished label: `is_furnished` detected in listing text, a "Furnished" pill on cards,
     the table, the listing page and the Feed, and a Furnished filter (Any / Hide / Only) under More filters.
   - Move-in specials: detected in listing text, shown on cards, pins, the listing page,
     the Feed and Trends, with a "Move-in specials only" filter.
