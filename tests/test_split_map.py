@@ -58,3 +58,10 @@ def test_pin_labels_and_classes_by_status(client):
     assert points[liked.pk]["label"] == "♥ $3.1k" and "pin-liked" in points[liked.pk]["classes"]
     assert points[rejected.pk]["label"] == "✕ $2.4k" and "pin-rejected" in points[rejected.pk]["classes"]
     assert points[plain.pk]["label"] == "$2.85k" and points[plain.pk]["classes"] == "pin"
+
+
+def test_maps_focus_without_scrolling_the_page(client):
+    # Leaflet focuses the map on the first click; a scrolling focus shifts the zoom buttons.
+    home = listing("a")
+    for url in ("/", f"/listing/{home.pk}/"):
+        assert "focusMap({preventScroll: true})" in client.get(url).content.decode()

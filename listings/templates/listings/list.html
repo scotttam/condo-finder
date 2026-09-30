@@ -57,6 +57,10 @@
     if (!container || !data) return;
     const points = JSON.parse(data.textContent);
     resultsMap = L.map(container).setView([45.515, -122.68], 11);
+    // Leaflet focuses the map on the first click; without preventScroll the browser scrolls the
+    // map fully into view, shifting the zoom buttons under the cursor.
+    const focusMap = container.focus.bind(container);
+    container.focus = () => focusMap({preventScroll: true});
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19, attribution: "&copy; OpenStreetMap contributors",
     }).addTo(resultsMap);
