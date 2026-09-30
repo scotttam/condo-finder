@@ -5,6 +5,7 @@ import pytest
 def condo_settings(settings):
     settings.REQUEST_DELAY_SECONDS = 0
     settings.TARGET_CITIES = ["Portland", "Lake Oswego", "Beaverton"]
+    settings.PUBLIC_URL = ""
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]  # every test logs in; keep it fast
 
 

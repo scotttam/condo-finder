@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 592 tests pass.
+  after the whole stack merges, following the README runbook. 613 tests pass.
   `create_owner` claims the owner's migrated notes (now comments) if the account didn't exist when migrating.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
@@ -82,6 +82,12 @@ its own data. Production data lives only on the Mac mini.
     and `request.group`.
   - Log in with email (`username` is the lowercased email). `manage.py create_owner --email --name`
     makes the site admin (staff) in the owners' group; `manage.py changepassword <email>` resets a password.
+  - `Invite` links (`accounts/invites.py`) are single-use (`claim()` is one conditional UPDATE) and expire
+    after `INVITE_DAYS` (7). Any member makes join links; staff also make new-household links. Links use
+    `PUBLIC_URL`. The Group page (`/group/`) renames the group, lists members, removes a member or
+    leaves (either gives that person a fresh solo group; comments stay, votes go; removing someone also
+    revokes the group's open invite links), manages invite
+    links and changes the password.
 - `listings/scrapers/`
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property
     manager is one entry.

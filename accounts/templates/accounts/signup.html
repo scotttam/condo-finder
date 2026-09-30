@@ -1,0 +1,18 @@
+{% extends "listings/base.html" %}
+{% block title %}Join Condo Finder{% endblock %}
+{% block content %}
+<div class="panel auth-card">
+  <h1>{% if invite.group %}Join {{ invite.group.name }}{% else %}Start your search{% endif %}</h1>
+  <p class="muted">{% if invite.group %}You'll share statuses, comments, votes and the Feed with everyone in {{ invite.group.name }}.{% else %}You'll get a search of your own, and can invite others to it.{% endif %}</p>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <label class="stack">{{ field.label }} {{ field }}
+      {% if field.help_text %}<span class="muted small">{{ field.help_text }}</span>{% endif %}
+      {% for error in field.errors %}<span class="form-error">{{ error }}</span>{% endfor %}</label>
+    {% endfor %}
+    <button type="submit">Create account</button>
+  </form>
+  <p class="muted small">Already have an account? <a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a>, then open this link again.</p>
+</div>
+{% endblock %}

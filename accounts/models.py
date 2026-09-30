@@ -1,3 +1,6 @@
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -31,6 +34,39 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.display_name
+
+
+def new_token():
+    return secrets.token_urlsafe(24)
+
+
+def invite_expiry():
+    return timezone.now() + timedelta(days=settings.INVITE_DAYS)
+
+
+class Invite(models.Model):
+    """A copy-paste signup link: into a new household of its own (made by the site admin) or into the
+    group of the member who made it. Single use; expires."""
+
+    class Kind(models.TextChoices):
+        NEW_GROUP = "new_group", "New household"
+        JOIN = "join", "Join a group"
+
+    token = models.CharField(max_length=64, unique=True, default=new_token)
+    kind = models.CharField(max_length=10, choices=Kind.choices)
+    group = models.ForeignKey(SearchGroup, on_delete=models.CASCADE, null=True, blank=True, related_name="invites")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(default=invite_expiry)
+    used_at = models.DateTimeField(null=True, blank=True)
+    used_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+
+    def __str__(self):
+        return f"{self.get_kind_display()} invite ({'used' if self.used_at else 'open'})"
+
+    @property
+    def is_usable(self):
+        return self.used_at is None and self.expires_at > timezone.now()
 
 
 def display_name(user):
