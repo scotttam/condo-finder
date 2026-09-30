@@ -14,24 +14,20 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #58** (#56: the first click on a map no longer scrolls the page and shifts
-  the zoom buttons; #57 and #58, docs only). After deploying #55, run
-  `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
-  post-scrape pass would also do it on the next run).
-- **Open: the accounts stack, #59–#68 (`[Accounts 1/10]`–`[Accounts 10/10]`)**: logins, search
-  groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale
-  Funnel (plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once after
-  the whole stack merges, following the README runbook "Going public with Tailscale Funnel";
-  `create_owner` claims the owner's migrated notes (now comments). With `PUBLIC_URL` set, the app
-  refuses to start with a placeholder `DJANGO_SECRET_KEY`. 623 tests pass.
+- **Merged to `main` through PR #68** and deployed on 2026-09-30: the accounts stack (#59–#68: logins,
+  search groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via
+  Tailscale Funnel; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). 623 tests
+  pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
-  7, 11, 15, 19 and 23 o'clock. Until the accounts stack deploys, both users reach it over Tailscale at
-  `http://<mac-mini>:8000`; afterwards everyone uses `https://<mac-mini>.<tailnet>.ts.net` through
-  Tailscale Funnel, and gunicorn listens on 127.0.0.1:8000 only.
+  7, 11, 15, 19 and 23 o'clock. Everyone uses `https://<mac-mini>.<tailnet>.ts.net` through Tailscale
+  Funnel; gunicorn listens on 127.0.0.1:8000 only. One group, "Scott and Kristi's Search" (pk 1, the
+  owners' group), holds all the migrated data.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
   migrates, collects static files and restarts the service. `PUBLIC_URL` in `.env` must be the Funnel
   address (README: Going public with Tailscale Funnel).
 - **Recently shipped:**
+  - Accounts and collaboration (#59–#68). Each household is a search group; see `accounts/` and
+    `listings/collab.py` in the code map.
   - Unit-number duplicates: Redfin often drops the unit, so "821 NW 11th Ave" and
     "821 NW 11th Ave #105" became two listings. Ingest now matches them, and a pass after each scrape
     (and `manage.py merge_duplicates`) merges existing pairs, keeping the copy with notes or a status.
@@ -48,6 +44,10 @@ how to continue it.
   - Cluster map pins when zoomed out.
   - Let a manual price-history entry update the listing's current price.
   - Speed up the Zillow price-history catch-up.
+  - From the accounts review (minor): double-clicking "Create account" can show a 500 on the second
+    submit; every vote click adds a Feed item and clearing a vote leaves a stale "voted 👍"; the login
+    redirect after an expired session drops the page's query string; two members with the same name
+    look like one person to Trends.
 - **Slow on purpose:** Redfin listing pages are behind a WAF, so detail fetches are paced at 10 per
   run with a 20s delay and stop at the first challenge. Backfilling Redfin history takes days.
 

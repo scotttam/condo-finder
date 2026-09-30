@@ -56,8 +56,11 @@ between the install and turning on Funnel.
    ./deploy/install.sh
    ```
 
-3. **Create your account.** This makes you the site admin in the owners' group, and claims your old
-   notes (now comments). It asks for a password.
+3. **Create your account, before anyone opens the site.** This makes you the site admin in the
+   owners' group, and claims your old notes (now comments). It asks for a password. If you already
+   have an admin account (from `createsuperuser`), pass that account's email: it's adopted and moved
+   into the owners' group. An account that opens the site before this step gets a group of its own,
+   away from your migrated statuses, comments and Trends reports.
 
    ```bash
    uv run python manage.py create_owner --email you@example.com --name "Your name"
