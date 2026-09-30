@@ -34,7 +34,7 @@ def listing_list(request):
     request.session["listing_view"] = view
     request.session["listing_query"] = f"?{request.GET.urlencode()}" if request.GET else ""
     has_filters = any(key not in NON_FILTER_PARAMS for key in request.GET)
-    form = ListingFilterForm(request.GET if has_filters else default_filter_data())
+    form = ListingFilterForm(request.GET if has_filters else default_filter_data(request.group))
     queryset = Listing.objects.all()
     if form.is_valid():
         queryset = apply_filters(queryset, form.cleaned_data, request.group)
@@ -44,7 +44,7 @@ def listing_list(request):
     listings = collab.decorate(page_obj.object_list, request.group, request.user)
     return render(request, "listings/list.html", {
         "form": form,
-        "filter_defaults": default_filter_data(),
+        "filter_defaults": default_filter_data(request.group),
         "view": view,
         "page_obj": page_obj,
         "listings": listings,
@@ -54,6 +54,25 @@ def listing_list(request):
         "map_url": _url_with(request, view="map"),
         "list_url": _url_with(request, view="list"),
     })
+
+
+MULTI_VALUE_FILTERS = ("cities", "quadrants", "sources", "types", "statuses")
+AREA_FILTERS = ("north", "south", "east", "west")  # "Search this area" isn't a default
+
+
+@require_POST
+def save_default_filters(request):
+    """'Save as our defaults': the filter bar as it is now becomes where the group's visits start."""
+    form = ListingFilterForm(request.POST)
+    if not form.is_valid():
+        return HttpResponseBadRequest("invalid filters")
+    request.group.default_filters = {
+        name: request.POST.getlist(name) if name in MULTI_VALUE_FILTERS else request.POST.get(name, "")
+        for name in form.fields
+        if name not in AREA_FILTERS
+    }
+    request.group.save(update_fields=["default_filters"])
+    return render(request, "listings/_save_defaults.html", {"saved": True})
 
 
 def _short_price(price):

@@ -18,7 +18,8 @@ VOTE_FILTER_CHOICES = [("any", "Any"), ("everyone_likes", "Everyone 👍"), ("so
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
 
 
-def default_filter_data():
+def app_default_filters():
+    """The filters a new group starts from."""
     return {
         "min_beds": "2",
         "min_baths": "2",
@@ -35,6 +36,11 @@ def default_filter_data():
         "votes": "any",
         "sort": "price",
     }
+
+
+def default_filter_data(group=None):
+    """The group's saved defaults over the app defaults (so a filter added later still has a value)."""
+    return {**app_default_filters(), **(group.default_filters if group else {})}
 
 
 class ListingFilterForm(forms.Form):

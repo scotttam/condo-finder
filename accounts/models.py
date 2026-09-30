@@ -9,6 +9,8 @@ class SearchGroup(models.Model):
 
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
+    # The filter bar a visit starts from ("Save as our defaults"). Empty means the app defaults.
+    default_filters = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["pk"]

@@ -15,6 +15,7 @@ urlpatterns = [
     path("listing/<int:pk>/history/add/", views.history_add, name="history_add"),
     path("listing/<int:pk>/history/<int:change_pk>/edit/", views.history_edit, name="history_edit"),
     path("listing/<int:pk>/history/<int:change_pk>/delete/", views.history_delete, name="history_delete"),
+    path("filters/defaults/", views.save_default_filters, name="save_default_filters"),
     path("feed/", views.feed_page, name="feed"),
     path("feed/badge/", views.feed_badge, name="feed_badge"),
     path("trends/", views.trends_page, name="trends"),
