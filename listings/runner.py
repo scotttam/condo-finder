@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from .geocode import geocode_pending
 from .ingest import ingest, reextract_all
+from .merge import merge_unit_duplicates
 from .models import Source, SourceListing, SourceRun
 from .scrapers.base import Scraper
 from .scrapers.registry import SOURCES, build_scraper
@@ -93,6 +94,13 @@ def run_all(keys=None, geocode=True):
         return []
     try:
         runs = [run_source(config) for config in SOURCES if keys is None or config["key"] in keys]
+        # A detail fetch can fill in the size that makes a with/without-unit pair recognizable.
+        try:
+            merged = merge_unit_duplicates()
+            if merged:
+                log.info("Merged %d duplicate listings", len(merged))
+        except Exception:
+            log.exception("Duplicate merge pass failed")
         # Re-run feature detection on stored text so rule fixes reach listings already saved
         # (known listings aren't re-fetched in detail).
         try:
