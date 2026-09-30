@@ -48,7 +48,9 @@ def remove_member(request, user_id):
     if profile.user_id == request.user.pk:
         return HttpResponseBadRequest("Use Leave group to leave.")
     _to_solo_group(profile)
-    messages.success(request, f"{profile.display_name} is no longer in {request.group.name}.")
+    closed = usable_invites().filter(group=request.group).delete()[0]  # they may have copied a link
+    note = f" Its {closed} open invite link{'s were' if closed != 1 else ' was'} revoked; make new ones as needed." if closed else ""
+    messages.success(request, f"{profile.display_name} is no longer in {request.group.name}.{note}")
     return redirect("group_settings")
 
 

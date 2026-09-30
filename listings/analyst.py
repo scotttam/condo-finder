@@ -461,11 +461,15 @@ def manual_runs_left(group):
     return max(settings.TRENDS_MANUAL_RUNS_PER_DAY - used, 0)
 
 
+ACTIVE_WITHIN = timedelta(days=14)  # daily reports only for groups someone has used lately (each costs ~$0.50)
+
+
 def due_today():
-    """Groups with members that don't have today's automatic report yet."""
+    """Groups a member has logged in to lately that don't have today's automatic report yet."""
     done = (TrendReport.objects.filter(trigger=TrendReport.Trigger.AUTO, created_at__gte=_today_start(), group__isnull=False)
             .exclude(status=TrendReport.Status.FAILED).values("group"))  # no NULLs: NOT IN (…, NULL) matches nothing
-    return list(SearchGroup.objects.filter(members__isnull=False).exclude(pk__in=done).distinct().order_by("pk"))
+    active = SearchGroup.objects.filter(members__user__last_login__gte=timezone.now() - ACTIVE_WITHIN)
+    return list(active.exclude(pk__in=done).distinct().order_by("pk"))
 
 
 def run_daily_if_due():

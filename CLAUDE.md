@@ -90,7 +90,8 @@ its own data. Production data lives only on the Mac mini.
   - `Invite` links (`accounts/invites.py`) are single-use (`claim()` is one conditional UPDATE) and expire
     after `INVITE_DAYS` (7). Any member makes join links; staff also make new-household links. Links use
     `PUBLIC_URL`. The Group page (`/group/`) renames the group, lists members, removes a member or
-    leaves (either gives that person a fresh solo group; comments stay, votes go), manages invite
+    leaves (either gives that person a fresh solo group; comments stay, votes go; removing someone also
+    revokes the group's open invite links), manages invite
     links and changes the password.
 - `listings/scrapers/`
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property
@@ -155,7 +156,7 @@ its own data. Production data lives only on the Mac mini.
     looking for" (`SearchPriorities`, one per group). Market charts (`trend_stats`) are shared.
   - Each run is saved as a `TrendReport` with its group, usage and cost. Each group has its own
     reports and re-run cap (`TRENDS_MANUAL_RUNS_PER_DAY`). The scheduler's daily run, after the first
-    scrape of the day, makes one report per group with members, one after another in one background
+    scrape of the day, makes one report per group a member logged in to within 14 days, one after another in one background
     thread (about $0.50 each). One report runs at a time across all groups.
   - Tests use a `FakeClient` (`tests/test_analyst.py`) and never call the API. A real run costs
     about $0.50.
