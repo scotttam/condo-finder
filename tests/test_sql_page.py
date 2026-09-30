@@ -161,3 +161,12 @@ def test_csv_link_carries_the_query(staff_client):
     page = soup(get(staff_client, "SELECT 1 AS one"))
     path, _, query = page.find("a", string="Download CSV")["href"].partition("?")
     assert (path, parse_qs(query)) == ("/sql/csv/", {"q": ["SELECT 1 AS one"]})
+
+
+def test_phone_layout_lets_wide_results_scroll_inside_their_box():
+    # A plain 1fr grid column grows to fit a wide table, so the whole page scrolled sideways on phones.
+    from pathlib import Path
+
+    css = Path("listings/templates/listings/base.html").read_text()
+    phone = css[css.index("@media (max-width: 800px)"):]
+    assert ".sql-layout { grid-template-columns:minmax(0, 1fr); }" in phone

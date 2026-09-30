@@ -3,6 +3,7 @@
 {% block title %}Sources · Condo Finder{% endblock %}
 {% block content %}
 <h1>Sources</h1>
+{% if user.is_staff %}<p><a href="{% url 'sql_console' %}">SQL console</a></p>{% endif %}
 <form method="post" action="{% url 'scrape_now' %}" style="margin-bottom:16px">
   {% csrf_token %}
   <button type="submit" {% if running %}disabled{% endif %}>{% if running %}Scrape running…{% else %}Scrape now{% endif %}</button>

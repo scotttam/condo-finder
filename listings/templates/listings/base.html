@@ -294,7 +294,7 @@
     .sql-columns ul { padding-left:10px; font-size:13px; }
     .sql-insert { border:0; background:none; padding:0; color:var(--accent); cursor:pointer; font:inherit; font-size:14px; }
     @media (max-width: 800px) {
-      .sql-layout { grid-template-columns:1fr; }
+      .sql-layout { grid-template-columns:minmax(0, 1fr); }
       main { padding:12px; }
       header { flex-wrap:wrap; gap:6px 16px; padding:10px 12px; }
       header .brand { font-size:17px; white-space:nowrap; }

@@ -14,11 +14,12 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #57** (#56: the first click on a map no longer scrolls the page and shifts
-  the zoom buttons; #57, docs only: no inline shell comments). **Open: #58** (docs only: adds
-  the grill-me → Superpowers planning workflow). After deploying #55, run
+- **Merged to `main` through PR #58** (#57, docs only: no inline shell comments; #58, docs only:
+  the grill-me → Superpowers planning workflow). **Open: the SQL console PR** (branch `sql-console`,
+  staff-only read-only SQL at `/sql/`). After deploying it, run `uv run python manage.py createsuperuser`
+  on the Mac mini for the second owner, who has no login yet. After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
-  post-scrape pass would also do it on the next run). 528 tests pass.
+  post-scrape pass would also do it on the next run). 615 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -127,6 +128,13 @@ its own data. Production data lives only on the Mac mini.
   - Trends page, run/priorities/status endpoints, and the chart helper in `listings/charts.py`.
   - Detail page, Feed, history add/edit/delete, refresh listing, tracking, and Sources (scraper
     health).
+- `listings/sql_console.py`, `sql_queries.py`, `sql_views.py`: the staff-only SQL console at `/sql/`.
+  User SQL runs on its own SQLite connection (`mode=ro`, `query_only`, and an authorizer blocking
+  `ATTACH` and `query_only = OFF`) with a 5 s progress-handler timeout and a 1,000-row page cap
+  (`SQL_CONSOLE_*` settings). Starter queries live in `sql_queries.py`, and a test runs each one.
+  `SavedQuery` holds saved queries; `QueryRun` logs runs for "Recent", pruned to 50. In tests the
+  database is shared-cache memory, so `connect_readonly()` opens it with `read_uncommitted` instead
+  of `mode=ro`. Queries run by GET `?q=`, which is why `gunicorn.conf.py` sets `limit_request_line = 0`.
 - `listings/forms.py` holds `ListingFilterForm`, which carries the default filters: 2 bd / 2 ba /
   2 parking, a $2,000 minimum, and apartments hidden.
 - `deploy/`: `install.sh`, the launchd plist template, `launchd-restart.sh` (waits for bootout
@@ -198,3 +206,4 @@ reapply that line or save the summary by hand.
   treats anything else as removed.
 - Redfin's search API has no price history; its listing pages do (fetched slowly, see above).
 - The CSS lives inline in `listings/templates/listings/base.html`.
+- `ATTACH` creates a file even on a `mode=ro` SQLite connection. The SQL console's authorizer blocks it.

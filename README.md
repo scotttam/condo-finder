@@ -23,7 +23,8 @@ uv run pytest
 3. System Settings → Users & Groups → enable automatic login for your user (LaunchAgents start at login),
    and System Settings → Energy → prevent automatic sleeping.
 4. Approve the macOS firewall prompt for incoming connections to Python.
-5. Create an admin user for data corrections: `uv run python manage.py createsuperuser`.
+5. Create an admin user for each of you, for data corrections and the SQL console:
+   `uv run python manage.py createsuperuser`.
 
 Logs: `logs/web.log`. Restart after pulling changes: re-run `./deploy/install.sh`.
 
@@ -54,6 +55,13 @@ changepassword <user>`).
 The **Sources** page shows each site's last successful scrape, listing count, and consecutive
 failures with the last error. A scrape that returns 0 listings counts as a failure, so a blocked or
 changed site never marks its listings off-market.
+
+## SQL console
+
+`/sql/` (linked from Sources when you're logged in as staff) runs read-only SQL against the database.
+Pick a starter query from the sidebar, click a table in Schema to insert `SELECT * FROM … LIMIT 50`,
+or write your own and save it. Results show up to 1,000 rows; "Download CSV" gets all of them.
+Queries stop after 5 seconds. Writes are refused by SQLite itself.
 
 ## Adding a property manager
 
