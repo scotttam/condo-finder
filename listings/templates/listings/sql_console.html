@@ -1,0 +1,114 @@
+{% extends "listings/base.html" %}
+{% load humanize %}
+{% block title %}SQL console · Condo Finder{% endblock %}
+{% block content %}
+<h1>SQL console</h1>
+<p class="muted">Read-only. One statement per run, stopped after {{ timeout }} s. Cmd/Ctrl+Enter runs. <a href="{% url 'sources' %}">Back to Sources</a></p>
+<div class="sql-layout">
+  <section class="sql-main">
+    <form method="get" action="{% url 'sql_console' %}" id="sql-form">
+      <textarea name="q" id="sql-input" rows="9" spellcheck="false" autocapitalize="off" placeholder="SELECT …">{{ sql }}</textarea>
+      {% if saved %}<input type="hidden" name="saved" value="{{ saved.pk }}">{% endif %}
+      <div class="sql-actions">
+        <button type="submit">Run</button>
+        {% if result and not result.error %}<a href="{% url 'sql_csv' %}?q={{ sql|urlencode:'' }}">Download CSV</a>{% endif %}
+      </div>
+    </form>
+    <div id="sql-saved-controls">
+      <form method="post" action="{% url 'sql_save' %}" id="sql-save" class="sql-actions">
+        {% csrf_token %}
+        <input type="hidden" name="sql" id="sql-save-sql">
+        {% if saved %}<input type="hidden" name="pk" value="{{ saved.pk }}">{% endif %}
+        <input type="text" name="name" value="{{ saved.name|default:'' }}" placeholder="Name this query" maxlength="100" required>
+        {% if saved %}
+          <button type="submit">Save changes</button>
+          <button type="submit" name="as_new" value="1">Save as new</button>
+        {% else %}
+          <button type="submit">Save</button>
+        {% endif %}
+      </form>
+      {% if saved %}
+      <form method="post" action="{% url 'sql_delete' saved.pk %}" class="sql-actions sql-delete" onsubmit="return confirm('Delete “{{ saved.name|escapejs }}”?')">
+        {% csrf_token %}
+        <button type="submit">Delete saved query</button>
+      </form>
+      {% endif %}
+    </div>
+    {% if result %}
+      {% if result.error %}
+        <p class="sql-error" role="alert">{{ result.error }}</p>
+      {% else %}
+        <p class="muted sql-summary">
+          {% if result.truncated %}Showing the first {{ max_rows|intcomma }} rows (truncated). Download CSV for all of them.{% else %}{{ result.row_count|intcomma }} row{{ result.row_count|pluralize }}{% endif %}
+          · {{ result.elapsed_ms|intcomma }} ms
+        </p>
+        {% if result.columns %}
+        <div class="sql-results">
+          <table>
+            <tr>{% for column in result.columns %}<th>{{ column }}</th>{% endfor %}</tr>
+            {% for row in cells %}
+            <tr>{% for cell in row %}<td>{% if cell.href %}<a href="{{ cell.href }}">{{ cell.value }}</a>{% elif cell.value is None %}<span class="sql-null">NULL</span>{% else %}{{ cell.value }}{% endif %}</td>{% endfor %}</tr>
+            {% endfor %}
+          </table>
+        </div>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </section>
+  <aside class="sql-side">
+    {% for category, queries in canned %}
+    <details open>
+      <summary>{{ category }}</summary>
+      <ul>{% for query in queries %}<li><a href="?q={{ query.sql|urlencode:'' }}">{{ query.title }}</a></li>{% endfor %}</ul>
+    </details>
+    {% endfor %}
+    <details open>
+      <summary>Saved</summary>
+      <ul>{% for query in saved_queries %}<li><a href="?q={{ query.sql|urlencode:'' }}&amp;saved={{ query.pk }}">{{ query.name }}</a></li>{% empty %}<li class="muted">None yet.</li>{% endfor %}</ul>
+    </details>
+    <details>
+      <summary>Recent</summary>
+      <ul>{% for run in recent %}<li><a href="?q={{ run.sql|urlencode:'' }}" title="{{ run.sql }}">{{ run.sql|truncatechars:80 }}</a><br><span class="muted">{{ run.ran_at|naturaltime }} · {% if run.error %}error{% else %}{{ run.row_count }} row{{ run.row_count|pluralize }}, {{ run.elapsed_ms }} ms{% endif %}</span></li>{% empty %}<li class="muted">Nothing yet.</li>{% endfor %}</ul>
+    </details>
+    <details>
+      <summary>Schema</summary>
+      <ul>
+      {% for table in schema %}
+        <li>
+          <button type="button" class="sql-insert" data-sql="SELECT * FROM {{ table.name }} LIMIT 50" title="Insert SELECT * FROM {{ table.name }} LIMIT 50">{{ table.name }}</button>
+          <details class="sql-columns"><summary>{{ table.columns|length }} columns</summary>
+            <ul>{% for name, type in table.columns %}<li><code>{{ name }}</code> <span class="muted">{{ type }}</span></li>{% endfor %}</ul>
+          </details>
+        </li>
+      {% endfor %}
+      </ul>
+    </details>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function () {
+    var input = document.getElementById('sql-input');
+    document.querySelectorAll('.sql-insert').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (input.value.trim()) {
+          input.setRangeText(button.dataset.sql, input.selectionStart, input.selectionEnd, 'end');
+        } else {
+          input.value = button.dataset.sql;
+        }
+        input.focus();
+      });
+    });
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        document.getElementById('sql-form').requestSubmit();
+      }
+    });
+    document.getElementById('sql-save').addEventListener('submit', function () {
+      document.getElementById('sql-save-sql').value = input.value;
+    });
+  })();
+</script>
+{% endblock %}

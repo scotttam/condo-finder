@@ -318,6 +318,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
   <p>A <code>Listing</code> is the apartment. A <code>SourceListing</code> is one site's ad for it. The same unit on Zillow, Redfin and Craigslist is one Listing with three SourceListings.</p>
   <p>The Trends page adds two standalone tables. <code>TrendReport</code> keeps each analysis: the ranked picks (with a snapshot of address, photo and price when picked), Claude's market read, the statistics it was given, token usage and cost, and what changed since the previous report. <code>SearchPriorities</code> holds each group's "What we're looking for". Both belong to a search group.</p>
   <p>People log in with an email. Each <code>Profile</code> puts one person in exactly one <code>SearchGroup</code> (a household), and an <code>Invite</code> is a single-use link into a new or existing group. Everything a group says about a listing lives in its own rows: <code>ListingState</code> (the shared status and who set it), <code>Comment</code> and <code>Vote</code>. Scraped data stays global.</p>
+  <p>The SQL console adds two more standalone tables: <code>SavedQuery</code> (name and SQL) and <code>QueryRun</code> (the last 50 runs, with who ran them, row count, time and any error).</p>
   <figure class="wide">
     <div class="scroll">
     <svg viewBox="0 0 1040 560" role="img" aria-label="Source has many SourceRuns and many SourceListings. Each SourceListing belongs to one Listing. A Listing has many PriceChanges and FeedEvents. Each SearchGroup has Profiles and Invites, and its own ListingState, Comment and Vote rows for each Listing.">
@@ -442,6 +443,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <tr><td>Feed</td><td>New listings, changes to listings the group tracks, and the group's own activity</td><td>Plain GET. Unread state is per person (<code>Profile.feed_seen_at</code>); the nav badge polls every 30 s.</td></tr>
       <tr><td>Group</td><td>Name, members, invite links, leave or remove, change password</td><td>Plain form POSTs. Invite links are copy-paste; no email is sent.</td></tr>
       <tr><td>Sources</td><td>Each site's last success, count and last error (staff only)</td><td>"Scrape now" starts a run in a background thread.</td></tr>
+      <tr><td>SQL console</td><td>Staff-only read-only SQL: starter queries, saved queries, recent runs, schema, CSV</td><td>Queries run by GET <code>?q=</code> (permalinks) on a separate read-only SQLite connection with a 5 s timeout. Save and delete POST.</td></tr>
       <tr><td>Admin</td><td>Django admin for correcting data</td><td>Standard Django forms</td></tr>
     </tbody>
   </table>

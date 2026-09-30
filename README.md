@@ -111,6 +111,13 @@ The **Sources** page shows each site's last successful scrape, listing count, an
 failures with the last error. A scrape that returns 0 listings counts as a failure, so a blocked or
 changed site never marks its listings off-market.
 
+## SQL console
+
+`/sql/` (linked from Sources when you're logged in as staff) runs read-only SQL against the database.
+Pick a starter query from the sidebar, click a table in Schema to insert `SELECT * FROM … LIMIT 50`,
+or write your own and save it. Results show up to 1,000 rows; "Download CSV" gets all of them.
+Queries stop after 5 seconds. Writes are refused by SQLite itself.
+
 ## Adding a property manager
 
 If their listings page is AppFolio (`<name>.appfolio.com/listings`) or Nesthub (`/_system/listings/...`

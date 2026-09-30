@@ -16,8 +16,9 @@ how to continue it.
 
 - **Merged to `main` through PR #68** and deployed on 2026-09-30: the accounts stack (#59–#68: logins,
   search groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via
-  Tailscale Funnel; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). 623 tests
-  pass.
+  Tailscale Funnel; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). 724 tests
+  pass with #70. **Open: #70** (SQL console: staff-only
+  read-only SQL at `/sql/`).
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Everyone uses `https://<mac-mini>.<tailnet>.ts.net` through Tailscale
   Funnel; gunicorn listens on 127.0.0.1:8000 only. One group, "Scott and Kristi's Search" (pk 1, the
@@ -168,6 +169,14 @@ its own data. Production data lives only on the Mac mini.
   - Trends page, run/priorities/status endpoints, and the chart helper in `listings/charts.py`.
   - Detail page, Feed, history add/edit/delete, refresh listing, tracking, and Sources (scraper
     health).
+- `listings/sql_console.py`, `sql_queries.py`, `sql_views.py`: the staff-only SQL console at `/sql/`
+  (`staff_required`; it reads every table, every group's comments and votes and the auth tables included).
+  User SQL runs on its own SQLite connection (`mode=ro`, `query_only`, and an authorizer blocking
+  `ATTACH` and any pragma that sets a value, since some are process-wide) with a 5 s progress-handler timeout and a 1,000-row page cap
+  (`SQL_CONSOLE_*` settings). Starter queries live in `sql_queries.py`, and a test runs each one.
+  `SavedQuery` holds saved queries; `QueryRun` logs runs for "Recent", pruned to 50. In tests the
+  database is shared-cache memory, so `connect_readonly()` opens it with `read_uncommitted` instead
+  of `mode=ro`. Queries run by GET `?q=`, which is why `gunicorn.conf.py` sets `limit_request_line = 0`.
 - `listings/forms.py` holds `ListingFilterForm`. `app_default_filters()` (2 bd / 2 ba / 2 parking, a
   $2,000 minimum, apartments and rejected hidden, Votes: Any) is where a new group starts;
   `default_filter_data(group)` lays the group's saved defaults (`SearchGroup.default_filters`, set by
@@ -195,8 +204,8 @@ its own data. Production data lives only on the Mac mini.
   any status or comments you changed while testing.
   Log in first (`create_owner` on your dev database). Check group features with two accounts in two
   browsers.
-- **Staff-only controls.** Price-history edits, Refresh from sites, the Sources page and admin
-  overrides are for the site admin (`is_staff`, via `accounts.decorators.staff_required`, and hidden
+- **Staff-only controls.** Price-history edits, Refresh from sites, the Sources page, the SQL console
+  and admin overrides are for the site admin (`is_staff`, via `accounts.decorators.staff_required`, and hidden
   in templates with `{% if user.is_staff %}`). Everyone else sees that data read-only.
 - **Scrape politely.** Keep delays and budgets, and stop when a site starts blocking.
   Realtor.com is deliberately skipped because of its Kasada bot protection.
@@ -250,3 +259,4 @@ reapply that line or save the summary by hand.
   treats anything else as removed.
 - Redfin's search API has no price history; its listing pages do (fetched slowly, see above).
 - The CSS lives inline in `listings/templates/listings/base.html`.
+- `ATTACH` creates a file even on a `mode=ro` SQLite connection. The SQL console's authorizer blocks it.

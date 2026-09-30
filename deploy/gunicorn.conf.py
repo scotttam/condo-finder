@@ -7,3 +7,5 @@ threads = 4
 timeout = 120
 accesslog = "-"
 errorlog = "-"
+# The SQL console runs queries by GET ?q= so each has a permalink; the 4094-byte default rejects long ones.
+limit_request_line = 0

@@ -1,4 +1,5 @@
 import pytest
+from bs4 import BeautifulSoup
 
 from listings import views
 from listings.models import Source, SourceRun
@@ -32,3 +33,8 @@ def test_scrape_now_when_running(client, monkeypatch):
     monkeypatch.setattr(views, "run_all_in_background", lambda: pytest.fail("should not start"))
     response = client.post("/sources/scrape/", follow=True)
     assert b"already running" in response.content
+
+
+def test_sources_page_links_staff_to_sql_console(client):
+    link = BeautifulSoup(client.get("/sources/").content, "html.parser").find("a", string="SQL console")
+    assert link["href"] == "/sql/"

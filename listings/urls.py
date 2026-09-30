@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import collab_views, views
+from . import collab_views, sql_views, views
 
 urlpatterns = [
     path("", views.listing_list, name="listing_list"),
@@ -24,4 +24,8 @@ urlpatterns = [
     path("trends/status/", views.trends_status, name="trends_status"),
     path("sources/", views.sources, name="sources"),
     path("sources/scrape/", views.scrape_now, name="scrape_now"),
+    path("sql/", sql_views.sql_console_page, name="sql_console"),
+    path("sql/csv/", sql_views.sql_csv, name="sql_csv"),
+    path("sql/save/", sql_views.sql_save, name="sql_save"),
+    path("sql/saved/<int:pk>/delete/", sql_views.sql_delete, name="sql_delete"),
 ]
