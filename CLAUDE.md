@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 550 tests pass.
+  after the whole stack merges, following the README runbook. 558 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -122,9 +122,12 @@ its own data. Production data lives only on the Mac mini.
   type from listing text. `is_furnished` stays unknown when a listing is offered either way ("furnished
   or unfurnished", "furnished if desired") or when the phrase is about the building ("Furnished
   apartments available"). `reextract_all()` re-runs them over stored text after a parser change.
-- `listings/feed.py` records `FeedEvent` rows for new listings and for changes to listings with a
-  status. `happened_at` is when the change happened; `created_at` is when we learned of it. Unread
-  state is per browser, in the `feed_seen_at` cookie.
+- `listings/feed.py` records `FeedEvent` rows. Scraped events (new listings, changes) have no
+  `group`, and every group sees them; change events show for listings the group tracks (status ≠ New).
+  A group's own activity (status changes, comments, votes) has `group` and `actor` and shows only to
+  that group. `happened_at` is when the change happened; `created_at` is when we learned of it. Unread
+  state is per person (`Profile.feed_seen_at`); your own actions never count as unread. The nav badge
+  polls `/feed/badge/` every 30s.
 - **Trends** (spec: `docs/superpowers/specs/2026-09-29-trends-design.md`):
   - `listings/trend_stats.py` computes weekly median rent by city, the price-cut share and days on
     market over comparable listings. Weeks before the first scrape are blank on purpose (only

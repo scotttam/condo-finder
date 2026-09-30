@@ -210,6 +210,7 @@
     .kind-new_listing { background:#e8f0fe; color:#1a56db; } .kind-drop { background:#e3f5ea; color:var(--yes); }
     .kind-price_change:not(.kind-drop) { background:#fff4d6; color:#8a6d00; } .kind-off_market { background:#fde8e7; color:var(--no); }
     .kind-back_on_market { background:#e3f5ea; color:var(--yes); } .kind-new_site { background:#f0e8fe; color:#6b3fd4; }
+    .kind-status, .kind-comment, .kind-vote { background:#eef2ff; color:#3730a3; }
     .feed-thumb img, .feed-thumb span { display:block; width:64px; height:46px; object-fit:cover; border-radius:6px; background:#ddd; }
     .feed-listing { min-width:200px; } .feed-summary { min-width:220px; }
     .panel-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
@@ -327,7 +328,7 @@
     <nav>
       <a href="{{ listings_url }}">Listings</a>
       <a href="{% url 'trends' %}">Trends</a>
-      <a href="{% url 'feed' %}">Feed{% if feed_unread %} <span class="nav-badge">{{ feed_unread }}</span>{% endif %}</a>
+      <a href="{% url 'feed' %}">Feed{% include "listings/_feed_badge.html" %}</a>
       {% if user.is_staff %}<a href="{% url 'sources' %}">Sources</a>
       <a href="/admin/">Admin</a>{% endif %}
     </nav>

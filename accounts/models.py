@@ -22,6 +22,7 @@ class Profile(models.Model):
     group = models.ForeignKey(SearchGroup, on_delete=models.PROTECT, related_name="members")
     display_name = models.CharField(max_length=60)
     joined_at = models.DateTimeField(default=timezone.now)
+    feed_seen_at = models.DateTimeField(null=True, blank=True)  # the Feed's unread line, synced across devices
 
     class Meta:
         ordering = ["joined_at", "pk"]
