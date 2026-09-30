@@ -89,3 +89,20 @@ def make_source(key="pearl"):
 
     platform = key if key in PLATFORMS else "appfolio"  # e.g. make_source("zillow") is a Zillow source
     return Source.objects.get_or_create(key=key, defaults={"name": key.title(), "platform": platform})[0]
+
+
+def home_group():
+    """The owners' group: the oldest group, made by accounts' migration (re-made if a test flushed it)."""
+    from accounts.groups import owners_group
+
+    return owners_group()
+
+
+def make_user(email, name, group=None, staff=False):
+    from django.contrib.auth import get_user_model
+
+    from accounts.models import Profile
+
+    user = get_user_model().objects.create_user(username=email, email=email, password="pw", is_staff=staff)
+    Profile.objects.create(user=user, group=group or home_group(), display_name=name)
+    return user

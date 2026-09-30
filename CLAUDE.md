@@ -14,11 +14,13 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #57** (#56: the first click on a map no longer scrolls the page and shifts
-  the zoom buttons; #57, docs only: no inline shell comments). **Open: #58** (docs only: adds
-  the grill-me → Superpowers planning workflow). After deploying #55, run
+- **Merged to `main` through PR #58** (#56: the first click on a map no longer scrolls the page and shifts
+  the zoom buttons; #57 and #58, docs only). After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
-  post-scrape pass would also do it on the next run). 528 tests pass.
+  post-scrape pass would also do it on the next run).
+- **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
+  collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
+  after the whole stack merges, following the README runbook. 541 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -70,6 +72,15 @@ its own data. Production data lives only on the Mac mini.
 
 ## Code map
 
+- `accounts/`: logins and search groups (spec: `docs/superpowers/specs/2026-09-30-accounts-decisions.md`).
+  - `SearchGroup` owns everything a household says about listings; each user has one `Profile` in
+    exactly one group. `accounts/groups.py` has `owners_group()` (the oldest group), `profile_for()`
+    (makes a solo group for accounts created outside the app) and `move_to_group()`.
+  - `LoginRequired` middleware guards every page (views opt out with `@login_not_required`); an HTMX
+    request without a login gets `HX-Redirect` to the login page. `CurrentGroup` sets `request.profile`
+    and `request.group`.
+  - Log in with email (`username` is the lowercased email). `manage.py create_owner --email --name`
+    makes the site admin (staff) in the owners' group; `manage.py changepassword <email>` resets a password.
 - `listings/scrapers/`
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property
     manager is one entry.
@@ -145,6 +156,8 @@ its own data. Production data lives only on the Mac mini.
   `base.html`, so matching on them passes even when the element is missing.
   `tests/helpers.py` has `FakeFetcher`/`FakeResponse` and fixtures. Scraper tests use saved HTML
   and JSON in `tests/fixtures/`.
+  The `client` fixture is logged in as Sam, a staff user in the owners' group (`home_group()`);
+  `anon_client` is logged out. `make_user()` in `tests/helpers.py` adds more people.
 - **Verify in a browser.** Check UI changes against the local dev server with real data, on desktop
   and at phone width. Nothing should scroll sideways and the console should be error-free. Restore
   any status or notes you changed while testing.

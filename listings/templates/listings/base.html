@@ -14,6 +14,11 @@
     header { display:flex; align-items:center; gap:24px; padding:12px 20px; background:var(--card); border-bottom:1px solid var(--line); }
     header .brand { font-weight:700; color:var(--accent); text-decoration:none; font-size:18px; }
     header nav a { margin-right:16px; color:var(--ink); text-decoration:none; }
+    header .account { margin-left:auto; display:flex; align-items:center; gap:8px; } header .account form { margin:0; }
+    .auth-card { max-width:400px; margin:40px auto; } .auth-card h1 { margin-top:0; font-size:22px; }
+    .stack { display:block; margin:0 0 12px; font-size:14px; font-weight:600; }
+    .stack input, .stack textarea { display:block; width:100%; margin-top:4px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-weight:400; }
+    .auth-card button[type=submit] { padding:8px 18px; border:0; border-radius:8px; background:var(--accent); color:#fff; font:600 15px/1.2 inherit; cursor:pointer; }
     main { padding:20px; max-width:1400px; margin:0 auto; }
     a { color:var(--accent); }
     .messages { list-style:none; margin:12px 20px 0; padding:10px 14px; background:#eaf4ef; border-radius:8px; }
@@ -317,6 +322,7 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <header>
     <a class="brand" href="{% url 'listing_list' %}">Condo Finder</a>
+    {% if user.is_authenticated %}
     <nav>
       <a href="{{ listings_url }}">Listings</a>
       <a href="{% url 'trends' %}">Trends</a>
@@ -324,6 +330,11 @@
       <a href="{% url 'sources' %}">Sources</a>
       <a href="/admin/">Admin</a>
     </nav>
+    <div class="account">
+      <span class="muted whoami">{{ request.profile.display_name }}</span>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="link">Log out</button></form>
+    </div>
+    {% endif %}
   </header>
   {% if messages %}<ul class="messages">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
   <main>{% block content %}{% endblock %}</main>

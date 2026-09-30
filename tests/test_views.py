@@ -237,11 +237,12 @@ def test_pages_load_over_a_tailscale_hostname(client):
     assert client.get(f"/listing/{listing.pk}/", HTTP_HOST=TAILSCALE_HOST).status_code == 200
 
 
-def test_status_buttons_pass_csrf_over_tailscale():
+def test_status_buttons_pass_csrf_over_tailscale(owner):
     from django.test import Client
 
     listing = good_listing()
     browser = Client(enforce_csrf_checks=True)
+    browser.force_login(owner)
     browser.get("/", HTTP_HOST=TAILSCALE_HOST)
     token = browser.cookies["csrftoken"].value
     response = browser.post(
