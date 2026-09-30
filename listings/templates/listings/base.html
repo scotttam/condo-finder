@@ -277,7 +277,24 @@
     .chart-legend { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:13px; color:var(--muted); margin-top:4px; }
     .chart-legend i { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
     .chart-empty { height:140px; display:grid; place-items:center; color:var(--muted); font-size:14px; background:#fafaf8; border-radius:8px; }
+    /* SQL console */
+    .sql-layout { display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:24px; align-items:start; }
+    #sql-input { width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--line); border-radius:8px;
+                 font:13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; resize:vertical; }
+    .sql-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0; }
+    .sql-results { overflow-x:auto; max-width:100%; }
+    .sql-results td { font-size:13px; white-space:pre-wrap; max-width:48ch; overflow-wrap:anywhere; }
+    .sql-null { color:var(--muted); font-style:italic; }
+    .sql-error { color:var(--no); white-space:pre-wrap; font:13px/1.45 ui-monospace, Menlo, monospace; }
+    .sql-side > details { margin-bottom:14px; }
+    .sql-side summary { font-weight:600; cursor:pointer; }
+    .sql-side ul { list-style:none; padding:0; margin:6px 0 0; font-size:14px; }
+    .sql-side li { margin:5px 0; overflow-wrap:anywhere; }
+    .sql-columns summary { font-weight:400; font-size:12px; color:var(--muted); }
+    .sql-columns ul { padding-left:10px; font-size:13px; }
+    .sql-insert { border:0; background:none; padding:0; color:var(--accent); cursor:pointer; font:inherit; font-size:14px; }
     @media (max-width: 800px) {
+      .sql-layout { grid-template-columns:1fr; }
       main { padding:12px; }
       header { flex-wrap:wrap; gap:6px 16px; padding:10px 12px; }
       header .brand { font-size:17px; white-space:nowrap; }
