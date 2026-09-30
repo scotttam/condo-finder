@@ -267,5 +267,11 @@
   filters.addEventListener("input", refreshFilterBar);
   filters.addEventListener("change", refreshFilterBar);
   refreshFilterBar();
+
+  // A saved-defaults tick is stale once the filters change again.
+  filters.addEventListener("change", () => {
+    const button = document.getElementById("save-defaults");
+    if (button) button.textContent = "Save as our defaults";
+  });
 </script>
 {% endblock %}

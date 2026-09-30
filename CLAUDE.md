@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 577 tests pass.
+  after the whole stack merges, following the README runbook. 584 tests pass.
   `create_owner` claims the owner's migrated notes (now comments) if the account didn't exist when migrating.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
@@ -152,8 +152,10 @@ its own data. Production data lives only on the Mac mini.
   - Trends page, run/priorities/status endpoints, and the chart helper in `listings/charts.py`.
   - Detail page, Feed, history add/edit/delete, refresh listing, tracking, and Sources (scraper
     health).
-- `listings/forms.py` holds `ListingFilterForm`, which carries the default filters: 2 bd / 2 ba /
-  2 parking, a $2,000 minimum, apartments hidden, and Votes: Any.
+- `listings/forms.py` holds `ListingFilterForm`. `app_default_filters()` (2 bd / 2 ba / 2 parking, a
+  $2,000 minimum, apartments and rejected hidden, Votes: Any) is where a new group starts;
+  `default_filter_data(group)` lays the group's saved defaults (`SearchGroup.default_filters`, set by
+  "Save as our defaults") over them. The owners' group got the old hard-coded defaults as its saved copy.
 - `deploy/`: `install.sh`, the launchd plist template, `launchd-restart.sh` (waits for bootout
   before bootstrapping) and `gunicorn.conf.py`.
 - Design docs: `docs/superpowers/specs/` and `plans/`. Architecture diagrams: `docs/architecture.html`.

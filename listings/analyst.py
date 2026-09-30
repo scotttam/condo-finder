@@ -57,7 +57,7 @@ def _prepare(listings, group):
 
 def candidates(group):
     """Listings that pass the default filters, plus active listings the group marked as interesting."""
-    form = ListingFilterForm(default_filter_data())
+    form = ListingFilterForm(default_filter_data(group))
     form.is_valid()
     matching = apply_filters(Listing.objects.all(), form.cleaned_data, group).values("pk")
     tracked = ListingState.objects.filter(group=group, status__in=TRACKED, listing__is_active=True).values("listing")

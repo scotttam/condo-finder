@@ -1,0 +1,4 @@
+{# Saves the filter bar as the group's defaults. Inside the filters form, so HTMX posts its values with it. #}
+<button type="button" id="save-defaults" class="save-defaults" hx-post="{% url 'save_default_filters' %}" hx-include="#filters"
+        hx-target="this" hx-swap="outerHTML"
+        title="Visits and Reset start from these filters, for everyone in {{ request.group.name }}">{% if saved %}Saved as our defaults ✓{% else %}Save as our defaults{% endif %}</button>
