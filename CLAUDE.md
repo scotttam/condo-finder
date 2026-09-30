@@ -15,7 +15,7 @@ how to continue it.
 ## Current state (updated 2026-09-30)
 
 - **Merged to `main` through PR #58** (#57, docs only: no inline shell comments; #58, docs only:
-  the grill-me → Superpowers planning workflow). **Open: the SQL console PR** (branch `sql-console`,
+  the grill-me → Superpowers planning workflow). **Open: #70** (SQL console,
   staff-only read-only SQL at `/sql/`). After deploying it, run `uv run python manage.py createsuperuser`
   on the Mac mini for the second owner, who has no login yet. After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
