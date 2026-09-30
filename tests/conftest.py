@@ -28,3 +28,20 @@ def anon_client(db):
     from django.test import Client
 
     return Client()
+
+
+@pytest.fixture
+def member(db):
+    """Alex: in the owners' group, not staff."""
+    from tests.helpers import make_user
+
+    return make_user("alex@example.com", "Alex")
+
+
+@pytest.fixture
+def member_client(member):
+    from django.test import Client
+
+    browser = Client()
+    browser.force_login(member)
+    return browser

@@ -327,8 +327,8 @@
       <a href="{{ listings_url }}">Listings</a>
       <a href="{% url 'trends' %}">Trends</a>
       <a href="{% url 'feed' %}">Feed{% if feed_unread %} <span class="nav-badge">{{ feed_unread }}</span>{% endif %}</a>
-      <a href="{% url 'sources' %}">Sources</a>
-      <a href="/admin/">Admin</a>
+      {% if user.is_staff %}<a href="{% url 'sources' %}">Sources</a>
+      <a href="/admin/">Admin</a>{% endif %}
     </nav>
     <div class="account">
       <span class="muted whoami">{{ request.profile.display_name }}</span>

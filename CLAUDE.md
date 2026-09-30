@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 541 tests pass.
+  after the whole stack merges, following the README runbook. 544 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -161,7 +161,9 @@ its own data. Production data lives only on the Mac mini.
 - **Verify in a browser.** Check UI changes against the local dev server with real data, on desktop
   and at phone width. Nothing should scroll sideways and the console should be error-free. Restore
   any status or notes you changed while testing.
-- **Admin-style controls on normal pages are fine.** Only the two owners use the app.
+- **Staff-only controls.** Price-history edits, Refresh from sites, the Sources page and admin
+  overrides are for the site admin (`is_staff`, via `accounts.decorators.staff_required`, and hidden
+  in templates with `{% if user.is_staff %}`). Everyone else sees that data read-only.
 - **Scrape politely.** Keep delays and budgets, and stop when a site starts blocking.
   Realtor.com is deliberately skipped because of its Kasada bot protection.
 - Commit messages use `feat:` / `fix:` / `docs:` prefixes.

@@ -69,7 +69,7 @@
   <aside class="listing-side">
     <div class="panel"><h3>Our notes</h3>{% include "listings/_tracking.html" %}</div>
     {% include "listings/_history.html" %}
-    <p class="small"><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>
+    {% if user.is_staff %}<p class="small"><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>{% endif %}
   </aside>
 </div>
 {% endblock %}

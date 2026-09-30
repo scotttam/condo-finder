@@ -3,16 +3,18 @@
 <div class="panel" id="price-history">
   <div class="panel-head">
     <h3>Price history</h3>
+    {% if user.is_staff %}
     {% if refreshable %}
     <button type="button" class="refresh" hx-post="{% url 'refresh_listing' listing.pk %}" hx-target="#price-history"
             hx-swap="outerHTML" hx-disabled-elt="this" title="Re-fetch this listing's pages on Zillow, Redfin and Craigslist now">
       <span class="idle">↻ Refresh from sites</span><span class="busy">Refreshing…</span>
     </button>
     {% endif %}
+    {% endif %}
   </div>
   {% if listing.price_drop %}<p class="drop">↓ ${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%) since listed</p>{% endif %}
   <table class="history">
-    <tr><th>Date</th><th>Price</th><th>Change</th><th>Event</th><th></th></tr>
+    <tr><th>Date</th><th>Price</th><th>Change</th><th>Event</th>{% if user.is_staff %}<th></th>{% endif %}</tr>
     {% for row in listing.price_history_rows %}
       {% if row.change.pk == editing %}
       <tr class="editing">
@@ -35,6 +37,7 @@
         <td>${{ row.change.price|intcomma }}</td>
         <td class="nowrap{% if row.is_drop %} drop{% endif %}">{{ row.label }}</td>
         <td>{{ row.change.event|default:"Entered by hand" }}{% if row.change.source %}<div class="muted">{{ row.change.source }}</div>{% endif %}</td>
+        {% if user.is_staff %}
         <td class="row-actions nowrap">
           <button type="button" class="link" title="Edit this entry"
                   hx-get="{% url 'history_edit' listing.pk row.change.pk %}" hx-target="#price-history" hx-swap="outerHTML">Edit</button>
@@ -42,6 +45,7 @@
                   hx-post="{% url 'history_delete' listing.pk row.change.pk %}" hx-target="#price-history" hx-swap="outerHTML"
                   hx-confirm="Delete the {{ row.change.seen_at|date:'M j' }} ${{ row.change.price|intcomma }} entry?">✕</button>
         </td>
+        {% endif %}
       </tr>
       {% endif %}
     {% empty %}
@@ -49,6 +53,7 @@
     {% endfor %}
   </table>
 
+  {% if user.is_staff %}
   <form class="history-form add" hx-post="{% url 'history_add' listing.pk %}" hx-target="#price-history" hx-swap="outerHTML">
     {% csrf_token %}
     <div class="panel-title">Add an entry</div>
@@ -60,4 +65,5 @@
   </form>
   <datalist id="history-events">{% for event in history_events %}<option value="{{ event }}">{% endfor %}</datalist>
   <p class="muted small">Entries are history only; the listing's current price comes from the sites (or an override in admin).</p>
+  {% endif %}
 </div>
