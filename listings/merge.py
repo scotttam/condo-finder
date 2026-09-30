@@ -7,7 +7,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import FeedEvent, Listing, ListingState, SourceListing, Status, TrendReport
+from .models import Comment, FeedEvent, Listing, ListingState, SourceListing, Status, TrendReport
 
 log = logging.getLogger(__name__)
 
@@ -70,9 +70,9 @@ def unit_match(key, source, beds, baths, sqft, price):
 
 
 def touched(listing):
-    """Whether anyone has done anything to this listing by hand."""
+    """Whether anyone has done anything by hand (a status, a comment, an override, a hand-entered price)."""
     return bool(
-        listing.states.exclude(status=Status.NEW).exists() or listing.notes.strip() or listing.overrides
+        listing.states.exclude(status=Status.NEW).exists() or listing.comments.exists() or listing.overrides
         or listing.price_changes.filter(source="").exists()
     )
 
@@ -86,7 +86,7 @@ def survivor(a, b):
 
 @transaction.atomic
 def merge(keep, drop):
-    """Fold `drop` into `keep`: its sites, price history, feed, notes and every group's status. Returns `keep`."""
+    """Fold `drop` into `keep`: its sites, price history, feed, and every group's status and comments. Returns `keep`."""
     from .ingest import _apply_overrides, _recompute_price
 
     SourceListing.objects.filter(listing=drop).update(listing=keep)
@@ -101,9 +101,8 @@ def merge(keep, drop):
         events.filter(kind=FeedEvent.Kind.NEW_LISTING).delete()
     events.update(listing=keep)
     _merge_states(keep, drop)
+    Comment.objects.filter(listing=drop).update(listing=keep)
 
-    notes = [n for n in (keep.notes.strip(), drop.notes.strip()) if n]
-    keep.notes = "\n\n".join(dict.fromkeys(notes))
     keep.overrides = {**(drop.overrides or {}), **(keep.overrides or {})}
     for name in FILL_FIELDS:
         if getattr(keep, name) in (None, "") and getattr(drop, name) not in (None, ""):

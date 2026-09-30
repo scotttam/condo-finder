@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from accounts.decorators import staff_required
 
 from .filters import apply_filters
-from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
+from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, default_filter_data
 from .models import Listing, PriceChange, SearchPriorities, Source, SourceRun, Status, TrendReport
 from . import analyst, collab, feed, trend_stats
 from .charts import line_chart
@@ -148,7 +148,7 @@ def listing_detail(request, pk):
     return render(request, "listings/detail.html", {
         **_history_context(listing),
         "listing": listing,
-        "tracking_form": TrackingForm(instance=listing),
+        "comments": collab.comments_for(listing, request.group),
     })
 
 
@@ -255,18 +255,6 @@ def history_delete(request, pk, change_pk):
     listing = get_object_or_404(Listing, pk=pk)
     get_object_or_404(PriceChange, pk=change_pk, listing=listing).delete()
     return _history_response(request, listing)
-
-
-@require_POST
-def update_tracking(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-    form = TrackingForm(request.POST, instance=listing)
-    saved = form.is_valid()
-    if saved:
-        form.save()
-    if request.headers.get("HX-Request"):
-        return render(request, "listings/_tracking.html", {"listing": listing, "tracking_form": form, "saved": saved})
-    return redirect(listing)
 
 
 @require_POST

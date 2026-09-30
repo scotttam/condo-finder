@@ -106,7 +106,6 @@ class Listing(models.Model):
         help_text='Manual corrections that survive re-scrapes, e.g. {"parking_spaces": 2, "has_ac": true}',
     )
 
-    notes = models.TextField(blank=True)
 
     is_active = models.BooleanField(default=True)
     listed_at = models.DateField(null=True, blank=True, help_text="When the current rental listing started, per the listing site")

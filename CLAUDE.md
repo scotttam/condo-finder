@@ -20,7 +20,8 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 558 tests pass.
+  after the whole stack merges, following the README runbook. 565 tests pass.
+  `create_owner` claims the owner's migrated notes (now comments) if the account didn't exist when migrating.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -109,10 +110,13 @@ its own data. Production data lives only on the Mac mini.
   status (no row = New) with who set it and when. `decorate(listings, group, user)` attaches
   `group_status`/`group_status_label`/`state` for templates; `status_expr(group)` annotates querysets
   (the statuses filter). `apply_filters(queryset, data, group)` needs the group.
+  `Comment` threads replace notes: author-only edit/delete in `collab_views.py`; the thread polls
+  every 30s but not while a comment is being edited; each comment has a Feed item that follows edits
+  and deletes.
 - `listings/merge.py` matches with/without-unit pairs (`unit_match`) and merges two listings (`merge`):
   sites, price history, feed events and Trends picks move over. The survivor is the copy the owners
-  touched (status, notes, overrides or hand-entered history), else the one with a unit. If both were
-  touched, notes are joined and each group keeps one status, the furthest along (new < interested < toured < applied < rejected).
+  touched (status, comments, overrides or hand-entered history), else the one with a unit. If both were
+  touched, comments from both are kept and each group keeps one status, the furthest along (new < interested < toured < applied < rejected).
   `merge_unit_duplicates()` runs after every scrape; `manage.py merge_duplicates [--dry-run]` runs it now.
 - `listings/specials.py` finds move-in specials ("4 weeks free", "$500 off first month") and their
   value; `Listing.special_offer` holds the sentence. Unlike features, it's re-read from the listing's
@@ -134,7 +138,7 @@ its own data. Production data lives only on the Mac mini.
     survivors are known for them).
   - `listings/analyst.py` makes two Claude calls (Opus 5.5, structured JSON output, server-side
     fallback). Pass 1 shortlists 25 candidates from compact facts; pass 2 ranks the top 5 from full
-    descriptions, notes, rejected listings and "What we're looking for" (`SearchPriorities`).
+    descriptions, comments, rejected listings and "What we're looking for" (`SearchPriorities`).
   - Each run is saved as a `TrendReport` with usage and cost. One runs at a time in a background
     thread. The scheduler starts the daily report after the first scrape of the day; manual re-runs
     are capped by `TRENDS_MANUAL_RUNS_PER_DAY`.
@@ -167,7 +171,7 @@ its own data. Production data lives only on the Mac mini.
   `anon_client` is logged out. `make_user()` in `tests/helpers.py` adds more people.
 - **Verify in a browser.** Check UI changes against the local dev server with real data, on desktop
   and at phone width. Nothing should scroll sideways and the console should be error-free. Restore
-  any status or notes you changed while testing.
+  any status or comments you changed while testing.
 - **Staff-only controls.** Price-history edits, Refresh from sites, the Sources page and admin
   overrides are for the site admin (`is_staff`, via `accounts.decorators.staff_required`, and hidden
   in templates with `{% if user.is_staff %}`). Everyone else sees that data read-only.

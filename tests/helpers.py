@@ -51,6 +51,7 @@ def make_listing(**overrides):
     from listings.models import Listing
 
     status = overrides.pop("status", None)
+    notes = overrides.pop("notes", "")
     fields = dict(
         address_key="937 nw glisan st|435|97209",
         address="937 NW Glisan Street #435, Portland, OR 97209",
@@ -65,6 +66,10 @@ def make_listing(**overrides):
         from listings.collab import set_status
 
         set_status(listing, home_group(), None, status)
+    if notes:
+        from listings.models import Comment
+
+        Comment.objects.create(listing=listing, group=home_group(), author_name="Sam", body=notes)
     return listing
 
 
