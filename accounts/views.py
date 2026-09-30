@@ -5,9 +5,10 @@ from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth.views import PasswordChangeView
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import SignupForm
@@ -140,6 +141,19 @@ def revoke_invite(request, pk):
     get_object_or_404(_open_invites(request), pk=pk).delete()
     messages.success(request, "Invite link revoked.")
     return redirect("group_settings")
+
+
+@login_not_required
+@require_POST
+def dev_login_as(request):
+    """Development only (DEBUG): log in as another account without its password."""
+    if not settings.DEBUG:
+        raise Http404
+    user = get_object_or_404(get_user_model(), pk=request.POST.get("user"), is_active=True)
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    target = request.POST.get("next", "")
+    safe = url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure())
+    return redirect(target if target and safe else "/")
 
 
 class PasswordChange(PasswordChangeView):

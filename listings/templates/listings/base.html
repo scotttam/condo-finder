@@ -14,6 +14,8 @@
     header { display:flex; align-items:center; gap:24px; padding:12px 20px; background:var(--card); border-bottom:1px solid var(--line); }
     header .brand { font-weight:700; color:var(--accent); text-decoration:none; font-size:18px; }
     header nav a { margin-right:16px; color:var(--ink); text-decoration:none; }
+    .dev-switch { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:2px 8px; border:1px dashed var(--unk); border-radius:8px; } .dev-switch form { margin:0; }
+    .auth-card .dev-switch { margin-top:14px; }
     header .account { margin-left:auto; display:flex; align-items:center; gap:8px; } header .account form { margin:0; }
     .group-page { max-width:760px; } .group-page h3 { margin-top:0; }
     .inline-form { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
@@ -353,6 +355,7 @@
     <div class="account">
       <span class="muted whoami">{{ request.profile.display_name }}</span>
       <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="link">Log out</button></form>
+      {% include "accounts/_dev_switch.html" with next_url=request.get_full_path %}
     </div>
     {% endif %}
   </header>
