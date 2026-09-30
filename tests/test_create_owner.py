@@ -6,7 +6,8 @@ from django.core.management import call_command
 
 from accounts.groups import new_group
 from accounts.models import Profile
-from tests.helpers import home_group
+from listings.models import Comment
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
@@ -40,3 +41,11 @@ def test_adopts_an_existing_superuser_by_email_and_moves_it_in():
     run(email="scott@example.com", name="Scott")
     old.refresh_from_db()
     assert old.username == "scott@example.com" and old.profile.group == home_group()
+
+
+def test_claims_comments_from_before_the_account_existed():
+    listing = make_listing()
+    Comment.objects.create(listing=listing, group=home_group(), body="Old note")
+    run(email="scott@example.com", name="Scott", password="a long pass phrase")
+    comment = Comment.objects.get()
+    assert comment.author.username == "scott@example.com" and comment.by == "Scott"

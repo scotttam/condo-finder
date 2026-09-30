@@ -106,7 +106,6 @@ class Listing(models.Model):
         help_text='Manual corrections that survive re-scrapes, e.g. {"parking_spaces": 2, "has_ac": true}',
     )
 
-    notes = models.TextField(blank=True)
 
     is_active = models.BooleanField(default=True)
     listed_at = models.DateField(null=True, blank=True, help_text="When the current rental listing started, per the listing site")
@@ -220,6 +219,28 @@ class ListingState(models.Model):
     def status_by_name(self):
         return display_name(self.status_by)
 
+
+class Comment(models.Model):
+    """One message in a group's thread on a listing. Only its author edits or deletes it."""
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="comments")
+    author_name = models.CharField(max_length=60, blank=True)  # the author's name when written, shown if the account is gone
+    body = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    edited_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"{self.by}: {self.body[:40]}"
+
+    @property
+    def by(self):
+        return display_name(self.author) if self.author_id else (self.author_name or "Someone")
+
 class PriceChange(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="price_changes")
     price = models.IntegerField()
@@ -257,6 +278,7 @@ class FeedEvent(models.Model):
     # events have no group, and every group sees them.
     group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="feed_events")
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    comment = models.ForeignKey("Comment", on_delete=models.CASCADE, null=True, blank=True, related_name="feed_events")
 
     class Meta:
         ordering = ["-created_at", "-pk"]

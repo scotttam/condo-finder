@@ -37,21 +37,12 @@ def test_detail_page(client):
     assert listing.get_absolute_url() == f"/listing/{listing.pk}/"
 
 
-def test_update_tracking_htmx_returns_partial(client):
-    listing = good_listing()
-    response = client.post(f"/listing/{listing.pk}/tracking/", {"notes": "Great light"}, HTTP_HX_REQUEST="true")
-    assert response.status_code == 200
-    assert b"Saved" in response.content
-    listing.refresh_from_db()
-    assert listing.notes == "Great light"
-
-
-def test_set_status_keeps_notes(client):
+def test_set_status_keeps_comments(client):
     listing = good_listing(notes="keep me")
     response = client.post(f"/listing/{listing.pk}/status/", {"status": "interested"}, HTTP_HX_REQUEST="true")
     assert response.status_code == 200
-    listing.refresh_from_db()
-    assert (status_of(listing), listing.notes) == (Status.INTERESTED, "keep me")
+    assert status_of(listing) == Status.INTERESTED
+    assert list(listing.comments.values_list("body", flat=True)) == ["keep me"]
 
 
 def test_set_status_rejects_invalid(client):

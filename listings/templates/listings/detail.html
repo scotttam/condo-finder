@@ -67,7 +67,8 @@
     </div>
   </section>
   <aside class="listing-side">
-    <div class="panel"><h3>Our notes</h3>{% include "listings/_status_pills.html" %}{% include "listings/_tracking.html" %}</div>
+    <div class="panel"><h3>Our status</h3>{% include "listings/_status_pills.html" %}</div>
+    <div class="panel"><h3>Comments</h3>{% include "listings/_comments.html" %}{% include "listings/_comment_form.html" %}</div>
     {% include "listings/_history.html" %}
     {% if user.is_staff %}<p class="small"><a href="/admin/listings/listing/{{ listing.pk }}/change/">Correct data in admin</a></p>{% endif %}
   </aside>

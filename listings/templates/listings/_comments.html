@@ -1,0 +1,30 @@
+{# The group's thread on a listing. Re-fetched every 30s, but not while a comment is being edited. #}
+<div id="comments" hx-get="{% url 'comment_list' listing.pk %}" hx-trigger="every 30s [!document.querySelector('#comments form')]" hx-swap="outerHTML">
+  {% for comment in comments %}
+  <div class="comment" id="comment-{{ comment.pk }}">
+    {% if comment.pk == editing %}
+    <form class="comment-edit" hx-post="{% url 'comment_edit' listing.pk comment.pk %}" hx-target="#comments" hx-swap="outerHTML">
+      {% csrf_token %}
+      <textarea name="body" rows="3" required>{{ comment.body }}</textarea>
+      <button type="submit">Save</button>
+      <button type="button" class="link" hx-get="{% url 'comment_list' listing.pk %}" hx-target="#comments" hx-swap="outerHTML">Cancel</button>
+    </form>
+    {% else %}
+    <div class="comment-head">
+      <strong class="comment-by">{{ comment.by }}</strong>
+      <span class="muted">{{ comment.created_at|date:"M j, g:i A" }}{% if comment.edited_at %} · edited{% endif %}</span>
+      {% if comment.author_id == user.pk %}
+      <span class="row-actions">
+        <button type="button" class="link" hx-get="{% url 'comment_edit' listing.pk comment.pk %}" hx-target="#comments" hx-swap="outerHTML">Edit</button>
+        <button type="button" class="link danger" hx-post="{% url 'comment_delete' listing.pk comment.pk %}" hx-target="#comments"
+                hx-swap="outerHTML" hx-confirm="Delete this comment?">Delete</button>
+      </span>
+      {% endif %}
+    </div>
+    <div class="comment-body">{{ comment.body|linebreaksbr }}</div>
+    {% endif %}
+  </div>
+  {% empty %}
+  <p class="muted">No comments yet.</p>
+  {% endfor %}
+</div>

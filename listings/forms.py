@@ -93,10 +93,3 @@ class PriceEntryForm(forms.Form):
     def seen_at(self):
         day = self.cleaned_data["date"]
         return timezone.make_aware(datetime.combine(day, time(12)))
-
-
-class TrackingForm(forms.ModelForm):
-    class Meta:
-        model = Listing
-        fields = ["notes"]
-        widgets = {"notes": forms.Textarea(attrs={"rows": 6})}

@@ -67,11 +67,12 @@ def record_detail_changes(listing, before, when, source=""):
         record(listing, FeedEvent.Kind.DETAILS_CHANGED, " · ".join(changes), when, source)
 
 
-def record_activity(listing, group, actor, kind, summary):
+def record_activity(listing, group, actor, kind, summary, comment=None):
     """Something a group member did, shown only in that group's Feed."""
     now = timezone.now()
     return FeedEvent.objects.create(
         listing=listing, group=group, actor=actor, kind=kind, summary=summary[:300], created_at=now, happened_at=now,
+        comment=comment,
     )
 
 

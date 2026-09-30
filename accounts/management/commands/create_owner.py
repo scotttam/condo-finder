@@ -40,6 +40,11 @@ class Command(BaseCommand):
             profile = move_to_group(user, group)
             profile.display_name = name
             profile.save(update_fields=["display_name"])
+        from listings.models import Comment
+
+        claimed = Comment.objects.filter(group=group, author__isnull=True, author_name="").update(author=user, author_name=name)
+        if claimed:
+            self.stdout.write(f"Claimed {claimed} comment{'s' if claimed != 1 else ''} from before this account existed.")
         self.stdout.write(f'{"Created" if created else "Updated"} {email} ({name}) in "{group.name}".')
 
     def _ask_password(self):

@@ -1,4 +1,4 @@
-"""The Trends analysis: Claude reads the current candidates, our notes and the market statistics,
+"""The Trends analysis: Claude reads the current candidates, our comments and the market statistics,
 and picks the best options right now, with a negotiation angle for each.
 
 Two passes keep it affordable. Pass 1 sees compact facts for every candidate and returns a
@@ -21,7 +21,7 @@ from django.utils import timezone
 from accounts.groups import owners_group
 
 from . import trend_stats
-from .collab import decorate
+from .collab import attach_comments, decorate
 from .filters import apply_filters
 from .forms import ListingFilterForm, default_filter_data
 from .models import Listing, ListingState, SearchPriorities, Status, TrendReport
@@ -50,8 +50,8 @@ class AnalystError(Exception):
 
 
 def _prepare(listings, group):
-    """The group's view of these listings, as compact_facts reads it."""
-    return decorate(listings, group)
+    """The group's view of these listings (status and comments), as compact_facts reads it."""
+    return attach_comments(decorate(listings, group), group)
 
 
 def candidates(group):
@@ -116,7 +116,10 @@ def compact_facts(listing):
             for change in list(listing.price_changes.all())[-8:]
         ],
         "status": listing.group_status,
-        "notes": listing.notes,
+        "comments": [
+            {"by": comment.by, "date": timezone.localdate(comment.created_at).isoformat(), "text": comment.body}
+            for comment in listing.group_comments
+        ],
     }
 
 
@@ -135,7 +138,7 @@ You are given listings gathered from property-manager sites, Zillow, Redfin and 
 amenities were parsed from listing text: "unknown" means the listing didn't say, not that it's missing. \
 Each listing's price history shows how its asking rent has moved, and special_offer quotes any \
 move-in special (weeks free, dollars off), with effective_rent_12mo when its value is stated: count \
-specials toward value, and note that a landlord already offering one may have more room to negotiate. Their own notes and statuses \
+specials toward value, and note that a landlord already offering one may have more room to negotiate. Their own comments and statuses \
 (interested, toured, applied, rejected) are the strongest signal of their taste: favor what they liked, \
 steer away from what they rejected and why, and weigh what they wrote under "What we're looking for" \
 above your own assumptions.

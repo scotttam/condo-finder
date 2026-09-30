@@ -146,7 +146,7 @@
     .description.collapsible::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3em; background:linear-gradient(transparent, var(--card)); }
     .description.collapsible.expanded { max-height:none; } .description.collapsible.expanded::after { display:none; }
     .listing-map { height:340px; border-radius:10px; }
-    /* Status pills + autosaving notes */
+    /* Status pills + autosaving boxes */
     .status-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
     .status-by { flex-basis:100%; margin:2px 0 0; }
     .status-pill { margin:0; } .status-pill input { position:absolute; opacity:0; pointer-events:none; }
@@ -157,6 +157,13 @@
     .pill-toured input:checked + span, .pill-applied input:checked + span { background:#f5c542; border-color:#e0ad1f; color:#3d2e00; }
     .pill-rejected input:checked + span { background:#667085; border-color:#667085; color:#fff; }
     #tracking textarea { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:14px; resize:vertical; }
+    .comment { padding:8px 0; border-bottom:1px solid var(--line); } .comment:last-child { border-bottom:0; }
+    .comment-head { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; font-size:14px; }
+    .comment-head .row-actions { margin-left:auto; }
+    .comment-body { margin-top:2px; font-size:14px; overflow-wrap:anywhere; }
+    #comment-form, .comment-edit { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+    #comment-form textarea, .comment-edit textarea { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:14px; resize:vertical; }
+    #comment-form button[type=submit], .comment-edit button[type=submit] { align-self:flex-start; }
     .tracking-foot { min-height:20px; margin-top:4px; font-size:12px; }
     .save-state.saved { color:var(--yes); font-weight:600; } .save-state.error { color:var(--no); }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }

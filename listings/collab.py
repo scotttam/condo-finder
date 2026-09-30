@@ -9,7 +9,7 @@ from django.utils import timezone
 from accounts.models import display_name
 
 from . import feed
-from .models import FeedEvent, ListingState, Status
+from .models import Comment, FeedEvent, ListingState, Status
 
 STATUS_LABELS = dict(Status.choices)
 
@@ -46,3 +46,34 @@ def set_status(listing, group, user, status):
         feed.record_activity(listing, group, user, FeedEvent.Kind.STATUS,
                              f"{display_name(user)} marked it {STATUS_LABELS[status]}")
     return state
+
+
+COMMENT_LIMIT = 5000
+
+
+def comments_for(listing, group):
+    return Comment.objects.filter(listing=listing, group=group).select_related("author__profile")
+
+
+def add_comment(listing, group, user, body):
+    name = display_name(user)
+    comment = Comment.objects.create(listing=listing, group=group, author=user, author_name=name, body=body[:COMMENT_LIMIT])
+    feed.record_activity(listing, group, user, FeedEvent.Kind.COMMENT, f"{name}: {comment.body}", comment=comment)
+    return comment
+
+
+def edit_comment(comment, body):
+    comment.body, comment.edited_at = body[:COMMENT_LIMIT], timezone.now()
+    comment.save(update_fields=["body", "edited_at"])
+    FeedEvent.objects.filter(comment=comment).update(summary=f"{comment.by}: {comment.body}"[:300])
+
+
+def attach_comments(listings, group):
+    """Sets .group_comments on each listing: the group's thread, oldest first."""
+    listings = list(listings)
+    threads = {}
+    for comment in Comment.objects.filter(group=group, listing__in=listings).select_related("author__profile"):
+        threads.setdefault(comment.listing_id, []).append(comment)
+    for listing in listings:
+        listing.group_comments = threads.get(listing.pk, [])
+    return listings

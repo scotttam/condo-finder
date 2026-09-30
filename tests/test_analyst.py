@@ -112,7 +112,7 @@ def test_compact_facts_describe_unknowns_and_history():
     assert facts["parking"] == "unknown"
     assert facts["ac"] == "unknown" and facts["wd"] == "yes"
     assert facts["price_history"][0][1:] == [3200, "Listed for rent"]
-    assert facts["notes"] == "Loved the kitchen"
+    assert facts["comments"][0]["text"] == "Loved the kitchen"
     assert "description" not in facts
     assert analyst.full_facts(analyst._prepare([listing], home_group())[0])["description"] == "Sunny corner unit with a big deck."
 

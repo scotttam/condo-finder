@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FeedEvent, Listing, ListingState, PriceChange, SearchPriorities, Source, SourceListing, SourceRun, TrendReport
+from .models import Comment, FeedEvent, Listing, ListingState, PriceChange, SearchPriorities, Source, SourceListing, SourceRun, TrendReport
 
 
 class SourceListingInline(admin.TabularInline):
@@ -32,6 +32,13 @@ class ListingAdmin(admin.ModelAdmin):
 class ListingStateAdmin(admin.ModelAdmin):
     list_display = ("listing", "group", "status", "status_by", "status_at")
     list_filter = ("group", "status")
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "listing", "group", "author", "body")
+    list_filter = ("group",)
+    search_fields = ("body", "listing__address")
 
 
 @admin.register(Source)
