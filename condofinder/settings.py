@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from dotenv import load_dotenv
 
@@ -13,7 +14,28 @@ def env_list(name, default):
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-change-me")
 DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
-ALLOWED_HOSTS = ["*"]  # LAN-only app
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "").rstrip("/")  # e.g. https://mac-mini.tail1234.ts.net; invite links use it
+
+
+def web_security(public_url):
+    """Hosts, CSRF origins and cookie flags. Without a public URL (local development) anything goes;
+    with one (Tailscale Funnel), only that host, plus localhost for install.sh's health check."""
+    if not public_url:
+        return {"ALLOWED_HOSTS": ["*"], "CSRF_TRUSTED_ORIGINS": [], "SESSION_COOKIE_SECURE": False, "CSRF_COOKIE_SECURE": False}
+    secure = public_url.startswith("https://")
+    return {
+        "ALLOWED_HOSTS": [urlsplit(public_url).hostname, "localhost", "127.0.0.1"],
+        "CSRF_TRUSTED_ORIGINS": [public_url],
+        "SESSION_COOKIE_SECURE": secure,
+        "CSRF_COOKIE_SECURE": secure,
+    }
+
+
+_web = web_security(PUBLIC_URL)
+ALLOWED_HOSTS = _web["ALLOWED_HOSTS"]
+CSRF_TRUSTED_ORIGINS = _web["CSRF_TRUSTED_ORIGINS"]
+SESSION_COOKIE_SECURE = _web["SESSION_COOKIE_SECURE"]
+CSRF_COOKIE_SECURE = _web["CSRF_COOKIE_SECURE"]
 # Map tiles from tile.openstreetmap.org are refused without a Referer header,
 # which Django's default "same-origin" policy suppresses.
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
@@ -114,6 +136,5 @@ DEFAULT_MAX_PRICE = int(os.environ.get("DEFAULT_MAX_PRICE", "5000"))
 REQUEST_DELAY_SECONDS = float(os.environ.get("REQUEST_DELAY_SECONDS", "1.5"))
 NOMINATIM_EMAIL = os.environ.get("NOMINATIM_EMAIL", "")
 OFF_MARKET_AFTER_MISSES = 3
-PUBLIC_URL = os.environ.get("PUBLIC_URL", "").rstrip("/")  # e.g. https://mac-mini.tail1234.ts.net; invite links use it
 INVITE_DAYS = 7
 TRENDS_MANUAL_RUNS_PER_DAY = int(os.environ.get("TRENDS_MANUAL_RUNS_PER_DAY", "5"))
