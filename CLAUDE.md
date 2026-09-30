@@ -14,8 +14,9 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #56** (the first click on a map no longer scrolls the page and shifts
-  the zoom buttons). **Open: #57** (docs only: no inline shell comments). After deploying #55, run
+- **Merged to `main` through PR #57** (#56: the first click on a map no longer scrolls the page and shifts
+  the zoom buttons; #57, docs only: no inline shell comments). **Open:** a docs-only PR adding
+  the grill-me → Superpowers planning workflow. After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
   post-scrape pass would also do it on the next run). 528 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -151,6 +152,40 @@ its own data. Production data lives only on the Mac mini.
 - **Scrape politely.** Keep delays and budgets, and stop when a site starts blocking.
   Realtor.com is deliberately skipped because of its Kasada bot protection.
 - Commit messages use `feat:` / `fix:` / `docs:` prefixes.
+
+## Planning workflow: grill-me, then Superpowers
+
+New features are planned with `/grill-me` and built with Superpowers, as two separate steps.
+Superpowers' session-start hook pushes its `brainstorming` skill "before any creative work", so
+it takes over a grill-me interview partway through. To avoid that, Superpowers is **off by default**
+(user scope, `~/.claude/settings.json`) and turned on only for the build.
+
+1. **Grill the plan (Superpowers off).** Run `/grill-me` and answer until every decision is settled.
+2. **Check the decisions file.** The owner's local grill-me saves its final summary to
+   `docs/plan-decisions.md`, asking before overwriting. Confirm the file exists before `/clear`, which
+   erases the conversation; if it's missing, save the summary there. To keep an earlier plan's
+   decisions, rename that file first (e.g. `docs/plan-decisions-<feature>.md`) and use that path below.
+3. **Turn Superpowers on.** `/plugin` → enable **superpowers**, then `/clear` (or restart) so the
+   plugin and its hook load.
+4. **Start from the decisions file.**
+   - Everything settled: `/superpowers:writing-plans docs/plan-decisions.md` goes straight to an
+     implementation plan.
+   - Want a formal spec, or gaps remain: `/superpowers:brainstorming docs/plan-decisions.md` should
+     read the decisions back and ask only about what's missing.
+   - Specs go in `docs/superpowers/specs/` and plans in `docs/superpowers/plans/`, dated as the
+     existing ones are. Deliver the build as a stack of PRs (see Conventions).
+5. **Carry out the plan.** Pick **inline** for small or medium plans, **subagents** for long plans with
+   many independent tasks (each subagent rebuilds context from scratch, so it costs more tokens).
+6. **Turn Superpowers off again** with `/plugin`, so the next grill-me session isn't taken over.
+
+Toggle it everywhere from a shell with `claude plugin enable superpowers@claude-plugins-official --scope user`
+(or `disable`). Avoid enabling it at project scope: that brings the takeover back during grill-me.
+
+The grill-me change is local to the owner's machine (`~/.claude/skills/grill-me-skill/SKILL.md`, cloned
+from `github.com/RobMitt/grill-me-skill`). Its last step reads: "When finished, provide a concise summary
+of all decisions made, and save it to `docs/plan-decisions.md` in the current project. If that file
+already exists, ask before overwriting it." On another machine, or after pulling upstream updates,
+reapply that line or save the summary by hand.
 
 ## Gotchas
 
