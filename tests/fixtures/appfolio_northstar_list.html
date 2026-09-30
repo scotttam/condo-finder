@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<!--[if IE 8 ]><html class="ie ie8"><![endif]-->
+<!--[if IE 9 ]><html class="ie ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html lang="en"><!--<![endif]-->
+<head>
+      
+<script
+  src="https://www.datadoghq-browser-agent.com/us1/v6/datadog-rum.js"
+  type="text/javascript">
+</script>
+
+
+<script>
+  window.DD_RUM && window.DD_RUM.init({
+    clientToken: 'pub9f3f4ad4c7295c18cbcaf3c8dc5e1ac5',
+    applicationId: 'f9265575-7008-4dd5-8a3e-00761ebfb44a',
+    site: 'datadoghq.com',
+    service: 'listings',
+    env: 'production',
+    version: 'cd_live_1-b30f5a4096095b4d012a946f91386167293d2421',
+    sessionSampleRate: 25,
+    sessionReplaySampleRate: 2.0,
+    trackUserInteractions: true,
+    trackResources: true,
+    trackLongTasks: true,
+    traceSampleRate: 100,
+    traceContextInjection: 'all',
+    defaultPrivacyLevel: 'mask',
+    allowedTracingUrls: [/https:\/\/.*\.appfolio\.com/, /https:\/\/(?!snowplow-collector\.).*\.appf\.io/, /https:\/\/.*\.appfolioinc\.com/, /https:\/\/.*\.foliospace\.com/],
+  });
+  window.DD_RUM && window.DD_RUM.setGlobalContextProperty('team', 'vacancy-marketing');
+  window.DD_RUM && window.DD_RUM.setGlobalContextProperty('slice', 'p2503a');
+</script>
+
+
+    <script>
+  let AfObservability = (function () {
+    if (!window.DD_RUM) {
+      console.error("AfObservability: window.DD_RUM is not available.");
+      return {};
+    }
+
+    function createFacadeFunction(ddFuncName) {
+      return function () {
+        window.DD_RUM[ddFuncName].apply(window.DD_RUM, arguments);
+      };
+    }
+
+    let facade = {};
+
+    for (let ddFuncName in window.DD_RUM) {
+      if (typeof window.DD_RUM[ddFuncName] === 'function') {
+        facade[ddFuncName] = createFacadeFunction(ddFuncName);
+      }
+    }
+
+    return facade;
+  })();
+</script>
+
+
+  <script>
+  const attributes = {"uuid":"6e7096bf-2b21-470b-ad0f-b485d8641992"}
+  window.__USER_ATTRIBUTES__ = attributes;
+  window.optimizely = window.optimizely || [];
+  window.optimizely.push({
+    type: 'user',
+    attributes
+  });
+</script>
+
+  <script async type="text/javascript" src='https://h.online-metrix.net/fp/tags.js?org_id=5kfca2gp&amp;session_id=007a4a03-f925-4506-b2e0-33dc6b1fa36a'></script>
+
+  <script src="https://public.cdn.appfolio.com/public/assets/scripts/ios12-array-reverse-fix-polyfill.js"></script>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N443R47');</script>
+
+
+  <meta charset="utf-8">
+  <title>Rental Listings</title>
+
+  <meta name="description" content="">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scaleProfileSnapshotClientTest=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="cleartype" content="on">
+
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="">
+
+  <meta name="msapplication-config" content="none" />
+
+  <link rel="icon" type="image/x-icon" href="https://public.cdn.appfolio.com/public/favicons/favicon.ico" sizes="16x16 24x24 32x32 48x48 64x64" /><link rel="apple-touch-icon-precomposed" type="image/x-icon" href="https://listings.cdn.appfolio.com/listings/assets/listings/appfolio_touch-90fc6855d75f24e7ec2e1b36f2ff871a6ff2e70d4b5faf28c861363994b44ae8.png" /><link rel="apple-touch-startup-image" type="image/x-icon" href="https://listings.cdn.appfolio.com/listings/assets/listings/appfolio_startup-d9243797170560b61e4ad09679cfb1c2fab7410ebc95c245b9e1dff89a3fac82.png" />
+
+  <link rel="stylesheet" href="https://listings.cdn.appfolio.com/listings/assets/listings/application2-09f63b334c5546fef4434a8f82f83bca70ea2b084017614422be88418b52adfc.css" media="all" />
+
+  <link rel="stylesheet" href="https://public.cdn.appfolio.com/bootstrap-coastline/6.5.2/bootstrap-coastline.min.css" />
+  <link rel="stylesheet" href="https://public.cdn.appfolio.com/public/icons/font-awesome/6.2.0/css/all.min.css" />
+
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+
+  <style type="text/css">
+
+    .theme-color {
+      background-color: #676767 !important;
+    }
+
+    .theme-color-text {
+      color: #676767 !important;
+    }
+
+    .corner-tag:before {
+      border-bottom-color: #676767 !important;
+    }
+
+    .theme-color-border {
+      border-color: #676767 !important;
+    }
+
+    .theme-color--actionable:hover, .theme-color--actionable:focus, .theme-color--actionable:active {
+      background-color: #525252 !important;
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://listings.cdn.appfolio.com/listings/assets/listings/listings/listings_index-f8582b53f6b4ba9d06ff924c4c4d2e92191176fa45763f6ac05d90b271d0470f.css" />
+
+
+  <!--[if lt IE 9]>
+    <script src="https://listings.cdn.appfolio.com/listings/assets/listings/ie-shims-853f0010aec4ce921280d2353e71b099d0fc0d074b3c87c7838b7203290d5ffc.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="GTM-N443R47"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+
+  <noscript>
+  <iframe style="width: 100px; height: 100px; border: 0; position: absolute; top: -5000px;" src='https://h.online-metrix.net/fp/tags?org_id=5kfca2gp&amp;session_id=007a4a03-f925-4506-b2e0-33dc6b1fa36a'></iframe>
+</noscript>
+
+    <script>
+    (
+      function (p, l, o, w, i, n, g) {
+        if (!p[i]) {
+          p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+          p.GlobalSnowplowNamespace.push(i);
+          p[i] = function () {
+            (p[i].q = p[i].q || []).push(arguments)
+          };
+          p[i].q = p[i].q || [];
+          n = l.createElement(o);
+          g = l.getElementsByTagName(o)[0];
+          n.async = 1;
+          n.crossOrigin = 'anonymous';
+          n.src = w;
+          g.parentNode.insertBefore(n, g)
+        }
+      }(window,document,"script","https://public.cdn.appfolio.com/public/assets/scripts/snowfolio/4.3.1/snowfolio.js","snowplow")
+    );
+    const collector_url = 'https://snowplow-collector.dataplatform.appfolio.net';
+    const pageAccessedByReload = (
+      (window.performance.navigation && window.performance.navigation.type === 1) ||
+        window.performance
+          .getEntriesByType('navigation')
+          .map((nav) => nav.type)
+          .includes('reload')
+    );
+    window.snowplow('newTracker', 'listingsTracker', collector_url, {
+      appId: 'listings',
+      postPath: '/io.augur.snowplow/1-0-0'
+    });
+    //TODO: How to identify a user and their attributes? Is there some sort of UUID and email address we can use from Listings App?
+    // window.snowplow('setUserId', user.uuid);
+    window.snowplow('addGlobalContexts', [{
+      schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+      data: {
+        email: null,
+        role: null,
+        vhost_id: 'listings',
+        vhost_name: 'listings',
+        isPmSession: false,
+        is_page_reload: pageAccessedByReload
+      }
+    }]);
+    window.snowplow('enableActivityTracking', {
+      minimumVisitLength: 60,
+      heartbeatDelay: 60
+    });
+    window.snowplow('trackPageView');
+    let windowUrl = window.location.pathname;
+    /*
+     * Adds a click event listener to an iframe identified by its name.
+     *
+     * @param {string} name - The name attribute of the iframe to which the event listener is to be added.
+     * @param {function} listener - The event listener function to be added to the iframe.
+     */
+    function addEventListenerToIframe(name, listener) {
+      // Get all iframes with the given name. It returns a NodeList.
+      const iframes = document.getElementsByName(name);
+
+      // Check if there's at least one iframe with the given name.
+      if (iframes.length > 0) {
+        // Check if the contentWindow and document properties exist on the first iframe.
+        if (iframes[0].contentWindow && iframes[0].contentWindow.document) {
+          // Add a click event listener to the document within the iframe's contentWindow.
+          iframes[0].contentWindow.document.addEventListener('click', listener, true);
+        }
+      }
+    }
+    function on_click_plow_page () {
+      const newUrl = window.location.pathname;
+      if (windowUrl !== newUrl) {
+          window.snowplow('trackPageView');
+          windowUrl = newUrl;
+        }
+      // Add a click event listener to the iframe with name 'intercom-launcher-frame' using the on_click_plow function.
+      addEventListenerToIframe('intercom-launcher-frame', on_click_plow);
+      
+      // Add a click event listener to the iframe with name 'intercom-messenger-frame' using the on_click_plow function.
+      addEventListenerToIframe('intercom-messenger-frame', on_click_plow);
+    }
+    const targetNode = document;
+    const observerOptions = {
+      childList: true,
+      attributes: true,
+      subtree: true
+    };
+    const observer = new MutationObserver(on_click_plow_page);
+    observer.observe(targetNode, observerOptions);
+
+    function getParents(e){
+      /*
+        Traverse upwards and adds each parent node to the nodes array as it goes
+        Once it runs into an undefined parent node or the current node is the document, exit the loop
+        At each element upwards, grab the label(s)' text contents, the id value and the classes (that don't start with 'supports')
+        Return the three separate arrays of Ids, Labels, Classes packed into a single array
+      */
+      var element = e.target;
+      const allParentElementIds = []; // Array to hold all parent node element IDs
+      const allParentElementLabels = []; // Array to hold all parent node labels
+      const allParentClasses = []; // Array to hold all parent node element classes
+      let isSearch = false;
+      let searchDataPosition = null;
+      while(element && element !== document) {
+        if (element.id) {
+          if (element.id === 'apm-global-search') {
+            isSearch = true;
+          }
+          allParentElementIds.push(element.id);
+        }
+        if (element.getAttribute('data-position') !== null) {
+          searchDataPosition = element.getAttribute('data-position');
+        }
+        if (element.labels) {
+          element.labels.forEach((label) => {
+            if (label.textContent) {
+              allParentElementLabels.push(label.textContent);
+            }
+          });
+        }
+        element.classList.forEach((classes) => {
+          if (classes && !classes.startsWith('supports')) {
+              allParentClasses.push(classes);
+            }
+        });
+        element = element.parentNode;
+      }
+      return [allParentElementIds, allParentClasses, allParentElementLabels, isSearch, searchDataPosition];
+    }
+    function isDataPairClick(e) {
+      var classes = [...e.target.classList];
+      return classes.includes('datapair__value'); // just returning whether it was a datapair__value element that was clicked, True if yes, False if no.
+    }
+    function on_click_plow(e) {
+      if ( isDataPairClick(e) ) { // check if the click happened on a datapair__value element (often contain PII/Sensitive data) and skip it if so.
+        return false
+      }
+      const parentResults = getParents(e); // retrieve parent element Ids, classes and labels arrays
+      const allElementIds = parentResults[0]; // retrieve allParentElementIds array into allElementIds
+      const allParentClasses = parentResults[1]; // retrieve allParentClasses array into allElementIds
+      const allParentLabels = parentResults[2] // retrieve allParentElementLabels array into allElementIds
+      const search = parentResults[3];
+      const pageUrlComponents = window.location.pathname.split("/").filter(a => a); // parse the pathname into each individual element separated by "/"
+      let searchTerm = null;
+      let searchResponseUuid;
+      const searchPosition = parentResults[4];
+      /*
+        targetUrl is a REQUIRED field in the final payload
+        First, attempt to set the targetURL variable to be the href attribute of the clicked element
+        If that results in an empty string or an undefined value for targetURL variable, set the targetURL variable to be the current page URL
+      */
+      var targetURL = e.target.getAttribute('href');
+      var parentTargetURL = 'N/A';
+      if (typeof e.target.parentNode?.getAttribute == 'function') {
+        parentTargetURL = e.target.parentNode.getAttribute('href');
+      }
+      if (!targetURL) {
+        if(parentTargetURL) {
+          targetURL = parentTargetURL;
+        } else {
+          targetURL = 'N/A';
+        }
+      }
+      if (search==true) {
+        searchTerm = document.getElementById('global-search-input').getAttribute('value');
+        searchResponseUuid = document.getElementById('global-search-container').getAttribute('data-search-response-uuid');
+      }
+      /*
+        parse attribute name/values into key/value pair json blob for ease of querying final event structure
+      */
+      const getAllAttributes = {};
+      let attributesList;
+      if (e.target.attributes instanceof Array) {
+        attributesList = e.target.attributes; // if the attributes are an array, we can just use them as is
+      } else {
+        attributesList = [...e.target.attributes]; // otherwise, they need to be put into an array so we can use them to build out the attribute json blob
+      }
+      attributesList.forEach((element) => {
+        // Do not record `src` attribute
+        if (element.name === 'src') {
+          return;
+        }
+
+        // Check if the attribute is 'value' or contains 'cache'
+        const isPossiblySensitive = element.name == 'value' || element.name.toLowerCase().includes('cache');
+
+        // Check if 'snowplow-allow-value' is present in the element attribute values or in the list of parent classes
+        const isWhitelisted = Object.values(attributesList).includes('snowplow-allow-value') || allParentClasses.includes('snowplow-allow-value');
+
+        // If the attribute is not sensitive, or is whitelisted, record the attribute
+        if (!isPossiblySensitive || isWhitelisted) {
+          getAllAttributes[element.name] = element.value;
+        }
+      });
+      /*
+        send trackLinkClick event to the snowplow event collector
+      */
+      window.snowplow('trackLinkClick', {
+        targetUrl: targetURL,
+        elementId: e.target.id,
+        elementClasses: [...e.target.classList],
+        elementContent: e.target.innerText,
+        context: [{
+          schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+          data: {
+            elementType: e.target.tagName,
+            elementAttributes: getAllAttributes,
+            pageURLComponents: pageUrlComponents,
+            elementParentClasses: allParentClasses,
+            elementParentElementIds: allElementIds,
+            elementParentLabels: allParentLabels,
+            isGlobalSearch: search,
+            globalSearchTerm: searchTerm,
+            searchPositionIndex: searchPosition,
+            searchResponseUuid: searchResponseUuid
+          }
+        }]
+      });
+    }
+    document.addEventListener("click", on_click_plow, true);
+    // Add a click event listener to the iframe with name 'intercom-launcher-frame' using the on_click_plow function.
+    addEventListenerToIframe('intercom-launcher-frame', on_click_plow);    
+    // Add a click event listener to the iframe with name 'intercom-messenger-frame' using the on_click_plow function.
+    addEventListenerToIframe('intercom-messenger-frame', on_click_plow);
+  </script>
+
+
+  <main>
+    
+
+
+<form id="filters" class="form js-filter-form form--stacked form--full-width hand-hidden" autocomplete="off" novalidate="novalidate" action="/listings/listings" accept-charset="UTF-8" data-remote="true" method="get">
+
+  <div class="topbar theme-color js-top-bar">
+  <div class="u-float-left">
+    <label class="topbar__sort-by__label mb-0" for="filters_order_by">Sort By</label>
+    <select include_blank="false" class="topbar__sort-by" name="filters[order_by]" id="filters_order_by"><option selected="selected" value="date_posted">Most Recent</option>
+<option value="rent_asc">Rent (Low to High)</option>
+<option value="rent_desc">Rent (High to Low)</option>
+<option value="bedrooms">Bedrooms</option></select>
+  </div>
+
+  <div class="u-float-right">
+    <ul class="topbar__options mb-0">
+      <li class="topbar__item theme-color theme-color--actionable hand-hidden">
+        <a href="#" class="text-white js-toggle-map-button"><span class="fa-solid fa-location-dot"></span> Show Map</a>
+      </li>
+      <li class="topbar__item theme-color theme-color--actionable">
+        <a href="#" class="text-white js-filter-button"><span class="fa-solid fa-filter"></span> Filter</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+  <input autocomplete="off" type="hidden" name="filters[property_list]" id="filters_property_list" />
+
+  <div class="filter-menu">
+    <div class="grid">
+      <div class="grid__6">
+        <div class="form__row">
+          <label class="form__row__label">Price Range</label>
+
+          <div class="form__row__body">
+            <div class="form__row__field-wrapper">
+              <ul class="grid grid--no-gutters p-0 mb-0">
+                <li class="grid__5"><select include_blank="false" name="filters[market_rent_from]" id="filters_market_rent_from"><option value="">No Min.</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option>
+<option value="4500">$4,500</option>
+<option value="5000">$5,000</option>
+<option value="5500">$5,500</option>
+<option value="6000">$6,000</option>
+<option value="7000">$7,000</option></select></li>
+                <li class="grid__2 u-text-center" style="line-height: 2em;">to</li>
+                <li class="grid__5"><select include_blank="false" name="filters[market_rent_to]" id="filters_market_rent_to"><option value="">No Max.</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option>
+<option value="4500">$4,500</option>
+<option value="5000">$5,000</option>
+<option value="5500">$5,500</option>
+<option value="6000">$6,000</option>
+<option value="7000">$7,000</option></select></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="grid__6">
+          <div class="grid">
+            <div class="form__row grid__6"><label class="form__row__label" for="filters_bedrooms">Bedrooms</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[bedrooms]" id="filters_bedrooms"><option value="">0+</option>
+<option value="1">1+</option>
+<option value="2">2+</option>
+<option value="3">3+</option>
+<option value="4">4+</option>
+<option value="5">5+</option>
+<option value="6">6+</option></select></div></div></div>
+            <div class="form__row grid__6"><label class="form__row__label" for="filters_bathrooms">Bathrooms</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[bathrooms]" id="filters_bathrooms"><option value="">0+</option>
+<option value="1">1+</option>
+<option value="2">2+</option>
+<option value="3">3+</option>
+<option value="4">4+</option></select></div></div></div>
+          </div>
+        </div>
+
+    </div>
+
+    <div class="grid">
+      <div class="grid__6">
+        <div class="form__row"><label class="form__row__label" for="filters_cities">Cities</label><div class="form__row__body"><div class="form__row__field-wrapper"><input name="filters[cities][]" type="hidden" value="" autocomplete="off" /><select multiple="multiple" size="5" class="filter-menu__multi-select" name="filters[cities][]" id="filters_cities"><option value="All Cities">All Cities</option>
+<option value="Beaverton">Beaverton</option>
+<option value="Bend">Bend</option>
+<option value="Lake Oswego">Lake Oswego</option>
+<option value="Portland">Portland</option>
+<option value="Redmond">Redmond</option>
+<option value="West Linn">West Linn</option>
+<option value="Wilsonville">Wilsonville</option></select></div></div></div>
+      </div>
+      <div class="grid__6">
+        <div class="form__row"><label class="form__row__label" for="filters_postal_codes">Zip Codes</label><div class="form__row__body"><div class="form__row__field-wrapper"><input name="filters[postal_codes][]" type="hidden" value="" autocomplete="off" /><select multiple="multiple" size="5" class="filter-menu__multi-select" name="filters[postal_codes][]" id="filters_postal_codes"><option value="All Zip Codes">All Zip Codes</option>
+<option value="97007">97007</option>
+<option value="97034">97034</option>
+<option value="97035">97035</option>
+<option value="97068">97068</option>
+<option value="97070">97070</option>
+<option value="97223">97223</option>
+<option value="97229">97229</option>
+<option value="97701">97701</option>
+<option value="97702">97702</option>
+<option value="97703">97703</option>
+<option value="97756">97756</option></select></div></div></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="grid__6">
+      <div class="form__row"><label class="form__row__label" for="filters_cats">Cats Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[cats]" id="filters_cats"><option value="" label=" "></option>
+<option value="Cats allowed">Yes</option>
+<option value="Cats not allowed">No</option></select></div></div></div>
+      </div>
+      <div class="grid__6">
+      <div class="form__row"><label class="form__row__label" for="filters_dogs">Dogs Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[dogs]" id="filters_dogs"><option value="" label=" "></option>
+<option value="Dogs allowed">Large</option>
+<option value="Small dogs allowed">Small</option>
+<option value="Dogs not allowed">None</option></select></div></div></div>
+      </div>
+      <div class="grid__5">
+        <div class="form__row">
+          <div class="form__row__body">
+            <div class="form__row__field-wrapper">
+              <ul class="grid grid--no-gutters p-0">
+                <div class="form__row"><label class="form__row__label" for="filters_desired_move_in">Desired Move In</label><div class="form__row__body"><div class="form__row__field-wrapper"><div class="js-gears-date input-add-on"><input class="js-datepicker" type="text" name="filters[desired_move_in]" id="filters_desired_move_in" /><span class="js-datepicker-trigger input-add-on__append button"><span class="icon icon-calendar"></span></span></div></div></div></div>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="u-text-center">
+      <input type="submit" name="commit" value="Filter" class="filter-form-button btn btn-primary theme-color theme-color--actionable theme-color-border" data-disable-with="Filter" />
+    </div>
+  </div>
+</form>
+<form id="mobile_filters" class="form js-mobile-filter-form form--stacked form--full-width desk-hidden tablet-hidden" autocomplete="off" novalidate="novalidate" action="/listings/listings" accept-charset="UTF-8" data-remote="true" method="get">
+
+  <div class="topbar theme-color js-top-bar">
+  <div class="u-float-left">
+    <label class="topbar__sort-by__label mb-0" for="mobile_filters_order_by">Sort By</label>
+    <select include_blank="false" class="topbar__sort-by" name="filters[order_by]" id="mobile_filters_order_by"><option selected="selected" value="date_posted">Most Recent</option>
+<option value="rent_asc">Rent (Low to High)</option>
+<option value="rent_desc">Rent (High to Low)</option>
+<option value="bedrooms">Bedrooms</option></select>
+  </div>
+
+  <div class="u-float-right">
+    <ul class="topbar__options mb-0">
+      <li class="topbar__item theme-color theme-color--actionable hand-hidden">
+        <a href="#" class="text-white js-toggle-map-button"><span class="fa-solid fa-location-dot"></span> Show Map</a>
+      </li>
+      <li class="topbar__item theme-color theme-color--actionable">
+        <a href="#" class="text-white js-filter-button"><span class="fa-solid fa-filter"></span> Filter</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+  <input autocomplete="off" type="hidden" name="filters[property_list]" id="mobile_filters_property_list" />
+
+  <div class="filter-menu">
+    <div class="grid">
+      <div class="grid__12">
+        <div class="form__row">
+          <div class="form__row__body">
+            <div class="form__row__field-wrapper">
+              <ul class="grid grid--no-gutters p-0">
+                <li class="grid__5 u-text-left" style="line-height: 2em; font-weight: bold">
+                  <label>Price Range</label>
+                </li>
+                <li class="grid__3"><select include_blank="false" name="filters[market_rent_from]" id="mobile_filters_market_rent_from"><option value="">No Min.</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option>
+<option value="4500">$4,500</option>
+<option value="5000">$5,000</option>
+<option value="5500">$5,500</option>
+<option value="6000">$6,000</option>
+<option value="7000">$7,000</option></select></li>
+                <li class="grid__1">&nbsp;</li>
+                <li class="grid__3"><select include_blank="false" name="filters[market_rent_to]" id="mobile_filters_market_rent_to"><option value="">No Max.</option>
+<option value="2000">$2,000</option>
+<option value="2250">$2,250</option>
+<option value="2500">$2,500</option>
+<option value="2750">$2,750</option>
+<option value="3000">$3,000</option>
+<option value="3500">$3,500</option>
+<option value="4000">$4,000</option>
+<option value="4500">$4,500</option>
+<option value="5000">$5,000</option>
+<option value="5500">$5,500</option>
+<option value="6000">$6,000</option>
+<option value="7000">$7,000</option></select></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="grid__12">
+          <div class="form__row"><label class="form__row__label" for="mobile_filters_bedrooms">Bedrooms</label><div class="form__row__body"><div class="form__row__field-wrapper">
+            <div class="radio_block mobile_filters_bedrooms"><input type="hidden" name="filters[bedrooms]" value="" autocomplete="off" /><span><input type="radio" value="" checked="checked" name="filters[bedrooms]" id="mobile_filters_bedrooms_" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_">0+</label></span><span><input type="radio" value="1" name="filters[bedrooms]" id="mobile_filters_bedrooms_1" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_1">1+</label></span><span><input type="radio" value="2" name="filters[bedrooms]" id="mobile_filters_bedrooms_2" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_2">2+</label></span><span><input type="radio" value="3" name="filters[bedrooms]" id="mobile_filters_bedrooms_3" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_3">3+</label></span><span><input type="radio" value="4" name="filters[bedrooms]" id="mobile_filters_bedrooms_4" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_4">4+</label></span><span><input type="radio" value="5" name="filters[bedrooms]" id="mobile_filters_bedrooms_5" /><label class="theme-color theme-color-border" for="mobile_filters_bedrooms_5">5+</label></span></div>
+</div></div></div>        </div>
+        <div class="grid__12">
+          <div class="form__row"><label class="form__row__label" for="mobile_filters_bathrooms">Bathrooms</label><div class="form__row__body"><div class="form__row__field-wrapper">
+            <div class="radio_block mobile_filters_bathrooms"><input type="hidden" name="filters[bathrooms]" value="" autocomplete="off" /><span><input type="radio" value="" checked="checked" name="filters[bathrooms]" id="mobile_filters_bathrooms_" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_">0+</label></span><span><input type="radio" value="1" name="filters[bathrooms]" id="mobile_filters_bathrooms_1" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_1">1+</label></span><span><input type="radio" value="2" name="filters[bathrooms]" id="mobile_filters_bathrooms_2" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_2">2+</label></span><span><input type="radio" value="3" name="filters[bathrooms]" id="mobile_filters_bathrooms_3" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_3">3+</label></span><span><input type="radio" value="4" name="filters[bathrooms]" id="mobile_filters_bathrooms_4" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_4">4+</label></span><span><input type="radio" value="5" name="filters[bathrooms]" id="mobile_filters_bathrooms_5" /><label class="theme-color theme-color-border" for="mobile_filters_bathrooms_5">5+</label></span></div>
+</div></div></div>        </div>
+
+      <div class="grid__12">
+        <div class="form__row multiselect_box mobile_filters_cities"><label class="form__row__label">Cities</label><div class="form__row__body"><div class="form__row__field-wrapper"><input type="hidden" name="filters[cities][]" value="" autocomplete="off" /><span class="form__row__control"><label for="mobile_filters_cities_all_cities"><input type="checkbox" value="All Cities" name="filters[cities][]" id="mobile_filters_cities_all_cities" />All Cities</label></span><span class="form__row__control"><label for="mobile_filters_cities_beaverton"><input type="checkbox" value="Beaverton" name="filters[cities][]" id="mobile_filters_cities_beaverton" />Beaverton</label></span><span class="form__row__control"><label for="mobile_filters_cities_bend"><input type="checkbox" value="Bend" name="filters[cities][]" id="mobile_filters_cities_bend" />Bend</label></span><span class="form__row__control"><label for="mobile_filters_cities_lake_oswego"><input type="checkbox" value="Lake Oswego" name="filters[cities][]" id="mobile_filters_cities_lake_oswego" />Lake Oswego</label></span><span class="form__row__control"><label for="mobile_filters_cities_portland"><input type="checkbox" value="Portland" name="filters[cities][]" id="mobile_filters_cities_portland" />Portland</label></span><span class="form__row__control"><label for="mobile_filters_cities_redmond"><input type="checkbox" value="Redmond" name="filters[cities][]" id="mobile_filters_cities_redmond" />Redmond</label></span><span class="form__row__control"><label for="mobile_filters_cities_west_linn"><input type="checkbox" value="West Linn" name="filters[cities][]" id="mobile_filters_cities_west_linn" />West Linn</label></span><span class="form__row__control"><label for="mobile_filters_cities_wilsonville"><input type="checkbox" value="Wilsonville" name="filters[cities][]" id="mobile_filters_cities_wilsonville" />Wilsonville</label></span></div></div></div>
+      </div>
+      <div class="grid__12">
+        <div class="form__row multiselect_box mobile_filters_postal_codes"><label class="form__row__label">Zip Codes</label><div class="form__row__body"><div class="form__row__field-wrapper"><input type="hidden" name="filters[postal_codes][]" value="" autocomplete="off" /><span class="form__row__control"><label for="mobile_filters_postal_codes_all_zip_codes"><input type="checkbox" value="All Zip Codes" name="filters[postal_codes][]" id="mobile_filters_postal_codes_all_zip_codes" />All Zip Codes</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97007"><input type="checkbox" value="97007" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97007" />97007</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97034"><input type="checkbox" value="97034" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97034" />97034</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97035"><input type="checkbox" value="97035" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97035" />97035</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97068"><input type="checkbox" value="97068" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97068" />97068</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97070"><input type="checkbox" value="97070" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97070" />97070</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97223"><input type="checkbox" value="97223" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97223" />97223</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97229"><input type="checkbox" value="97229" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97229" />97229</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97701"><input type="checkbox" value="97701" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97701" />97701</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97702"><input type="checkbox" value="97702" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97702" />97702</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97703"><input type="checkbox" value="97703" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97703" />97703</label></span><span class="form__row__control"><label for="mobile_filters_postal_codes_97756"><input type="checkbox" value="97756" name="filters[postal_codes][]" id="mobile_filters_postal_codes_97756" />97756</label></span></div></div></div>
+      </div>
+
+      <div class="grid__12">
+        <div class="form__row"><label class="form__row__label" for="mobile_filters_cats">Cats Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[cats]" id="mobile_filters_cats"><option value="" label=" "></option>
+<option value="Cats allowed">Yes</option>
+<option value="Cats not allowed">No</option></select></div></div></div>
+      </div>
+      <div class="grid__12">
+        <div class="form__row"><label class="form__row__label" for="mobile_filters_dogs">Dogs Allowed</label><div class="form__row__body"><div class="form__row__field-wrapper"><select name="filters[dogs]" id="mobile_filters_dogs"><option value="" label=" "></option>
+<option value="Dogs allowed">Large</option>
+<option value="Small dogs allowed">Small</option>
+<option value="Dogs not allowed">None</option></select></div></div></div>
+        <div class="form__row"><label class="form__row__label" for="mobile_filters_desired_move_in">Desired Move In</label><div class="form__row__body"><div class="form__row__field-wrapper"><ul class="grid grid--half-gutters"><li class="grid__12"><div class="js-gears-date input-add-on"><input class="js-datepicker" type="text" name="filters[desired_move_in]" id="mobile_filters_desired_move_in" /><span class="js-datepicker-trigger input-add-on__append button"><span class="icon icon-calendar"></span></span></div></li></ul></div></div></div>
+      </div>
+    </div>
+    <div class="u-text-center">
+      <input type="submit" name="commit" value="Filter" class="filter-form-button btn btn-primary theme-color theme-color--actionable theme-color-border" data-disable-with="Filter" />
+    </div>
+  </div>
+</form>
+
+
+  <div class="map-panel js-listing-map hand-hidden u-hidden">
+    <div id="googlemap" class="map-panel__googlemap"></div>
+    <div class="map-panel__bottom-button u-text-center">
+      <a href="#" class="map-panel__bottom-button__link u-hidden js-exit-streetview-button">Exit Street View</a>
+      <a href="#" class="map-panel__bottom-button__link js-reset-map-button">Reset Map</a>
+    </div>
+  </div>
+
+
+<h1 class="text-center mt-4">Current Listings</h1>
+<p class="js-topbar-title listings__filters-title text-center m-auto">Showing all available listings</p>
+
+<div id='result_container' class="listings js-listings-container">
+  <div class="listing-item result js-listing-item" id="listing_671">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/0547aa08-6a81-4d8c-a5b4-5d5de63656ef" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/bcf539e4-de3c-42d3-8cf4-1ed7f7660ecf/medium.jpg" alt="1020 NW Portland Ave , Bend, OR 97703" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $2,900
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  2 bd / 2 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$2,900</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,000</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">2 bd / 2 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">11/14/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/0547aa08-6a81-4d8c-a5b4-5d5de63656ef" target="_blank">Quiet neighborhood home in Bends Westside </a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">1020 NW Portland Ave , Bend, OR 97703</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="671"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,000</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 11/14/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Nestled in a quiet neighborhood one mile from downtown, this 2 bed, 2 bath offers a suburban feel while offering close almost immediate access to all things outdoors. <br /><br />A quaint front lawn frames the home, which is tucked away behind the one-car garage. A covered front porch offers views out onto the street and is perfect for some cute patio furniture. <br /><br />Walking into the home, you are greet...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Central Heat, Living Room, Family Room, High/Vaulted Ceiling, Cable-ready, Porch, Garden, Off Street Parking, Skyligh...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Yard Care
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, Microwave, Refrigerator/Freezer, Washer/Dryer, Garbage Disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/0547aa08-6a81-4d8c-a5b4-5d5de63656ef">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=0547aa08-6a81-4d8c-a5b4-5d5de63656ef&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1043">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/90fae2da-8bb4-4e35-ae4a-1873b1d931d5" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/99a105aa-da49-44ac-8d3f-d99db0b2fe77/medium.jpg" alt="61345 Triple Knot Rd, Bend, OR 97702" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $6,500
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 3.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$6,500</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,982</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 3.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">10/15/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/90fae2da-8bb4-4e35-ae4a-1873b1d931d5" target="_blank">Fully Furnished Tetherow 3 Bed/3.5 Bath on the 11th Fairway</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">61345 Triple Knot Rd, Bend, OR 97702</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1043"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,982</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 10/15/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Experience elevated Bend living in this beautifully furnished 3-bedroom, 3.5-bath townhome set along the 11th fairway in the highly sought-after Tetherow community. Offered fully furnished for a six-month lease, this exceptional residence combines sophisticated Northwest design, generous living spaces, and a peaceful golf course setting just minutes from the heart of Bend.<br /><br />The thoughtfully d...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Utilities Included:</span> General Landscape Maintenance
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Refrigerator/Freezer, Washer/Dryer, Microwave, Dishwasher, Stove/Oven
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/90fae2da-8bb4-4e35-ae4a-1873b1d931d5">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=90fae2da-8bb4-4e35-ae4a-1873b1d931d5&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1042">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/c5100731-0de9-4284-affb-1e979ca84b05" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/a0ca1003-2d46-4d03-b723-bef68652027f/medium.jpg" alt="2323 NW Pinnacle Dr, Portland, OR 97229" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $4,845
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  4 bd / 4 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$4,845</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">4,043</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">4 bd / 4 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/c5100731-0de9-4284-affb-1e979ca84b05" target="_blank">Timeless Custom Design, Serene Greenspace &amp; Sweeping Views</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">2323 NW Pinnacle Dr, Portland, OR 97229</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1042"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 4,043</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">A rare opportunity in Portland’s coveted Forest Heights neighborhood, this exceptional custom home occupies one of the area’s premier lots, showcasing panoramic views and a peaceful backdrop of protected wooded greenspace. Thoughtfully designed for both everyday living and effortless entertaining, the home seamlessly blends timeless architecture with modern comfort.<br /><br />A welcoming wraparound po...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Balcony, Garage, Central Heat, Fireplace, Central A/C, Porch, Garden, Off Street Parking, Gas Fireplace, Double Pane ...
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwaser, Washer, Dryer, Stove/Oven, Refrigerator, Garbage Disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/c5100731-0de9-4284-affb-1e979ca84b05">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=c5100731-0de9-4284-affb-1e979ca84b05&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1041">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/b96fb619-4c0a-4ea4-8ec9-3c7266903666" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/3d088a2b-7861-4816-bd09-bae1b02f45a9/medium.jpg" alt="2742 NE Great Horned Place, Bend, OR 97701" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,550
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,550</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,966</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">10/15/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/b96fb619-4c0a-4ea4-8ec9-3c7266903666" target="_blank">Peaceful NE Bend Home with Broken Top Views &amp; Private Backyard Retreat</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">2742 NE Great Horned Place, Bend, OR 97701</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1041"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,966</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 10/15/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Welcome home to this thoughtfully designed 3-bedroom, 2.5-bath residence in Bend’s desirable Oakview neighborhood. Offering nearly 2,000 square feet of comfortable living space, this home combines a unique multi-level floor plan, beautiful mountain views, warm interior finishes, and an exceptionally peaceful backyard setting.<br /><br />The main living level features engineered wood flooring, a welcomi...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Utilities Included:</span> General Landscape Maintenance
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Small dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/b96fb619-4c0a-4ea4-8ec9-3c7266903666">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=b96fb619-4c0a-4ea4-8ec9-3c7266903666&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1040">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/b7470b7f-d2f6-45cc-a556-e9ed6f073db4" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/9147dc3d-acd9-48af-8a5b-05ed14be96c4/medium.jpg" alt="24515 SW Mountain Rd, West Linn, OR 97068" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $7,000
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  4 bd / 3.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$7,000</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">3,340</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">4 bd / 3.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/b7470b7f-d2f6-45cc-a556-e9ed6f073db4" target="_blank">Private West Linn Estate with Exceptional Amenities, Privacy &amp; Pastoral Views</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">24515 SW Mountain Rd, West Linn, OR 97068</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1040"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 3,340</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Arrive through a private gated entry and discover an extraordinary luxury compound set on nearly an acre in West Linn, where exceptional privacy, expansive pastoral views and sophisticated living come together in a truly remarkable setting. Meticulously remodeled and thoughtfully designed, the main residence offers 4 bedrooms and 3.5 bathrooms with beautiful hardwood floors, soaring ceilings an...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Garage, Tile Floor, Air Conditioning, High/Vaulted Ceiling, Skylights, Gas Fireplace, Double Pane Windows, Steam Show...
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Washer, Dryer, Stove/Oven, Microwave, Refrigerator, Garbage Disposal, Stainless Steel Appliances, Wine Fr...
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/b7470b7f-d2f6-45cc-a556-e9ed6f073db4">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=b7470b7f-d2f6-45cc-a556-e9ed6f073db4&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_810">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/a978436d-5ef6-449b-811e-e392d3dd5302" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/5f45643d-0661-4d41-b48b-af545b8acb0b/medium.jpg" alt="226 Greenridge Drive, Lake Oswego, OR 97035" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,745
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,745</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,492</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/a978436d-5ef6-449b-811e-e392d3dd5302" target="_blank">Beautiful Fully Remodeled Lake Oswego Duplex</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">226 Greenridge Drive, Lake Oswego, OR 97035</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="810"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,492</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">This is a beautifully remodeled duplex located in the Mountain Park area of Lake Oswego. Enjoy access to the Mt. Park Recreation Center, as well as the many trails this lovely area has to offer. Just a few minutes to great shopping and schools.<br /><br />Renovations include the furnace, air conditioning, floors, walls, windows, kitchen and bathrooms. This is a beautiful setting with a private fenced b...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Dining Room, Central Heat, Living Room, Cable-ready, Central A/C, Master Bath, Fenced Yard, garage-attached, Gas Fire...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Yard Care
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, microwave, refrigerator/freezer, washer/Dryer, garbage disposal, Stainless Steel Appliances, ...
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/a978436d-5ef6-449b-811e-e392d3dd5302">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=a978436d-5ef6-449b-811e-e392d3dd5302&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_494">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/793ad38f-57b8-4605-ad10-e45ed4407d7d" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/a1b7e3ea-2f1d-4c92-b6e2-4f8bf1f2feb0/medium.jpg" alt="3938 SW Fir Grove Rd., Wilsonville, OR 97070" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $5,200
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  5 bd / 3.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$5,200</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">3,169</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">5 bd / 3.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/793ad38f-57b8-4605-ad10-e45ed4407d7d" target="_blank">Escape to the Country, Spacious Contemporary in Wilsonville with a 1400sqft Shop</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">3938 SW Fir Grove Rd., Wilsonville, OR 97070</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="494"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 3,169</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Come home to the majestic and serene countryside with this fresh and updated contemporary home in Wilsonville. Feel nature’s peaceful embrace driving up to your personal daily retreat!<br /><br />The home welcomes with an easily accessible circular drive, plenty of parking and an elevated stone front porch opening  into a light filled entry. Beautiful hardwood floors flow throughout the main level, con...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Dining Room, Central Heat, Living Room, Air Conditioning, Family Room, Fireplace, Sprinkler System, High/Vaulted Ceil...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> None
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, refrigerator/freezer, washer/Dryer, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/793ad38f-57b8-4605-ad10-e45ed4407d7d">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=793ad38f-57b8-4605-ad10-e45ed4407d7d&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_725">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/bfbd217e-4305-4522-b7df-097a21f953bf" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/41fef0e2-9704-4d2c-b5e6-33d55ee323e8/medium.jpg" alt="1405 Greentree Circle, Lake Oswego, OR 97034" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $4,245
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  4 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$4,245</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,200</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">4 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/bfbd217e-4305-4522-b7df-097a21f953bf" target="_blank">Feng Shui Beauty</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">1405 Greentree Circle, Lake Oswego, OR 97034</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="725"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,200</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Welcome home to your peaceful Zen retreat. You can&#39;t help but fall in love with this stunning, extensively remodeled one-level. Located in charming Lake Oswego, with it&#39;s award winning schools, fabulous restaurants and shopping, lovely parks, New Seasons Market and Park Academy School right down the road. This lovely home is also a lucky Feng Shui number 1 house (1 + 4 + 0 + 5 = 10 = 1) which s...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Office/Den, Dining Room, Central Heat, Living Room, Family Room, High/Vaulted Ceiling, Cable-ready, Attic, Washer/Dry...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Yard Care
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, Refrigerator/Freezer, Garbage Disposal, Stainless Steel Appliances, Microwave, Washer/Dryer
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Small dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/bfbd217e-4305-4522-b7df-097a21f953bf">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=bfbd217e-4305-4522-b7df-097a21f953bf&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_924">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/0fae9dc0-e637-45f5-b846-36018dc8adb6" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/2d35f797-d5b5-4fa8-b39e-a55d976fc50f/medium.jpg" alt="4920 Mulholland Drive, Lake Oswego, OR 97035" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,745
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,745</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,498</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/0fae9dc0-e637-45f5-b846-36018dc8adb6" target="_blank">Beautiful Lake Oswego Townhome</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">4920 Mulholland Drive, Lake Oswego, OR 97035</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="924"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,498</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">This beautiful Westlake townhome boasts 3 bedrooms, 2.5 bathrooms has a spacious layout with expansive windows and high ceilings that fill the home with an abundance of natural light.<br /><br />As you enter the home you will find the formal living and dining areas as well as a welcoming great room featuring a cozy dual-sided fireplace with custom built-ins. The kitchen features stainless steel applian...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Dining Room, Central Heat, Living Room, Family Room, High/Vaulted Ceiling, Walk-in Closet, Central A/C, Storage Space...
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, microwave, Refigerator, Refrigerator/Freezer, Washer/Dryer, Garbage Disposal, Stainless Steel...
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/0fae9dc0-e637-45f5-b846-36018dc8adb6">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=0fae9dc0-e637-45f5-b846-36018dc8adb6&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1038">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/3d85e913-f67f-4b59-9728-89cc49c4e82b" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/bd89b6c3-4487-4165-ab29-8bf6e486c7bf/medium.jpg" alt="17060 Kelok Rd,, Lake Oswego, OR 97034" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $6,250
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 3.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$6,250</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,216</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 3.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/3d85e913-f67f-4b59-9728-89cc49c4e82b" target="_blank">Canal Living in the Heart of Lake Oswego</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">17060 Kelok Rd,, Lake Oswego, OR 97034</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1038"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,216</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Experience the rare opportunity to enjoy waterfront living along the tranquil canal in sought-after Lake Oswego. Beautifully remodeled and thoughtfully refreshed, this inviting 3-bedroom, 3.5-bath residence offers 2,216 square feet of comfortable living space with an exceptional setting that brings the beauty of the water right to your doorstep.<br /><br />Inside, fresh paint and new carpeting create a...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Garage, Central Heat, Air Conditioning, Fireplace, Security System, Double Pane Window, Wet Bar, Porch, Off Street Pa...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> None
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Washer, Dryer, Stove, Oven, Microwave, Refrigerator, Garbage Disposal, Stainless Steel Appliances, Freeze...
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/3d85e913-f67f-4b59-9728-89cc49c4e82b">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=3d85e913-f67f-4b59-9728-89cc49c4e82b&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_460">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/10586f0a-e2f8-4a05-8eb1-94984c780062" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/a4e7a132-593c-482d-be39-4ffbde633865/medium.jpg" alt="577 5th St, Lake Oswego, OR 97034" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,845
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 3 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,845</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,550</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 3 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/10586f0a-e2f8-4a05-8eb1-94984c780062" target="_blank">Charming Duplex in the Heart of Lake Oswego</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">577 5th St, Lake Oswego, OR 97034</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="460"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,550</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">This inviting and thoughtfully built custom home is located in Lake Oswego’s much sought after First Addition neighborhood. Enjoy the friendly small town vibe while walking or biking to the local Saturday Market, shopping, dining, village pub or beautiful parks and river. <br /><br />The quaint craftsman architecture of stucco and cedar shake, uniquely inspired by it’s New Orleans designer is simultane...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Office/Den, Central Heat, Living Room, Family Room, Fireplace, Sprinkler System, High/Vaulted Ceiling, Cable-ready, W...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Yard Care
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, Stainless Steel Appliances, garbage disposal, microwave, washer/Dryer, Refrigerator
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/10586f0a-e2f8-4a05-8eb1-94984c780062">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=10586f0a-e2f8-4a05-8eb1-94984c780062&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1037">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/f7b512b1-5eb7-43bc-b3f9-7349c0604a50" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/ecbefeb9-8afa-4e4a-b087-ec7c84202b4e/medium.jpg" alt="21505 O&#39;Connor Way, Bend, OR 97703" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $2,550
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$2,550</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,705</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/f7b512b1-5eb7-43bc-b3f9-7349c0604a50" target="_blank">Brand-New Bend Townhome with Private Yard &amp; Two-Car Garage</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">21505 O&#39;Connor Way, Bend, OR 97703</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1037"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,705</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Be the first to enjoy this beautifully finished 3-bedroom, 2.5-bath townhome in Bend’s new Parkside Place community. Offering 1,705 square feet across two thoughtfully designed levels, this home combines the ease of new construction with a spacious, comfortable floor plan and features that are increasingly hard to find—including a traditional fully fenced backyard and attached two-car garage.<br />...</p>
+    <p class="hand-hidden tablet-hidden">
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/f7b512b1-5eb7-43bc-b3f9-7349c0604a50">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=f7b512b1-5eb7-43bc-b3f9-7349c0604a50&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1035">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/a9275fc8-9c14-49e0-b397-d4eb6afd53ee" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/1d4d5499-246a-4813-92dc-abc5ef86a0e0/medium.jpg" alt="1899 Country Club Rd, Lake Oswego, OR 97034" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,300
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  4 bd / 2 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,300</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,612</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">4 bd / 2 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/a9275fc8-9c14-49e0-b397-d4eb6afd53ee" target="_blank">Wooded Setting, Thoughtful Updates &amp; Unbeatable Lake Oswego Location</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">1899 Country Club Rd, Lake Oswego, OR 97034</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1035"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,612</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Tucked into a peaceful setting backing to mature trees and a seasonal creek, this thoughtfully updated Lake Oswego home offers an inviting blend of character, comfort, and convenience. Just steps from Lake Oswego High School and minutes from downtown Lake Oswego and the Lake Oswego Country Club, the location is hard to beat.<br /><br />Inside, the main living spaces have been opened up to create an eff...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Central Heat, Air Conditioning, Fireplace, Central A/C, Off Street Parking, Gas Fireplace, Granite/Quartz Countertops...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> None
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Washer, Dryer, Stove/Oven, Microwave, Refrigerator/Freezer, Garbage Disposal
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/a9275fc8-9c14-49e0-b397-d4eb6afd53ee">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=a9275fc8-9c14-49e0-b397-d4eb6afd53ee&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_684">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/898ae8f4-b72a-494c-b7a8-bea00adb4665" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/4b71c625-42e6-4fbd-9d2e-9ed6ab34afd1/medium.jpg" alt="7830 SW Litz Ct, Portland, OR 97223" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,600
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,600</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,891</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/898ae8f4-b72a-494c-b7a8-bea00adb4665" target="_blank">Stunning Garden Home Remodel w/ Bonus and Office</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">7830 SW Litz Ct, Portland, OR 97223</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="684"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,891</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Come home to your gorgeous traditional home nestled between Portland, Beaverton and Tigard in the quaint community of Garden Home. Enjoy the perfect blend of urban convenience yet rural vibe, and near iconic Multnomah Village with a multitude of fabulous restaurants, shops and cafés. Garden Home offers a sought after Recreation Center with a pool, classes and activities, Fanno Creek Trail with ...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Office/Den, Tile Floor, Dining Room, Central Heat, Living Room, Family Room, Sprinkler System, Bonus/Rec. Room, Cable...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Yard Care
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, Microwave, Refrigerator/Freezer, Washer/Dryer, Garbage Disposal, Stainless Steel Appliances, ...
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/898ae8f4-b72a-494c-b7a8-bea00adb4665">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=898ae8f4-b72a-494c-b7a8-bea00adb4665&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1034">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/c39ed18f-cbbd-4535-82ee-7b899fb8fd3a" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/f4a95cf3-7779-497f-9032-81a678245eef/medium.jpg" alt="8898 SW Serenity Terr, Beaverton, OR 97007" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $3,645
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  4 bd / 3.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$3,645</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,129</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">4 bd / 3.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/c39ed18f-cbbd-4535-82ee-7b899fb8fd3a" target="_blank">Modern Luxury Meets Multigenerational Living on Cooper Mountain</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">8898 SW Serenity Terr, Beaverton, OR 97007</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1034"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,129</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Discover this must-see luxury new construction townhome, ideally positioned in Beaverton’s sought-after Cooper Mountain neighborhood with beautiful valley views. Thoughtfully designed for both everyday comfort and multigenerational living, this exceptional residence blends high-end finishes, energy efficiency, and low-maintenance convenience in a sophisticated, light-filled setting.<br /><br />The open...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Balcony, Garage, Central Heat, Air Conditioning, Fireplace, Cable-ready, High-Speed Internet, Central A/C, Porch, Gar...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> None
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Washer/Dryer, Stove/Oven, Microwave, Refrigerator/Freezer, Garbage Disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/c39ed18f-cbbd-4535-82ee-7b899fb8fd3a">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=c39ed18f-cbbd-4535-82ee-7b899fb8fd3a&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_695">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/bc7d364c-15af-4802-8956-3516013bbf3b" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/09a5a6fe-2354-455e-84ee-dc0546cb2e8a/medium.jpg" alt="17151 Wall St, Lake Oswego, OR 97034" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $4,945
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  6 bd / 4 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$4,945</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">4,141</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">6 bd / 4 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/bc7d364c-15af-4802-8956-3516013bbf3b" target="_blank">Sophisticated Lake Oswego Living in Coveted Palisades Terrace</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">17151 Wall St, Lake Oswego, OR 97034</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="695"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 4,141</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Prepare to fall in love with this exceptional residence in the highly desirable Palisades Terrace neighborhood of Lake Oswego, where refined living, thoughtful design, and an enviable location come together beautifully. Ideally positioned near outstanding schools, charming downtown Lake Oswego, an array of acclaimed restaurants and shops, beautiful parks, and convenient freeway access, this hom...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Balcony, Garage, Central Heat, Air Conditioning, Fireplace, Central A/C, Wet Bar, Porch, Garden, Off Street Parking, ...
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Washer, Dryer, Stove/Oven, Microwave, Refrigerator, Freezer, Garbage Disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/bc7d364c-15af-4802-8956-3516013bbf3b">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=bc7d364c-15af-4802-8956-3516013bbf3b&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_892">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/c34ffc12-dbcb-4d0c-8fc6-b7a6c530b4af" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/9deed093-cb36-4828-b0d9-a0aa007c31cf/medium.jpg" alt="2542 NW Marken St, Bend, OR 97703" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $6,500
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  4 bd / 3 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$6,500</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,860</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">4 bd / 3 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">10/7/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/c34ffc12-dbcb-4d0c-8fc6-b7a6c530b4af" target="_blank">Beautiful home in NW Bend</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">2542 NW Marken St, Bend, OR 97703</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="892"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,860</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 10/7/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Welcome to this stunning 4-bedroom, 3-bathroom home located in the highly sought-after area of Bend, Oregon. This residence offers an abundance of space and comfort, featuring a large family room, a versatile bonus/rec room, an office/den, a cozy living room, a convenient laundry room, and a finished basement. The inviting dining room is perfect for hosting, and the luxurious master bath includ...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Office/Den, Finished Basement, Dining Room, Central Heat, Living Room, Family Room, Bonus/Rec. Room, Walk-in Closet, ...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> None
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, Microwave, Refrigerator/Freezer, Washer/Dryer, Garbage Disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/c34ffc12-dbcb-4d0c-8fc6-b7a6c530b4af">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=c34ffc12-dbcb-4d0c-8fc6-b7a6c530b4af&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_835">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/d3d75a1b-057d-480e-9a9d-9554162bcb19" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/912eaf80-8ded-4689-a079-bdc0c6ca3610/medium.jpg" alt="20916 NE High Desert Lane, Bend, OR 97701" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $2,650
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 3 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$2,650</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,450</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 3 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">10/14/26</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/d3d75a1b-057d-480e-9a9d-9554162bcb19" target="_blank">Beautiful townhome in Bend</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">20916 NE High Desert Lane, Bend, OR 97701</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="835"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,450</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available 10/14/26</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Welcome to this beautiful 3-bedroom, 3-bathroom home located in the desirable city of Bend, OR. This house offers a spacious and functional layout, perfect for anyone looking for a comfortable and convenient living space. Inside, you will find a laundry room, living room, dining room, and a master bath with a walk-in closet. The breakfast nook provides a cozy spot to enjoy your morning coffee, ...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Dining Room, Central Heat, Living Room, Breakfast Nook, Walk-in Closet, Central A/C, Master Bath, Off Street Parking,...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> HOA Irrigation Upkeep
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, microwave, refrigerator/freezer, washer/Dryer, garbage disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs not allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/d3d75a1b-057d-480e-9a9d-9554162bcb19">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=d3d75a1b-057d-480e-9a9d-9554162bcb19&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1027">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/6b0a79f4-2371-448b-b70a-4ef09b21bed0" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/788483df-7939-49ba-80b2-2bfc3f75565f/medium.jpg" alt="637 NW Silver Buckle Road, Bend, OR 97703" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $5,750
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$5,750</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">2,352</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/6b0a79f4-2371-448b-b70a-4ef09b21bed0" target="_blank">Exceptional Three Bedroom Riverfront Retreat in Northwest Bend</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">637 NW Silver Buckle Road, Bend, OR 97703</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1027"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 2,352</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Set along a peaceful stretch of the Deschutes River in Northwest Bend, this refined three bedroom, two and a half bath single-level home offers an uncommon combination of privacy, comfort, and natural beauty.<br /><br />With approximately 100 feet of river frontage and HOA-owned common area adjoining the property, the setting feels remarkably spacious and secluded. Expansive wood-wrapped windows frame ...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Deck, Waterfront views, Wood Floors, Gas Fireplace, Gas stove, Private Street, Private River Access, Detached Garage
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> General Landscape Maintenance
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Washer/Dryer, Refrigerator/Freezer, Gas Stove, Microwave, Dishwasher
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/6b0a79f4-2371-448b-b70a-4ef09b21bed0">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=6b0a79f4-2371-448b-b70a-4ef09b21bed0&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1016">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/9b1ff8eb-5934-4c04-a255-1a440e9aa62e" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/30307c9f-bd24-4e63-92fc-40693df1f332/medium.jpg" alt=" 3042 SW Obsidian , Redmond, OR 97756" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $2,200
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$2,200</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,450</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address"> 3042 SW Obsidian , Redmond, OR 97756</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1016"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,450</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description"></p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Amenities:</span> Living Room, Walk-in Closet, Guest Parking, Storage Space, Fenced Yard, Ceiling Fans, Gas Range, Double Pane Windows,...
+          <br>
+        <span style="font-weight:bold">Utilities Included:</span> Water/Sewer, Trash
+          <br>
+        <span style="font-weight:bold">Appliances:</span> Dishwasher, Stove/Oven, Microwave, Refrigerator/Freezer, Garbage Disposal, Stainless Steel Appliances
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Small dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/9b1ff8eb-5934-4c04-a255-1a440e9aa62e">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=9b1ff8eb-5934-4c04-a255-1a440e9aa62e&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+<div class="listing-item result js-listing-item" id="listing_1013">
+  <div class="listing-item__figure-container">
+    <a href="/listings/detail/990b0ada-499c-48b6-ae6d-4d50a3503d1d" target="_blank">
+      <div class="listing-item__figure">
+        <img class="listing-item__image is-placeholder lazy js-listing-image " data-original="https://images.cdn.appfolio.com/northstarproperties/images/3ccf9f7c-1a4d-46e7-9d9e-44a87cd045ba/medium.jpg" alt="20869 SE Denver Dr, Bend, OR 97702" src="https://listings.cdn.appfolio.com/listings/assets/listings/rental_listing/place_holder-ea9e892a45f62e048771a4b22081d1eed003a21f0658a92aa5abcfd357dd4699.png" />
+        <div class="listing-item__blurb js-listing-item-blurb tablet-hidden desk-hidden">
+          <div class="listing-item__blurb__left">
+              <div class="listing-item__facts u-inline-block">
+                    <div class="rent-banner__header">RENT</div>
+                    <div class="sidebar__price rent-banner__text js-listing-blurb-rent">
+                      $2,550
+                    </div>
+              </div>
+          </div><!-- No Space Here
+       --><div class="listing-item__blurb__right">
+              <div class="u-float-right">
+                <div class="rent-banner__header">BED / BATH</div>
+                <span class="rent-banner__text js-listing-blurb-bed-bath">
+                  3 bd / 2.5 ba
+                </span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="listing-item__body">
+    <div class="detail-box hand-hidden u-space-bs js-listing-quick-facts">
+      <dl>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">RENT</dt>
+          <dd class="detail-box__value">$2,550</dd>
+        </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Square Feet</dt>
+          <dd class="detail-box__value">1,450</dd>
+        </div>
+          <div class="detail-box__item">
+            <dt class="detail-box__label">Bed / Bath</dt>
+            <dd class="detail-box__value">3 bd / 2.5 ba</dd>
+          </div>
+        <div class="detail-box__item">
+          <dt class="detail-box__label">Available</dt>
+          <dd class="detail-box__value js-listing-available">NOW</dd>
+        </div>
+      </dl>
+    </div>
+
+      <h2 class="listing-item__title js-listing-title">
+        <a href="/listings/detail/990b0ada-499c-48b6-ae6d-4d50a3503d1d" target="_blank">Modern 3 Bed 2.5 Bath Townhome with Resort-Style Amenities. Rent Credit &amp; Pets OK!</a>
+      </h2>
+    <p class="u-space-an">
+      <span class="u-pad-rm js-listing-address">20869 SE Denver Dr, Bend, OR 97702</span>
+        <a href="#" class="hand-hidden js-listing-map-view-link listing-item__map-link" data-listing-id="1013"><span class="fa-solid fa-location-dot"></span>&nbsp;Map</a>
+    </p>
+
+    <p class="u-space-an">
+        <span class="u-space-rm js-listing-square-feet desk-hidden tablet-hidden" style="display: inline-block">Square Feet: 1,450</span>
+
+
+
+
+          <span class="js-listing-available tablet-hidden desk-hidden" style="display: inline-block">Available Now</span>
+    </p>
+    <p class="hand-hidden tablet-hidden u-space-ts js-listing-description">Welcome home to this beautifully maintained, like-new 3-bedroom, 2.5-bath townhome in Easton, one of Southeast Bend’s most desirable new communities.<br /><br />Offering approximately 1,450 square feet of thoughtfully designed living space, the home combines modern finishes, flexible functionality, and easy, low-maintenance living. The open-concept main level features quartz countertops, a stylish tile...</p>
+    <p class="hand-hidden tablet-hidden">
+        <span style="font-weight:bold">Appliances:</span> Refrigerator, Freezer, washer, dryer, microwave, oven, Dishwasher, garbage disposal
+      <br>
+        <span class="js-listing-pet-policy"><span style="font-weight:bold">Pet Policy:</span> Cats not allowed, Dogs allowed</span>
+    </p>
+  </div>
+
+  <div class="listing-item__actions js-listing-actions">
+    <a target="_blank" class="btn btn-secondary js-link-to-detail" href="/listings/detail/990b0ada-499c-48b6-ae6d-4d50a3503d1d">View Details</a>
+      <a target="_blank" class="btn btn-primary theme-color theme-color--actionable js-listing-apply" href="/listings/rental_applications/new?listable_uid=990b0ada-499c-48b6-ae6d-4d50a3503d1d&amp;source=Website">Apply Now</a>
+  </div>
+</div>
+
+<div class='listings__page-buttons'>
+  
+</div>
+
+
+<div class='no_vacancies u-hidden listings__no-vacancies'>No vacancies found matching your search criteria.</div>
+
+
+</div>
+
+  </main>
+
+  <script src="https://listings.cdn.appfolio.com/listings/assets/listings/application2-b0f197292ab612d566f03b2fce507933939f13cd8dab7bb1c4befcee8f024506.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://maps.googleapis.com/maps/api/js?client=gme-appfolio&amp;v=3.37"></script>
+  <script type="text/javascript">
+    window.PARENTIFRAMEID = "noframe";
+    window.googleMap = new GoogleMap({
+      container: 'googlemap',
+      markers: [{"latitude":44.0643765,"longitude":-121.3267386,"address":"1020 NW Portland Ave , Bend, OR 97703","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/bcf539e4-de3c-42d3-8cf4-1ed7f7660ecf/large.jpg","rent_range":"$2,900","unit_specs":"2 bd, 2 ba, 1,000 Sq. Ft.","listing_id":671,"detail_page_url":"/listings/detail/0547aa08-6a81-4d8c-a5b4-5d5de63656ef","zoomed_in":false},{"latitude":44.0287774,"longitude":-121.3589566,"address":"61345 Triple Knot Rd, Bend, OR 97702","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/99a105aa-da49-44ac-8d3f-d99db0b2fe77/large.jpg","rent_range":"$6,500","unit_specs":"3 bd, 3.5 ba, 2,982 Sq. Ft.","listing_id":1043,"detail_page_url":"/listings/detail/90fae2da-8bb4-4e35-ae4a-1873b1d931d5","zoomed_in":false},{"latitude":45.5398537,"longitude":-122.7712994,"address":"2323 NW Pinnacle Dr, Portland, OR 97229","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/a0ca1003-2d46-4d03-b723-bef68652027f/large.jpg","rent_range":"$4,845","unit_specs":"4 bd, 4 ba, 4,043 Sq. Ft.","listing_id":1042,"detail_page_url":"/listings/detail/c5100731-0de9-4284-affb-1e979ca84b05","zoomed_in":false},{"latitude":44.0780782,"longitude":-121.2564063,"address":"2742 NE Great Horned Place, Bend, OR 97701","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/3d088a2b-7861-4816-bd09-bae1b02f45a9/large.jpg","rent_range":"$3,550","unit_specs":"3 bd, 2.5 ba, 1,966 Sq. Ft.","listing_id":1041,"detail_page_url":"/listings/detail/b96fb619-4c0a-4ea4-8ec9-3c7266903666","zoomed_in":false},{"latitude":45.3426099,"longitude":-122.708047,"address":"24515 SW Mountain Rd, West Linn, OR 97068","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/9147dc3d-acd9-48af-8a5b-05ed14be96c4/large.jpg","rent_range":"$7,000","unit_specs":"4 bd, 3.5 ba, 3,340 Sq. Ft.","listing_id":1040,"detail_page_url":"/listings/detail/b7470b7f-d2f6-45cc-a556-e9ed6f073db4","zoomed_in":false},{"latitude":45.4319862,"longitude":-122.7068809,"address":"226 Greenridge Drive, Lake Oswego, OR 97035","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/5f45643d-0661-4d41-b48b-af545b8acb0b/large.jpg","rent_range":"$3,745","unit_specs":"3 bd, 2 ba, 1,492 Sq. Ft.","listing_id":810,"detail_page_url":"/listings/detail/a978436d-5ef6-449b-811e-e392d3dd5302","zoomed_in":false},{"latitude":45.3397067,"longitude":-122.7168403,"address":"3938 SW Fir Grove Rd., Wilsonville, OR 97070","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/a1b7e3ea-2f1d-4c92-b6e2-4f8bf1f2feb0/large.jpg","rent_range":"$5,200","unit_specs":"5 bd, 3.5 ba, 3,169 Sq. Ft.","listing_id":494,"detail_page_url":"/listings/detail/793ad38f-57b8-4605-ad10-e45ed4407d7d","zoomed_in":false},{"latitude":45.4044999,"longitude":-122.6867286,"address":"1405 Greentree Circle, Lake Oswego, OR 97034","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/41fef0e2-9704-4d2c-b5e6-33d55ee323e8/large.jpg","rent_range":"$4,245","unit_specs":"4 bd, 2.5 ba, 2,200 Sq. Ft.","listing_id":725,"detail_page_url":"/listings/detail/bfbd217e-4305-4522-b7df-097a21f953bf","zoomed_in":false},{"latitude":45.426272,"longitude":-122.726328,"address":"4920 Mulholland Drive, Lake Oswego, OR 97035","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/2d35f797-d5b5-4fa8-b39e-a55d976fc50f/large.jpg","rent_range":"$3,745","unit_specs":"3 bd, 2.5 ba, 2,498 Sq. Ft.","listing_id":924,"detail_page_url":"/listings/detail/0fae9dc0-e637-45f5-b846-36018dc8adb6","zoomed_in":false},{"latitude":45.4022929,"longitude":-122.7140224,"address":"17060 Kelok Rd,, Lake Oswego, OR 97034","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/bd89b6c3-4487-4165-ab29-8bf6e486c7bf/large.jpg","rent_range":"$6,250","unit_specs":"3 bd, 3.5 ba, 2,216 Sq. Ft.","listing_id":1038,"detail_page_url":"/listings/detail/3d85e913-f67f-4b59-9728-89cc49c4e82b","zoomed_in":false},{"latitude":45.4221509,"longitude":-122.6684461,"address":"577 5th St, Lake Oswego, OR 97034","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/a4e7a132-593c-482d-be39-4ffbde633865/large.jpg","rent_range":"$3,845","unit_specs":"3 bd, 3 ba, 1,550 Sq. Ft.","listing_id":460,"detail_page_url":"/listings/detail/10586f0a-e2f8-4a05-8eb1-94984c780062","zoomed_in":false},{"latitude":44.053738,"longitude":-121.25231,"address":"21505 O\u0026#39;Connor Way, Bend, OR 97703","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/ecbefeb9-8afa-4e4a-b087-ec7c84202b4e/large.jpg","rent_range":"$2,550","unit_specs":"3 bd, 2.5 ba, 1,705 Sq. Ft.","listing_id":1037,"detail_page_url":"/listings/detail/f7b512b1-5eb7-43bc-b3f9-7349c0604a50","zoomed_in":false},{"latitude":45.423767,"longitude":-122.6966938,"address":"1899 Country Club Rd, Lake Oswego, OR 97034","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/1d4d5499-246a-4813-92dc-abc5ef86a0e0/large.jpg","rent_range":"$3,300","unit_specs":"4 bd, 2 ba, 1,612 Sq. Ft.","listing_id":1035,"detail_page_url":"/listings/detail/a9275fc8-9c14-49e0-b397-d4eb6afd53ee","zoomed_in":false},{"latitude":45.4581273,"longitude":-122.7578122,"address":"7830 SW Litz Ct, Portland, OR 97223","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/4b71c625-42e6-4fbd-9d2e-9ed6ab34afd1/large.jpg","rent_range":"$3,600","unit_specs":"3 bd, 2.5 ba, 2,891 Sq. Ft.","listing_id":684,"detail_page_url":"/listings/detail/898ae8f4-b72a-494c-b7a8-bea00adb4665","zoomed_in":false},{"latitude":45.4556505,"longitude":-122.8573245,"address":"8898 SW Serenity Terr, Beaverton, OR 97007","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/f4a95cf3-7779-497f-9032-81a678245eef/large.jpg","rent_range":"$3,645","unit_specs":"4 bd, 3.5 ba, 2,129 Sq. Ft.","listing_id":1034,"detail_page_url":"/listings/detail/c39ed18f-cbbd-4535-82ee-7b899fb8fd3a","zoomed_in":false},{"latitude":45.4055526,"longitude":-122.6890702,"address":"17151 Wall St, Lake Oswego, OR 97034","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/09a5a6fe-2354-455e-84ee-dc0546cb2e8a/large.jpg","rent_range":"$4,945","unit_specs":"6 bd, 4 ba, 4,141 Sq. Ft.","listing_id":695,"detail_page_url":"/listings/detail/bc7d364c-15af-4802-8956-3516013bbf3b","zoomed_in":false},{"latitude":44.0756574,"longitude":-121.3549316,"address":"2542 NW Marken St, Bend, OR 97703","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/9deed093-cb36-4828-b0d9-a0aa007c31cf/large.jpg","rent_range":"$6,500","unit_specs":"4 bd, 3 ba, 2,860 Sq. Ft.","listing_id":892,"detail_page_url":"/listings/detail/c34ffc12-dbcb-4d0c-8fc6-b7a6c530b4af","zoomed_in":false},{"latitude":44.0919766,"longitude":-121.2839865,"address":"20916 NE High Desert Lane, Bend, OR 97701","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/912eaf80-8ded-4689-a079-bdc0c6ca3610/large.jpg","rent_range":"$2,650","unit_specs":"3 bd, 3 ba, 1,450 Sq. Ft.","listing_id":835,"detail_page_url":"/listings/detail/d3d75a1b-057d-480e-9a9d-9554162bcb19","zoomed_in":false},{"latitude":44.0937492,"longitude":-121.3160657,"address":"637 NW Silver Buckle Road, Bend, OR 97703","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/788483df-7939-49ba-80b2-2bfc3f75565f/large.jpg","rent_range":"$5,750","unit_specs":"3 bd, 2.5 ba, 2,352 Sq. Ft.","listing_id":1027,"detail_page_url":"/listings/detail/6b0a79f4-2371-448b-b70a-4ef09b21bed0","zoomed_in":false},{"latitude":44.2610345,"longitude":-121.2035901,"address":" 3042 SW Obsidian , Redmond, OR 97756","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/30307c9f-bd24-4e63-92fc-40693df1f332/large.jpg","rent_range":"$2,200","unit_specs":"3 bd, 2.5 ba, 1,450 Sq. Ft.","listing_id":1016,"detail_page_url":"/listings/detail/9b1ff8eb-5934-4c04-a255-1a440e9aa62e","zoomed_in":false},{"latitude":44.012481,"longitude":-121.281527,"address":"20869 SE Denver Dr, Bend, OR 97702","default_photo_url":"https://images.cdn.appfolio.com/northstarproperties/images/3ccf9f7c-1a4d-46e7-9d9e-44a87cd045ba/large.jpg","rent_range":"$2,550","unit_specs":"3 bd, 2.5 ba, 1,450 Sq. Ft.","listing_id":1013,"detail_page_url":"/listings/detail/990b0ada-499c-48b6-ae6d-4d50a3503d1d","zoomed_in":false}],
+      infoWindowTemplate:  _.template('<div class=\'map-popup\' id=\'map-popup-<%= listing_id %>\'>\n\n  <div class=\"map-popup-thumbnail\">\n    <a href=\"<%= detail_page_url %>\" target=\"_blank\"><img src=\'<%= default_photo_url %>\' width=\'144\'/><\/a>\n  <\/div>\n\n  <div class=\"map-popup-info\">\n    <p class=\"map-zoom-link-container\"><a href=\'#\' class=<%= zoomed_in ? \'js-map-zoom-out-link\' : \'js-map-zoom-in-link\' %> listing-id=\"<%= listing_id%>\"><%= zoomed_in ? \'Zoom Out\' : \'Zoom In\'%><\/a><\/p>\n    <h3 class=\"map-popup-rent\"><%= rent_range %><\/h3>\n    <p class=\"map-popup-specs\"><%= unit_specs %><\/p>\n    <p class=\"map-popup-address\"><%= address %><\/p>\n\n    <p>\n      <a href=\"<%= detail_page_url %>\" target=\"_blank\" class=\"btn btn-secondary btn-sm pt-1 pb-1\">Details<\/a>\n      <a href=\'#\' class=\'btn btn-secondary btn-sm pt-1 pb-1 js-street-view-link\' latitude=\'<%= latitude %>\' longitude=<%= longitude %>>Street View<\/a>\n      <a href=\'https://maps.google.com/maps?daddr=<%= address %>&saddr=\' target=\'_blank\' class=\'btn btn-secondary btn-sm pt-1 pb-1 directions-link\'>Directions<\/a>\n    <\/p>\n  <\/div>\n<\/div>\n'),
+      onChange: ListingIndexMap.filterListings,
+      onMarkerClick: ListingIndexMap.expandMapAndMoveListingToTop
+    });
+
+    listingManagerInstance = new listings.listingsManager('.js-listings-container', '.js-filter-form', '#filters_order_by');
+    listingManagerInstanceMobile = new listings.listingsManager('.js-listings-container', '.js-mobile-filter-form', '#mobile_filters_order_by');
+    
+    // Initialize popovers
+    $(document).ready(function() {
+      $('.js-popover').each(function() {
+        new Gears.ui.Popover(this);
+      });
+    });
+  </script>
+
+
+  <script src="https://public.cdn.appfolio.com/public/assets/scripts/bootstrap/5.3.1/bootstrap.bundle.min.js"></script>
+
+  <footer id="footer" class="cross-section footer">
+    <div class="cross-section__aside">
+  <figure class="footer__powered-by hand-hidden tablet-hidden"></figure>
+</div>
+<div class="cross-section__main">
+  <div class="footer__inner">
+    <span class="hand-hidden tablet-hidden footer__equal-housing"></span>
+    <div class="footer__privacy-policy">
+      All information provided will be treated in accordance with our <a target="_blank" href="https://www.appfolio.com/privacy">Privacy Policy</a> and <a target="_blank" href="https://www.appfolio.com/terms/listings">Terms of Service</a>.
+    </div>
+    <span class="desk-hidden footer__equal-housing"></span>
+    <span class="desk-hidden footer__powered-by"></span>
+  </div>
+</div>
+
+  </footer>
+
+</body>
+</html>
