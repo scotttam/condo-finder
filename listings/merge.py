@@ -7,7 +7,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import FeedEvent, Listing, SourceListing, Status, TrendReport
+from .models import FeedEvent, Listing, ListingState, SourceListing, Status, TrendReport
 
 log = logging.getLogger(__name__)
 
@@ -70,9 +70,9 @@ def unit_match(key, source, beds, baths, sqft, price):
 
 
 def touched(listing):
-    """Whether the owners have done anything to this listing by hand."""
+    """Whether anyone has done anything to this listing by hand."""
     return bool(
-        listing.status != Status.NEW or listing.notes.strip() or listing.overrides
+        listing.states.exclude(status=Status.NEW).exists() or listing.notes.strip() or listing.overrides
         or listing.price_changes.filter(source="").exists()
     )
 
@@ -86,7 +86,7 @@ def survivor(a, b):
 
 @transaction.atomic
 def merge(keep, drop):
-    """Fold `drop` into `keep`: its sites, price history, feed, notes and status. Returns `keep`."""
+    """Fold `drop` into `keep`: its sites, price history, feed, notes and every group's status. Returns `keep`."""
     from .ingest import _apply_overrides, _recompute_price
 
     SourceListing.objects.filter(listing=drop).update(listing=keep)
@@ -100,11 +100,10 @@ def merge(keep, drop):
     if keep.feed_events.filter(kind=FeedEvent.Kind.NEW_LISTING).exists():
         events.filter(kind=FeedEvent.Kind.NEW_LISTING).delete()
     events.update(listing=keep)
+    _merge_states(keep, drop)
 
     notes = [n for n in (keep.notes.strip(), drop.notes.strip()) if n]
     keep.notes = "\n\n".join(dict.fromkeys(notes))
-    if STATUS_RANK.get(drop.status, 0) > STATUS_RANK.get(keep.status, 0):
-        keep.status = drop.status
     keep.overrides = {**(drop.overrides or {}), **(keep.overrides or {})}
     for name in FILL_FIELDS:
         if getattr(keep, name) in (None, "") and getattr(drop, name) not in (None, ""):
@@ -126,6 +125,18 @@ def merge(keep, drop):
     _recompute_price(keep)
     log.info("Merged listing %s into %s (%s)", dropped, keep.pk, keep.address)
     return keep
+
+
+def _merge_states(keep, drop):
+    """Each group keeps one status for the merged listing: the one further along."""
+    for state in drop.states.all():
+        mine = keep.states.filter(group_id=state.group_id).first()
+        if mine is None:
+            state.listing = keep
+            state.save(update_fields=["listing"])
+        elif STATUS_RANK.get(state.status, 0) > STATUS_RANK.get(mine.status, 0):
+            mine.status, mine.status_by, mine.status_at = state.status, state.status_by, state.status_at
+            mine.save(update_fields=["status", "status_by", "status_at"])
 
 
 def _repoint_reports(old, new):

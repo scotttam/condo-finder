@@ -4,14 +4,14 @@ import pytest
 from django.utils import timezone
 
 from listings.models import PropertyType, Status
-from tests.helpers import make_listing
+from tests.helpers import make_listing, status_of
 
 pytestmark = pytest.mark.django_db
 
 
 def test_listing_defaults():
     listing = make_listing()
-    assert listing.status == Status.NEW
+    assert status_of(listing) == Status.NEW
     assert listing.property_type == PropertyType.UNKNOWN
     assert listing.is_active is True
     assert listing.overrides == {}

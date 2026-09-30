@@ -7,7 +7,7 @@ from listings import analyst
 from listings.extract import is_furnished
 from listings.ingest import ingest, reextract_all
 from listings.models import Listing, PropertyType
-from tests.helpers import make_listing, make_source, scraped
+from tests.helpers import home_group, make_listing, make_source, scraped
 
 PILL = '<span class="furnished-pill">Furnished</span>'
 
@@ -117,4 +117,4 @@ def test_feed_new_listing_row_labels_furnished(client):
 
 @pytest.mark.django_db
 def test_analyst_facts_include_furnished():
-    assert analyst.compact_facts(listing("furnished", is_furnished=True))["furnished"] == "yes"
+    assert analyst.compact_facts(analyst._prepare([listing("furnished", is_furnished=True)], home_group())[0])["furnished"] == "yes"

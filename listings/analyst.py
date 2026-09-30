@@ -15,12 +15,16 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import close_old_connections
+from django.db.models import Q
 from django.utils import timezone
 
+from accounts.groups import owners_group
+
 from . import trend_stats
+from .collab import decorate
 from .filters import apply_filters
 from .forms import ListingFilterForm, default_filter_data
-from .models import Listing, SearchPriorities, Status, TrendReport
+from .models import Listing, ListingState, SearchPriorities, Status, TrendReport
 
 log = logging.getLogger(__name__)
 
@@ -45,24 +49,33 @@ class AnalystError(Exception):
 # --- What Claude sees ---
 
 
-def candidates():
-    """Listings that pass the default filters, plus active listings we've marked as interesting."""
+def _prepare(listings, group):
+    """The group's view of these listings, as compact_facts reads it."""
+    return decorate(listings, group)
+
+
+def candidates(group):
+    """Listings that pass the default filters, plus active listings the group marked as interesting."""
     form = ListingFilterForm(default_filter_data())
     form.is_valid()
-    matching = apply_filters(Listing.objects.all(), form.cleaned_data).values("pk")
-    tracked = Listing.objects.filter(status__in=TRACKED, is_active=True).values("pk")
-    return list(
-        Listing.objects.filter(pk__in=matching.union(tracked))
+    matching = apply_filters(Listing.objects.all(), form.cleaned_data, group).values("pk")
+    tracked = ListingState.objects.filter(group=group, status__in=TRACKED, listing__is_active=True).values("listing")
+    pool = (
+        Listing.objects.filter(Q(pk__in=matching) | Q(pk__in=tracked))
         .prefetch_related("price_changes", "source_listings__source")
         .order_by("price", "pk")
     )
+    return _prepare(pool, group)
 
 
-def passed_on(limit=40):
-    """Listings we rejected, most recent first: they show what we don't want."""
-    return list(
-        Listing.objects.filter(status=Status.REJECTED).prefetch_related("price_changes").order_by("-updated_at")[:limit]
+def passed_on(group, limit=40):
+    """Listings the group rejected, most recent first: they show what it doesn't want."""
+    ids = list(
+        ListingState.objects.filter(group=group, status=Status.REJECTED)
+        .order_by("-status_at", "-pk").values_list("listing_id", flat=True)[:limit]
     )
+    by_id = Listing.objects.prefetch_related("price_changes").in_bulk(ids)
+    return _prepare([by_id[pk] for pk in ids if pk in by_id], group)
 
 
 def _yes_no(value):
@@ -102,7 +115,7 @@ def compact_facts(listing):
             [timezone.localdate(change.seen_at).isoformat(), change.price, change.event]
             for change in list(listing.price_changes.all())[-8:]
         ],
-        "status": listing.status,
+        "status": listing.group_status,
         "notes": listing.notes,
     }
 
@@ -278,7 +291,7 @@ def _clean_picks(raw, by_id):
     picks, seen = [], set()
     for item in raw:
         listing = by_id.get(item.get("id"))
-        if listing is None or listing.pk in seen or listing.status == Status.REJECTED:
+        if listing is None or listing.pk in seen or listing.group_status == Status.REJECTED:
             continue
         seen.add(listing.pk)
         picks.append({
@@ -313,7 +326,7 @@ def diff_picks(previous_picks, picks, listings_by_id):
         why = ""
         if listing is None:
             why = "no longer in the database"
-        elif listing.status == Status.REJECTED:
+        elif listing.group_status == Status.REJECTED:
             why = "you rejected it"
         elif not listing.is_active:
             why = "off the market"
@@ -330,8 +343,9 @@ def run_report(trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
     """Runs both passes and saves the report. Never raises: a failure is saved on the report."""
     report = report or TrendReport.objects.create(trigger=trigger)
     try:
+        group = owners_group()  # Task 14 makes reports per group
         previous = TrendReport.objects.filter(status=TrendReport.Status.DONE).exclude(pk=report.pk).first()
-        pool = candidates()
+        pool = candidates(group)
         if not pool:
             raise AnalystError("No listings match the default filters yet, so there's nothing to analyze.")
         stats = {"now": trend_stats.market_snapshot(), "weekly": trend_stats.weekly_series()}
@@ -353,7 +367,7 @@ def run_report(trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
             raise AnalystError("Claude's shortlist didn't include any known listings.")
         report.shortlist = shortlist
 
-        rejected = passed_on()
+        rejected = passed_on(group)
         prompt = _picks_prompt(stats, [by_id[pk] for pk in shortlist], rejected, previous)
         answer, message = _ask(client, prompt, PICKS_SCHEMA, effort="high")
         _add_usage(report, message)
@@ -362,7 +376,8 @@ def run_report(trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
         report.summary = answer.get("summary", "")
         if previous:
             ids = {p["listing_id"] for p in previous.picks}
-            report.changes = diff_picks(previous.picks, report.picks, Listing.objects.in_bulk(ids))
+            listings = _prepare(Listing.objects.in_bulk(ids).values(), group)
+            report.changes = diff_picks(previous.picks, report.picks, {l.pk: l for l in listings})
         report.status = TrendReport.Status.DONE
     except Exception as exc:  # a failed report is shown on the page; the scheduler must keep going
         log.exception("Trend report %s failed", report.pk)

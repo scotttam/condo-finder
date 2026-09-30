@@ -7,7 +7,7 @@ from django.utils import timezone
 from listings.filters import apply_filters
 from listings.forms import ListingFilterForm, default_filter_data
 from listings.models import Listing, PriceChange
-from tests.helpers import make_listing
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
@@ -47,7 +47,7 @@ def test_price_reduced_filter():
     make_listing(address_key="steady", price=3000, beds=2, baths=Decimal("2"), parking_spaces=2, property_type="condo")
     form = ListingFilterForm(default_filter_data() | {"price_reduced": "on"})
     assert form.is_valid(), form.errors
-    assert list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True)) == ["cornell-1"]
+    assert list(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True)) == ["cornell-1"]
     assert "price_reduced" not in default_filter_data()  # off by default
 
 

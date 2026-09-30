@@ -9,7 +9,8 @@ from django.utils import timezone
 
 from listings import analyst
 from listings.models import PriceChange, PropertyType, SearchPriorities, Status, TrendReport
-from tests.helpers import make_listing
+from listings.collab import set_status
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
@@ -98,22 +99,22 @@ def test_candidates_are_default_filter_matches_plus_tracked():
     liked_but_cheap = candidate(price=1500, status=Status.INTERESTED)
     rejected = candidate(status=Status.REJECTED)
     apartment = candidate(property_type=PropertyType.APARTMENT)
-    ids = {listing.pk for listing in analyst.candidates()}
+    ids = {listing.pk for listing in analyst.candidates(home_group())}
     assert ids == {match.pk, liked_but_cheap.pk}
-    assert [listing.pk for listing in analyst.passed_on()] == [rejected.pk]
+    assert [listing.pk for listing in analyst.passed_on(home_group())] == [rejected.pk]
     assert too_cheap.pk not in ids and apartment.pk not in ids
 
 
 def test_compact_facts_describe_unknowns_and_history():
     listing = candidate(parking_spaces=None, has_parking=None, has_ac=None, notes="Loved the kitchen")
     PriceChange.objects.create(listing=listing, price=3200, seen_at=timezone.now() - timedelta(days=20), event="Listed for rent")
-    facts = analyst.compact_facts(listing)
+    facts = analyst.compact_facts(analyst._prepare([listing], home_group())[0])
     assert facts["parking"] == "unknown"
     assert facts["ac"] == "unknown" and facts["wd"] == "yes"
     assert facts["price_history"][0][1:] == [3200, "Listed for rent"]
     assert facts["notes"] == "Loved the kitchen"
     assert "description" not in facts
-    assert analyst.full_facts(listing)["description"] == "Sunny corner unit with a big deck."
+    assert analyst.full_facts(analyst._prepare([listing], home_group())[0])["description"] == "Sunny corner unit with a big deck."
 
 
 def test_run_report_makes_two_passes_and_saves_picks():
@@ -200,8 +201,7 @@ def test_previous_picks_are_sent_and_changes_recorded():
         picks=[{"listing_id": a.pk, "rank": 1, "headline": "Old A", "price_at_pick": 3200, "address": a.street},
                {"listing_id": c.pk, "rank": 2, "headline": "Old C", "price_at_pick": 3000, "address": c.street}],
     )
-    c.status = Status.REJECTED
-    c.save()
+    set_status(c, home_group(), None, Status.REJECTED)
     client = FakeClient(
         message({"shortlist": [{"id": a.pk, "reason": ""}, {"id": b.pk, "reason": ""}]}),
         message(final([pick(a.pk), pick(b.pk)])),

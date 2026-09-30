@@ -6,7 +6,7 @@ import pytest
 from listings.filters import apply_filters
 from listings.forms import ListingFilterForm, default_filter_data
 from listings.models import Listing
-from tests.helpers import make_listing
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
@@ -24,7 +24,7 @@ def test_filters_to_the_map_area():
     listing("unlocated", None, None)
     form = ListingFilterForm(default_filter_data() | PEARL_BOX)
     assert form.is_valid(), form.errors
-    assert list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True)) == ["pearl"]
+    assert list(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True)) == ["pearl"]
 
 
 def test_partial_bounds_are_ignored():
@@ -32,7 +32,7 @@ def test_partial_bounds_are_ignored():
     listing("gresham", 45.50, -122.43)
     form = ListingFilterForm(default_filter_data() | {"north": "45.535"})
     assert form.is_valid()
-    assert apply_filters(Listing.objects.all(), form.cleaned_data).count() == 2
+    assert apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).count() == 2
 
 
 def test_bounds_ride_along_in_the_form_and_show_a_clearable_chip(client):

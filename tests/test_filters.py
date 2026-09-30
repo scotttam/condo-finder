@@ -5,7 +5,7 @@ import pytest
 from listings.filters import apply_filters
 from listings.forms import ListingFilterForm, default_filter_data
 from listings.models import Listing, PropertyType, Status
-from tests.helpers import make_listing
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
@@ -19,7 +19,7 @@ def listing(key, **fields):
 def filtered(data=None):
     form = ListingFilterForm(data or default_filter_data())
     assert form.is_valid(), form.errors
-    return set(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True))
+    return set(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True))
 
 
 def test_defaults_apply_2_2_2_and_hide_apartments_rejected_inactive():
@@ -61,7 +61,7 @@ def test_sort_by_price_per_sqft():
     listing("pricey-per-sqft", price=2500, sqft=800)
     form = ListingFilterForm(default_filter_data() | {"sort": "ppsf"})
     assert form.is_valid()
-    keys = list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True))
+    keys = list(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True))
     assert keys == ["cheap-per-sqft", "pricey-per-sqft"]
 
 
@@ -76,7 +76,7 @@ def test_filter_by_source_includes_multi_source_listing_once():
     SourceListing.objects.create(listing=both, source=zillow, external_id="z2", url="https://z.example/2")
     form = ListingFilterForm(default_filter_data() | {"sources": ["zillow"]})
     assert form.is_valid(), form.errors
-    keys = list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True))
+    keys = list(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True))
     assert keys == ["both"]
     assert filtered(default_filter_data() | {"sources": ["pearl", "zillow"]}) == {"only-pearl", "both"}
 

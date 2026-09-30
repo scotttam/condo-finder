@@ -14,7 +14,7 @@ from accounts.decorators import staff_required
 from .filters import apply_filters
 from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
 from .models import Listing, PriceChange, SearchPriorities, Source, SourceRun, Status, TrendReport
-from . import analyst, feed, trend_stats
+from . import analyst, collab, feed, trend_stats
 from .charts import line_chart
 from .ingest import refresh_source_listing
 from .runner import is_running, run_all_in_background, sync_sources
@@ -37,17 +37,18 @@ def listing_list(request):
     form = ListingFilterForm(request.GET if has_filters else default_filter_data())
     queryset = Listing.objects.all()
     if form.is_valid():
-        queryset = apply_filters(queryset, form.cleaned_data)
+        queryset = apply_filters(queryset, form.cleaned_data, request.group)
     page_obj = Paginator(queryset.prefetch_related("source_listings__source", "price_changes"), PAGE_SIZE).get_page(
         request.GET.get("page")
     )
+    listings = collab.decorate(page_obj.object_list, request.group, request.user)
     return render(request, "listings/list.html", {
         "form": form,
         "filter_defaults": default_filter_data(),
         "view": view,
         "page_obj": page_obj,
-        "listings": page_obj.object_list,
-        "map_points": _map_points(page_obj.object_list) if view == "map" else [],
+        "listings": listings,
+        "map_points": _map_points(listings) if view == "map" else [],
         "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
         "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
         "map_url": _url_with(request, view="map"),
@@ -65,7 +66,7 @@ PIN_MARKS = {Status.INTERESTED: ("♥ ", "pin-liked"), Status.REJECTED: ("✕ ",
 
 
 def _pin_style(listing):
-    mark, status_class = PIN_MARKS.get(listing.status, ("", ""))
+    mark, status_class = PIN_MARKS.get(listing.group_status, ("", ""))
     drop = listing.price_drop
     special = bool(listing.special_offer)
     classes = ["pin", drop and "pin-drop", special and "pin-special", status_class, not listing.is_active and "pin-off"]
@@ -84,7 +85,7 @@ def _map_points(listings):
             "lng": listing.longitude,
             "short": _short_price(listing.price),
             "drop": bool(listing.price_drop),
-            "status": listing.status,
+            "status": listing.group_status,
             "active": listing.is_active,
             **_pin_style(listing),
             "url": listing.get_absolute_url(),
@@ -99,7 +100,7 @@ def feed_page(request):
     tab = request.GET.get("tab") if request.GET.get("tab") in ("new", "updates") else "all"
     show_apartments = request.GET.get("apartments") == "show"
     last_seen = feed.seen_at(request)
-    page_obj = Paginator(feed.events(tab, show_apartments), FEED_PAGE_SIZE).get_page(request.GET.get("page"))
+    page_obj = Paginator(feed.events(request.group, tab, show_apartments), FEED_PAGE_SIZE).get_page(request.GET.get("page"))
     today = timezone.localdate()
     rows = []
     for event in page_obj.object_list:
@@ -113,6 +114,7 @@ def feed_page(request):
             "day": "Today" if day == today else "Yesterday" if (today - day).days == 1 else f"{day:%A, %b} {day.day}",
             "happened": happened if happened != day else None,
         })
+    collab.decorate([row["listing"] for row in rows], request.group, request.user)
     response = render(request, "listings/feed.html", {
         "rows": rows,
         "page_obj": page_obj,
@@ -137,6 +139,7 @@ def listing_detail(request, pk):
     listing = get_object_or_404(
         Listing.objects.prefetch_related("source_listings__source", "price_changes"), pk=pk
     )
+    collab.decorate([listing], request.group, request.user)
     return render(request, "listings/detail.html", {
         **_history_context(listing),
         "listing": listing,
@@ -267,8 +270,8 @@ def set_status(request, pk):
     status = request.POST.get("status")
     if status not in Status.values:
         return HttpResponseBadRequest("invalid status")
-    listing.status = status
-    listing.save(update_fields=["status", "updated_at"])
+    collab.set_status(listing, request.group, request.user, status)
+    collab.decorate([listing], request.group, request.user)
     if request.headers.get("HX-Request"):
         template = "listings/_status_pills.html" if request.POST.get("variant") == "pills" else "listings/_status.html"
         return render(request, template, {"listing": listing})
@@ -320,6 +323,7 @@ def trends_page(request):
     weekly = stats.get("weekly") or trend_stats.weekly_series()
     picks = report.picks if report else []
     listings = Listing.objects.in_bulk([pick["listing_id"] for pick in picks])
+    collab.decorate(listings.values(), request.group, request.user)
     return render(request, "listings/trends.html", {
         "report": report,
         "is_latest": report == newest,

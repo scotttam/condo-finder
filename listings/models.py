@@ -106,7 +106,6 @@ class Listing(models.Model):
         help_text='Manual corrections that survive re-scrapes, e.g. {"parking_spaces": 2, "has_ac": true}',
     )
 
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
     notes = models.TextField(blank=True)
 
     is_active = models.BooleanField(default=True)

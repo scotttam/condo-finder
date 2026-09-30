@@ -5,7 +5,7 @@ import pytest
 
 from listings import analyst
 from listings.models import SearchPriorities, Status, TrendReport
-from tests.helpers import make_listing
+from tests.helpers import make_listing, status_of
 
 pytestmark = pytest.mark.django_db
 
@@ -103,8 +103,7 @@ def test_pick_cards_have_status_pills_that_post_and_swap(client):
     swapped = response.content.decode()
     assert swapped.lstrip().startswith(f'<form id="pills-{item.pk}"')
     assert re.search(r'name="status" value="toured" checked', swapped)
-    item.refresh_from_db()
-    assert item.status == Status.TOURED
+    assert status_of(item) == Status.TOURED
 
 
 def test_market_section_shows_snapshot_and_charts(client):
