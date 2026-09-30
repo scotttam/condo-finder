@@ -50,6 +50,7 @@ class FakeFetcher:
 def make_listing(**overrides):
     from listings.models import Listing
 
+    status = overrides.pop("status", None)
     fields = dict(
         address_key="937 nw glisan st|435|97209",
         address="937 NW Glisan Street #435, Portland, OR 97209",
@@ -59,7 +60,12 @@ def make_listing(**overrides):
         zip_code="97209",
     )
     fields.update(overrides)
-    return Listing.objects.create(**fields)
+    listing = Listing.objects.create(**fields)
+    if status:
+        from listings.collab import set_status
+
+        set_status(listing, home_group(), None, status)
+    return listing
 
 
 def scraped(**overrides):
@@ -106,3 +112,9 @@ def make_user(email, name, group=None, staff=False):
     user = get_user_model().objects.create_user(username=email, email=email, password="pw", is_staff=staff)
     Profile.objects.create(user=user, group=group or home_group(), display_name=name)
     return user
+
+
+def status_of(listing, group=None):
+    from listings.collab import decorate
+
+    return decorate([listing], group or home_group())[0].group_status

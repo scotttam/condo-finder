@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 544 tests pass.
+  after the whole stack merges, following the README runbook. 550 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -105,10 +105,14 @@ its own data. Production data lives only on the Mac mini.
   - **Implausible rents:** anything over `MAX_PLAUSIBLE_RENT` (25k) is rejected, e.g. Zillow home
     values.
   - **Empty scrapes:** a scrape that returns 0 items counts as a failure and never marks listings gone.
+- `listings/collab.py`: everything a search group says about a listing. `ListingState` holds its
+  status (no row = New) with who set it and when. `decorate(listings, group, user)` attaches
+  `group_status`/`group_status_label`/`state` for templates; `status_expr(group)` annotates querysets
+  (the statuses filter). `apply_filters(queryset, data, group)` needs the group.
 - `listings/merge.py` matches with/without-unit pairs (`unit_match`) and merges two listings (`merge`):
   sites, price history, feed events and Trends picks move over. The survivor is the copy the owners
   touched (status, notes, overrides or hand-entered history), else the one with a unit. If both were
-  touched, notes are joined and the furthest status wins (new < interested < toured < applied < rejected).
+  touched, notes are joined and each group keeps one status, the furthest along (new < interested < toured < applied < rejected).
   `merge_unit_duplicates()` runs after every scrape; `manage.py merge_duplicates [--dry-run]` runs it now.
 - `listings/specials.py` finds move-in specials ("4 weeks free", "$500 off first month") and their
   value; `Listing.special_offer` holds the sentence. Unlike features, it's re-read from the listing's

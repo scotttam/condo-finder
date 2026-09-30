@@ -6,7 +6,7 @@ from django.db.models.functions import Cast
 FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space"}
 
 
-def apply_filters(queryset, data):
+def apply_filters(queryset, data, group):
     if not data.get("show_inactive"):
         queryset = queryset.filter(is_active=True)
     if data.get("min_beds") is not None:
@@ -37,7 +37,9 @@ def apply_filters(queryset, data):
     if data.get("types"):
         queryset = queryset.filter(property_type__in=data["types"])
     if data.get("statuses"):
-        queryset = queryset.filter(status__in=data["statuses"])
+        from .collab import status_expr
+
+        queryset = queryset.annotate(our_status=status_expr(group)).filter(our_status__in=data["statuses"])
     if data.get("furnished") == "hide":
         queryset = queryset.exclude(is_furnished=True)
     elif data.get("furnished") == "only":

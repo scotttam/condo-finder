@@ -98,5 +98,5 @@ class PriceEntryForm(forms.Form):
 class TrackingForm(forms.ModelForm):
     class Meta:
         model = Listing
-        fields = ["status", "notes"]
+        fields = ["notes"]
         widgets = {"notes": forms.Textarea(attrs={"rows": 6})}

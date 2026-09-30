@@ -3,10 +3,10 @@ queries behind the Feed page."""
 
 from datetime import datetime, timedelta
 
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 
-from .models import FeedEvent, PropertyType, Status
+from .models import FeedEvent, ListingState, PropertyType, Status
 
 SEEN_COOKIE = "feed_seen_at"  # per browser, so each person has their own unread state
 FIRST_VISIT_UNREAD = timedelta(days=7)
@@ -68,9 +68,9 @@ def record_detail_changes(listing, before, when, source=""):
         record(listing, FeedEvent.Kind.DETAILS_CHANGED, " · ".join(changes), when, source)
 
 
-def events(tab="all", show_apartments=False):
-    """New listings, plus updates to listings you've given a status (anything but New)."""
-    tracked = ~Q(listing__status=Status.NEW)
+def events(group, tab="all", show_apartments=False):
+    """New listings, plus updates to listings the group has given a status (anything but New)."""
+    tracked = Q(Exists(ListingState.objects.filter(group=group, listing=OuterRef("listing")).exclude(status=Status.NEW)))
     queryset = FeedEvent.objects.select_related("listing")
     if tab == "new":
         queryset = queryset.filter(kind=FeedEvent.Kind.NEW_LISTING)
@@ -91,7 +91,7 @@ def seen_at(request):
 
 
 def unread_count(request):
-    return events().filter(created_at__gt=seen_at(request)).count()
+    return events(request.group).filter(created_at__gt=seen_at(request)).count()
 
 
 def label(event):

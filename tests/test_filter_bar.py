@@ -6,7 +6,7 @@ import pytest
 from listings.filters import apply_filters
 from listings.forms import PRICE_SLIDER_MAX, ListingFilterForm, default_filter_data
 from listings.models import Listing
-from tests.helpers import make_listing
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
@@ -78,4 +78,4 @@ def test_slider_at_its_top_means_no_maximum():
     make_listing(address_key="big", price=9500, beds=3, baths=Decimal("2"), parking_spaces=2, property_type="house")
     form = ListingFilterForm(default_filter_data() | {"max_price": str(PRICE_SLIDER_MAX)})
     assert form.is_valid()
-    assert list(apply_filters(Listing.objects.all(), form.cleaned_data).values_list("address_key", flat=True)) == ["big"]
+    assert list(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True)) == ["big"]

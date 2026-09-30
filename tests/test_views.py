@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from listings.models import Status
-from tests.helpers import make_listing
+from tests.helpers import make_listing, status_of
 
 pytestmark = pytest.mark.django_db
 
@@ -39,12 +39,11 @@ def test_detail_page(client):
 
 def test_update_tracking_htmx_returns_partial(client):
     listing = good_listing()
-    response = client.post(f"/listing/{listing.pk}/tracking/", {"status": "toured", "notes": "Great light"},
-                           HTTP_HX_REQUEST="true")
+    response = client.post(f"/listing/{listing.pk}/tracking/", {"notes": "Great light"}, HTTP_HX_REQUEST="true")
     assert response.status_code == 200
     assert b"Saved" in response.content
     listing.refresh_from_db()
-    assert (listing.status, listing.notes) == (Status.TOURED, "Great light")
+    assert listing.notes == "Great light"
 
 
 def test_set_status_keeps_notes(client):
@@ -52,7 +51,7 @@ def test_set_status_keeps_notes(client):
     response = client.post(f"/listing/{listing.pk}/status/", {"status": "interested"}, HTTP_HX_REQUEST="true")
     assert response.status_code == 200
     listing.refresh_from_db()
-    assert (listing.status, listing.notes) == (Status.INTERESTED, "keep me")
+    assert (status_of(listing), listing.notes) == (Status.INTERESTED, "keep me")
 
 
 def test_set_status_rejects_invalid(client):
@@ -250,5 +249,4 @@ def test_status_buttons_pass_csrf_over_tailscale(owner):
         HTTP_HOST=TAILSCALE_HOST, HTTP_ORIGIN=f"http://{TAILSCALE_HOST}", HTTP_X_CSRFTOKEN=token, HTTP_HX_REQUEST="true",
     )
     assert response.status_code == 200
-    listing.refresh_from_db()
-    assert listing.status == Status.INTERESTED
+    assert status_of(listing) == Status.INTERESTED

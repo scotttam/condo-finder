@@ -1,6 +1,9 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+
+from accounts.models import display_name
 
 from .specials import effective_rent, special_label
 
@@ -103,7 +106,6 @@ class Listing(models.Model):
         help_text='Manual corrections that survive re-scrapes, e.g. {"parking_spaces": 2, "has_ac": true}',
     )
 
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
     notes = models.TextField(blank=True)
 
     is_active = models.BooleanField(default=True)
@@ -200,6 +202,23 @@ class SourceListing(models.Model):
             models.UniqueConstraint(fields=["source", "external_id"], name="unique_source_external_id")
         ]
 
+
+
+class ListingState(models.Model):
+    """A search group's shared status for a listing. No row means New."""
+
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="listing_states")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="states")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    status_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    status_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["group", "listing"], name="unique_group_listing_state")]
+
+    @property
+    def status_by_name(self):
+        return display_name(self.status_by)
 
 class PriceChange(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="price_changes")
