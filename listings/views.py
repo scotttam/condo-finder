@@ -96,10 +96,11 @@ def _map_points(listings):
 
 
 def feed_page(request):
-    """New listings and updates to listings you're tracking, newest first; unread since your last visit."""
-    tab = request.GET.get("tab") if request.GET.get("tab") in ("new", "updates") else "all"
+    """New listings, updates to listings the group tracks, and the group's own activity, newest first."""
+    requested = request.GET.get("tab")
+    tab = requested if requested in ("new", "updates", "activity") else "all"
     show_apartments = request.GET.get("apartments") == "show"
-    last_seen = feed.seen_at(request)
+    last_seen = feed.seen_at(request.profile)
     page_obj = Paginator(feed.events(request.group, tab, show_apartments), FEED_PAGE_SIZE).get_page(request.GET.get("page"))
     today = timezone.localdate()
     rows = []
@@ -110,12 +111,13 @@ def feed_page(request):
             "event": event,
             "listing": event.listing,
             "label": feed.label(event),
-            "unread": event.created_at > last_seen,
+            "unread": feed.is_unread(event, request.profile, last_seen),
             "day": "Today" if day == today else "Yesterday" if (today - day).days == 1 else f"{day:%A, %b} {day.day}",
             "happened": happened if happened != day else None,
         })
     collab.decorate([row["listing"] for row in rows], request.group, request.user)
-    response = render(request, "listings/feed.html", {
+    feed.mark_seen(request.profile)
+    return render(request, "listings/feed.html", {
         "rows": rows,
         "page_obj": page_obj,
         "tab": tab,
@@ -124,8 +126,6 @@ def feed_page(request):
         "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
         "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
     })
-    response.set_cookie(feed.SEEN_COOKIE, timezone.now().isoformat(), max_age=60 * 60 * 24 * 365, samesite="Lax")
-    return response
 
 
 def _url_with(request, **params):

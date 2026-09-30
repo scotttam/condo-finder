@@ -1,14 +1,13 @@
 """Feed events: recorded by ingest when something worth knowing happens to a listing, and the
 queries behind the Feed page."""
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 
 from .models import FeedEvent, ListingState, PropertyType, Status
 
-SEEN_COOKIE = "feed_seen_at"  # per browser, so each person has their own unread state
 FIRST_VISIT_UNREAD = timedelta(days=7)
 
 # Fields whose changes are worth telling you about, with the label used in summaries.
@@ -68,30 +67,49 @@ def record_detail_changes(listing, before, when, source=""):
         record(listing, FeedEvent.Kind.DETAILS_CHANGED, " · ".join(changes), when, source)
 
 
+def record_activity(listing, group, actor, kind, summary):
+    """Something a group member did, shown only in that group's Feed."""
+    now = timezone.now()
+    return FeedEvent.objects.create(
+        listing=listing, group=group, actor=actor, kind=kind, summary=summary[:300], created_at=now, happened_at=now,
+    )
+
+
 def events(group, tab="all", show_apartments=False):
-    """New listings, plus updates to listings the group has given a status (anything but New)."""
+    """New listings and updates to listings the group tracks (scraped events every group sees), plus the
+    group's own activity: status changes, comments and votes by its members."""
+    site = Q(group__isnull=True)
     tracked = Q(Exists(ListingState.objects.filter(group=group, listing=OuterRef("listing")).exclude(status=Status.NEW)))
-    queryset = FeedEvent.objects.select_related("listing")
+    queryset = FeedEvent.objects.select_related("listing", "actor__profile")
     if tab == "new":
-        queryset = queryset.filter(kind=FeedEvent.Kind.NEW_LISTING)
+        queryset = queryset.filter(site, kind=FeedEvent.Kind.NEW_LISTING)
     elif tab == "updates":
-        queryset = queryset.exclude(kind=FeedEvent.Kind.NEW_LISTING).filter(tracked)
+        queryset = queryset.filter(site & tracked).exclude(kind=FeedEvent.Kind.NEW_LISTING)
+    elif tab == "activity":
+        queryset = queryset.filter(group=group)
     else:
-        queryset = queryset.filter(Q(kind=FeedEvent.Kind.NEW_LISTING) | tracked)
+        queryset = queryset.filter((site & (Q(kind=FeedEvent.Kind.NEW_LISTING) | tracked)) | Q(group=group))
     if not show_apartments:
-        queryset = queryset.exclude(listing__property_type=PropertyType.APARTMENT)
+        queryset = queryset.exclude(site & Q(listing__property_type=PropertyType.APARTMENT))
     return queryset.order_by("-created_at", "-pk")
 
 
-def seen_at(request):
-    try:
-        return datetime.fromisoformat(request.COOKIES[SEEN_COOKIE])
-    except (KeyError, ValueError):
-        return timezone.now() - FIRST_VISIT_UNREAD
+def seen_at(profile):
+    return profile.feed_seen_at or timezone.now() - FIRST_VISIT_UNREAD
 
 
-def unread_count(request):
-    return events(request.group).filter(created_at__gt=seen_at(request)).count()
+def is_unread(event, profile, last_seen):
+    """Newer than the person's last Feed visit, and not something they did themselves."""
+    return event.created_at > last_seen and event.actor_id != profile.user_id
+
+
+def unread_count(profile):
+    return events(profile.group).filter(created_at__gt=seen_at(profile)).exclude(actor=profile.user).count()
+
+
+def mark_seen(profile):
+    profile.feed_seen_at = timezone.now()
+    profile.save(update_fields=["feed_seen_at"])
 
 
 def label(event):
@@ -104,4 +122,7 @@ def label(event):
         FeedEvent.Kind.BACK_ON_MARKET: "Back on market",
         FeedEvent.Kind.NEW_SITE: "New site",
         FeedEvent.Kind.DETAILS_CHANGED: "Details",
+        FeedEvent.Kind.STATUS: "Status",
+        FeedEvent.Kind.COMMENT: "Comment",
+        FeedEvent.Kind.VOTE: "Vote",
     }[event.kind]

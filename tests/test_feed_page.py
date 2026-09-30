@@ -4,6 +4,7 @@ from decimal import Decimal
 import pytest
 from django.utils import timezone
 
+from accounts.models import Profile
 from listings.models import FeedEvent, Status
 from tests.helpers import make_listing
 
@@ -74,24 +75,22 @@ def test_price_change_label_says_drop_or_increase(client):
     assert "↓ Price drop" in content and "↑ Price increase" in content
 
 
-def test_unread_items_are_highlighted_and_visiting_marks_them_seen(client):
+def test_unread_items_are_highlighted_and_visiting_marks_them_seen(client, owner):
     old = event(listing(street="8 Old St"), "new_listing", when=timezone.now() - timedelta(days=3))
     event(listing(street="9 Recent St"), "new_listing")
-    client.cookies["feed_seen_at"] = (timezone.now() - timedelta(days=1)).isoformat()
-    response = feed(client)
-    content = response.content.decode()
+    Profile.objects.filter(user=owner).update(feed_seen_at=timezone.now() - timedelta(days=1))
+    content = feed(client).content.decode()
     assert content.count('class="feed-row unread"') == 1
-    assert "feed_seen_at" in response.cookies
+    assert Profile.objects.get(user=owner).feed_seen_at > timezone.now() - timedelta(minutes=1)
     assert old.pk  # the older item is still listed, just not unread
     assert "8 Old St" in content
-
 
 def test_nav_badge_counts_unread_and_clears_after_visiting(client):
     event(listing(), "new_listing")
     event(listing(), "new_listing")
     event(listing(property_type="apartment"), "new_listing")  # hidden by default: not counted
     home = client.get("/").content.decode()
-    assert 'class="nav-badge">2<' in home  # no cookie yet: the last 7 days count as unread
+    assert 'class="nav-badge">2<' in home  # never visited: the last 7 days count as unread
     feed(client)
     assert 'class="nav-badge"' not in client.get("/").content.decode()
 

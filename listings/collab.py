@@ -6,7 +6,10 @@ from django.db.models import OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from .models import ListingState, Status
+from accounts.models import display_name
+
+from . import feed
+from .models import FeedEvent, ListingState, Status
 
 STATUS_LABELS = dict(Status.choices)
 
@@ -39,4 +42,7 @@ def set_status(listing, group, user, status):
         return state
     state.status, state.status_by, state.status_at = status, user, timezone.now()
     state.save()
+    if user is not None:
+        feed.record_activity(listing, group, user, FeedEvent.Kind.STATUS,
+                             f"{display_name(user)} marked it {STATUS_LABELS[status]}")
     return state

@@ -241,6 +241,9 @@ class FeedEvent(models.Model):
         BACK_ON_MARKET = "back_on_market", "Back on market"
         NEW_SITE = "new_site", "Listed on another site"
         DETAILS_CHANGED = "details_changed", "Details changed"
+        STATUS = "status", "Status"
+        COMMENT = "comment", "Comment"
+        VOTE = "vote", "Vote"
 
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="feed_events")
     kind = models.CharField(max_length=20, choices=Kind.choices)
@@ -250,6 +253,10 @@ class FeedEvent(models.Model):
     source = models.CharField(max_length=100, blank=True)
     old_price = models.IntegerField(null=True, blank=True)
     new_price = models.IntegerField(null=True, blank=True)
+    # A group's own activity (status changes, comments, votes) has its group and who did it. Scraped
+    # events have no group, and every group sees them.
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="feed_events")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
 
     class Meta:
         ordering = ["-created_at", "-pk"]

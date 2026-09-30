@@ -8,4 +8,4 @@ def listings_nav(request):
     from . import feed
 
     on_feed = getattr(getattr(request, "resolver_match", None), "url_name", None) == "feed"
-    return {"listings_url": f"/{query}", "feed_unread": 0 if on_feed else feed.unread_count(request)}
+    return {"listings_url": f"/{query}", "feed_unread": 0 if on_feed else feed.unread_count(request.profile)}
