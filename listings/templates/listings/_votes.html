@@ -1,0 +1,8 @@
+{# Each member's 👍/👎 on a listing. Clicking your current vote again clears it; the form swaps itself. #}
+<form class="votes" id="votes-{{ listing.pk }}" method="post" action="{% url 'vote' listing.pk %}"
+      hx-post="{% url 'vote' listing.pk %}" hx-target="this" hx-swap="outerHTML">
+  {% csrf_token %}
+  <button type="submit" name="value" value="up" class="vote{% if listing.my_vote == 1 %} mine{% endif %}" aria-pressed="{% if listing.my_vote == 1 %}true{% else %}false{% endif %}" title="I like it">👍{% if listing.up_count %} {{ listing.up_count }}{% endif %}</button>
+  <button type="submit" name="value" value="down" class="vote{% if listing.my_vote == -1 %} mine{% endif %}" aria-pressed="{% if listing.my_vote == -1 %}true{% else %}false{% endif %}" title="Not for me">👎{% if listing.down_count %} {{ listing.down_count }}{% endif %}</button>
+  {% if listing.vote_names %}<span class="muted vote-who">{{ listing.vote_names }}</span>{% endif %}
+</form>

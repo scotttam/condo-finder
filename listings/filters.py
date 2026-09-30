@@ -1,7 +1,8 @@
-from django.db.models import ExpressionWrapper, F, FloatField, Max, Q
+from django.db.models import Count, ExpressionWrapper, F, FloatField, IntegerField, Max, OuterRef, Q, Subquery
+from django.db.models.functions import Cast, Coalesce
 
 from .forms import PRICE_SLIDER_MAX
-from django.db.models.functions import Cast
+from .models import Vote
 
 FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space"}
 
@@ -40,6 +41,8 @@ def apply_filters(queryset, data, group):
         from .collab import status_expr
 
         queryset = queryset.annotate(our_status=status_expr(group)).filter(our_status__in=data["statuses"])
+    if data.get("votes") and data["votes"] != "any":
+        queryset = _filter_votes(queryset, data["votes"], group)
     if data.get("furnished") == "hide":
         queryset = queryset.exclude(is_furnished=True)
     elif data.get("furnished") == "only":
@@ -58,6 +61,26 @@ def apply_filters(queryset, data, group):
         elif data.get(key) == "yes_or_unknown":
             queryset = queryset.exclude(**{field: False})
     return _sort(queryset, data.get("sort") or "price")
+
+
+def _vote_count(group, value):
+    # A subquery, not Count() over a join: joins would multiply with the price-history join below.
+    votes = (Vote.objects.filter(listing=OuterRef("pk"), group=group, value=value)
+             .order_by().values("listing").annotate(n=Count("pk")).values("n"))
+    return Coalesce(Subquery(votes, output_field=IntegerField()), 0)
+
+
+def _filter_votes(queryset, choice, group):
+    queryset = queryset.annotate(up_votes=_vote_count(group, Vote.Value.UP), down_votes=_vote_count(group, Vote.Value.DOWN))
+    if choice == "everyone_likes":
+        return queryset.filter(up_votes=group.members.count(), up_votes__gt=0)
+    if choice == "someone_likes":
+        return queryset.filter(up_votes__gt=0)
+    if choice == "disagree":
+        return queryset.filter(up_votes__gt=0, down_votes__gt=0)
+    if choice == "unvoted":
+        return queryset.filter(up_votes=0, down_votes=0)
+    return queryset
 
 
 def _sort(queryset, sort):

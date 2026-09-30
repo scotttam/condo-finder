@@ -27,7 +27,7 @@
         <div class="muted">{{ listing.city }}{% if listing.neighborhood %} · {{ listing.neighborhood }}{% endif %}</div></td>
       <td>{% include "listings/_sources.html" %}</td>
       <td class="nowrap">{{ listing.days_on_market }}d</td>
-      <td>{% include "listings/_status.html" %}</td>
+      <td>{% include "listings/_status.html" %}{% include "listings/_votes.html" %}</td>
     </tr>
   {% empty %}
     <tr><td colspan="12">No listings match. Try loosening the filters.</td></tr>

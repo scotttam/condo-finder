@@ -34,6 +34,9 @@ def move_to_group(user, group):
     profile = profile_for(user)
     if profile.group_id == group.pk:
         return profile
+    from listings.models import Vote
+
+    Vote.objects.filter(user=user).delete()  # votes belong to the group being left
     profile.group = group
     profile.joined_at = timezone.now()
     profile.save(update_fields=["group", "joined_at"])
