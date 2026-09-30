@@ -14,10 +14,10 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #55** (unit-number duplicates; no migration). **Open: #56**
-  (`map-zoom-focus`: the first click on a map no longer scrolls the page and shifts the zoom buttons).
-  After deploying #55, run `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then
-  without `--dry-run` (the post-scrape pass would also do it on the next run). 528 tests pass.
+- **Merged to `main` through PR #56** (the first click on a map no longer scrolls the page and shifts
+  the zoom buttons). **Open: #57** (docs only: no inline shell comments). After deploying #55, run
+  `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
+  post-scrape pass would also do it on the next run). 528 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -46,13 +46,14 @@ how to continue it.
 
 ```bash
 uv sync
-uv run playwright install chromium          # once; RentEngine (Chroma) uses headless Chromium
+uv run playwright install chromium
 uv run python manage.py migrate
 uv run python manage.py scrape [--source zillow]
 DJANGO_DEBUG=1 uv run python manage.py runserver 127.0.0.1:8000
 uv run pytest -q
 ```
 
+Run `playwright install chromium` once per machine; RentEngine (Chroma) uses headless Chromium.
 Settings come from `.env` (see `.env.example`). `db.sqlite3` is not in git, so every machine has
 its own data. Production data lives only on the Mac mini.
 
@@ -154,6 +155,9 @@ its own data. Production data lives only on the Mac mini.
 ## Gotchas
 
 - The shell is zsh. It doesn't word-split variables, and its arrays are 1-based.
+- Don't put `# comments` after commands you give the owner to paste. Interactive zsh doesn't
+  treat `#` as a comment, so the comment is passed to the command as arguments. Explain the command in
+  prose instead, and give each command its own code block when they run at different times.
 - `git mv` fails on untracked files. Use `mv`.
 - Zillow shows a home's *value* on off-market pages. The refresh code checks for `FOR_RENT` and
   treats anything else as removed.
