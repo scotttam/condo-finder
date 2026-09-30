@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -290,3 +291,42 @@ class SearchPriorities(models.Model):
     @classmethod
     def get(cls):
         return cls.objects.get_or_create(pk=1)[0]
+
+
+class SavedQuery(models.Model):
+    """A query saved from the SQL console."""
+
+    name = models.CharField(max_length=100)
+    sql = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "pk"]
+        verbose_name_plural = "saved queries"
+
+    def __str__(self):
+        return self.name
+
+
+class QueryRun(models.Model):
+    """One query run in the SQL console, for its Recent list. Only the latest KEEP are kept."""
+
+    KEEP = 50
+
+    sql = models.TextField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    ran_at = models.DateTimeField(default=timezone.now)
+    row_count = models.IntegerField(null=True, blank=True)  # None when the query failed
+    elapsed_ms = models.IntegerField(default=0)
+    error = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-ran_at", "-pk"]
+
+    @classmethod
+    def record(cls, **fields):
+        run = cls.objects.create(**fields)
+        keep = list(cls.objects.values_list("pk", flat=True)[: cls.KEEP])
+        cls.objects.exclude(pk__in=keep).delete()
+        return run
