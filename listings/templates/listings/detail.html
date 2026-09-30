@@ -84,6 +84,8 @@
 {% if listing.latitude is not None %}
 <script>
   const map = L.map("map", {scrollWheelZoom: false}).setView([{{ listing.latitude }}, {{ listing.longitude }}], 15);
+  const mapEl = map.getContainer(), focusMap = mapEl.focus.bind(mapEl);
+  mapEl.focus = () => focusMap({preventScroll: true});  // first click would otherwise scroll the page
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"}).addTo(map);
   L.marker([{{ listing.latitude }}, {{ listing.longitude }}]).addTo(map);
 </script>

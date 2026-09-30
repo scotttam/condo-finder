@@ -12,17 +12,18 @@ how to continue it.
 > flow, models, pages), update `docs/architecture.html` too, and republish it to the artifact URL
 > above.
 
-## Current state (updated 2026-09-29)
+## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #54** (furnished label). **Open: unit-number duplicates** (`dedupe-units`);
-  no migration. 527 tests pass. After deploying it, run `uv run python manage.py merge_duplicates --dry-run`
-  on the Mac mini, then without `--dry-run` (the post-scrape pass would also do it on the next run).
+- **Merged to `main` through PR #55** (unit-number duplicates; no migration). **Open: #56**
+  (`map-zoom-focus`: the first click on a map no longer scrolls the page and shifts the zoom buttons).
+  After deploying #55, run `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then
+  without `--dry-run` (the post-scrape pass would also do it on the next run). 528 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
   migrates, collects static files and restarts the service.
 - **Recently shipped:**
-  - Unit-number duplicates (in review): Redfin often drops the unit, so "821 NW 11th Ave" and
+  - Unit-number duplicates: Redfin often drops the unit, so "821 NW 11th Ave" and
     "821 NW 11th Ave #105" became two listings. Ingest now matches them, and a pass after each scrape
     (and `manage.py merge_duplicates`) merges existing pairs, keeping the copy with notes or a status.
   - Furnished label: `is_furnished` detected in listing text, a "Furnished" pill on cards,
