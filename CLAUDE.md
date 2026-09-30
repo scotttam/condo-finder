@@ -22,7 +22,8 @@ how to continue it.
   groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale
   Funnel (plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once after
   the whole stack merges, following the README runbook "Going public with Tailscale Funnel";
-  `create_owner` claims the owner's migrated notes (now comments). 615 tests pass.
+  `create_owner` claims the owner's migrated notes (now comments). With `PUBLIC_URL` set, the app
+  refuses to start with a placeholder `DJANGO_SECRET_KEY`. 619 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Until the accounts stack deploys, both users reach it over Tailscale at
   `http://<mac-mini>:8000`; afterwards everyone uses `https://<mac-mini>.<tailnet>.ts.net` through
