@@ -85,7 +85,8 @@ its own data. Production data lives only on the Mac mini.
   - `Invite` links (`accounts/invites.py`) are single-use (`claim()` is one conditional UPDATE) and expire
     after `INVITE_DAYS` (7). Any member makes join links; staff also make new-household links. Links use
     `PUBLIC_URL`. The Group page (`/group/`) renames the group, lists members, removes a member or
-    leaves (either gives that person a fresh solo group; comments stay, votes go), manages invite
+    leaves (either gives that person a fresh solo group; comments stay, votes go; removing someone also
+    revokes the group's open invite links), manages invite
     links and changes the password.
 - `listings/scrapers/`
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property

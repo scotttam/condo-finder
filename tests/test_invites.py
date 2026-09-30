@@ -123,3 +123,14 @@ def test_cannot_revoke_another_groups_invite(client):
     mine = make_invite()
     client.post(f"/group/invites/{mine.pk}/revoke/")
     assert not Invite.objects.filter(pk=mine.pk).exists()
+
+
+def test_removing_someone_closes_the_groups_open_join_links(client, member):
+    old_link = make_invite()
+    assert client.post(f"/group/members/{member.pk}/remove/", follow=True).status_code == 200
+    back = Client()
+    back.force_login(member)
+    assert back.get(f"/invite/{old_link.token}/").status_code == 410
+    back.post(f"/invite/{old_link.token}/")
+    member.profile.refresh_from_db()
+    assert member.profile.group != home_group()
