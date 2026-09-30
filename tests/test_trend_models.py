@@ -19,8 +19,8 @@ def test_search_priorities_are_one_row_per_group():
 
 
 def test_trend_report_defaults_and_ordering():
-    old = TrendReport.objects.create()
-    new = TrendReport.objects.create(trigger=TrendReport.Trigger.AUTO)
+    old = TrendReport.objects.create(group=home_group(), )
+    new = TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.AUTO)
     assert old.status == TrendReport.Status.RUNNING
     assert old.trigger == TrendReport.Trigger.MANUAL
     assert old.picks == [] and old.changes == {} and old.cost_usd == Decimal("0")

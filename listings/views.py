@@ -326,11 +326,13 @@ def _trend_charts(weekly):
 
 
 def trends_page(request):
-    done = TrendReport.objects.filter(status=TrendReport.Status.DONE)
+    group = request.group
+    reports = TrendReport.objects.filter(group=group)
+    done = reports.filter(status=TrendReport.Status.DONE)
     newest = done.first()
     requested = request.GET.get("report", "")
     report = (done.filter(pk=requested).first() if requested.isdigit() else None) or newest
-    latest = TrendReport.objects.first()
+    latest = reports.first()
     stats = report.stats if report else {}
     snapshot = stats.get("now") or trend_stats.market_snapshot()
     weekly = stats.get("weekly") or trend_stats.weekly_series()
@@ -349,8 +351,8 @@ def trends_page(request):
         "charts": _trend_charts(weekly),
         "priorities": SearchPriorities.get(request.group),
         "configured": analyst.is_configured(),
-        "running": analyst.is_running(),
-        "runs_left": analyst.manual_runs_left(),
+        "running": analyst.is_running(group),
+        "runs_left": analyst.manual_runs_left(group),
         "runs_per_day": settings.TRENDS_MANUAL_RUNS_PER_DAY,
     })
 
@@ -369,15 +371,18 @@ def _trend_changes(report):
 
 @require_POST
 def trends_run(request):
+    group = request.group
     if not analyst.is_configured():
         messages.error(request, "Add ANTHROPIC_API_KEY to .env and restart the app to run the analysis.")
-    elif analyst.manual_runs_left() <= 0:
+    elif analyst.manual_runs_left(group) <= 0:
         limit = settings.TRENDS_MANUAL_RUNS_PER_DAY
         messages.info(request, f"You've used all {limit} re-runs for today. The daily report still runs after the morning scrape.")
-    elif analyst.start_report(TrendReport.Trigger.MANUAL):
+    elif analyst.start_report(group, TrendReport.Trigger.MANUAL):
         messages.success(request, "Analysis started. It takes a minute or two.")
-    else:
+    elif analyst.is_running(group):
         messages.info(request, "An analysis is already running.")
+    else:
+        messages.info(request, "Another household's analysis is running. Try again in a few minutes.")
     return redirect("trends")
 
 
@@ -393,7 +398,7 @@ def trends_priorities(request):
 
 def trends_status(request):
     """Polled while an analysis runs; tells HTMX to reload the page once it's finished."""
-    if analyst.is_running():
+    if analyst.is_running(request.group):
         return render(request, "listings/_trend_status.html")
     response = HttpResponse("")
     response["HX-Refresh"] = "true"
