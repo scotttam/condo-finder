@@ -128,6 +128,11 @@ def feed_page(request):
     })
 
 
+def feed_badge(request):
+    """The nav's unread count, polled every 30 seconds."""
+    return render(request, "listings/_feed_badge.html", {"feed_unread": feed.unread_count(request.profile)})
+
+
 def _url_with(request, **params):
     query = request.GET.copy()
     for key, value in params.items():

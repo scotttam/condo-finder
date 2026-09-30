@@ -70,3 +70,14 @@ def test_apartment_filter_does_not_hide_our_own_activity(client, member_client):
     home = listing(street="5 Complex Ave", property_type="apartment")
     member_client.post(f"/listing/{home.pk}/status/", {"status": "interested"}, HTTP_HX_REQUEST="true")
     assert "Alex marked it Interested" in client.get("/feed/").content.decode()
+
+
+def test_nav_badge_polls_every_30_seconds(client):
+    content = client.get("/").content.decode()
+    assert '<span id="feed-badge" hx-get="/feed/badge/" hx-trigger="every 30s" hx-swap="outerHTML">' in content
+
+
+def test_badge_endpoint_counts_without_marking_seen(client, owner):
+    event(listing(), "new_listing")
+    assert '<span class="nav-badge">1</span>' in client.get("/feed/badge/").content.decode()
+    assert Profile.objects.get(user=owner).feed_seen_at is None

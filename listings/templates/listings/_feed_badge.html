@@ -1,0 +1,1 @@
+<span id="feed-badge" hx-get="{% url 'feed_badge' %}" hx-trigger="every 30s" hx-swap="outerHTML">{% if feed_unread %} <span class="nav-badge">{{ feed_unread }}</span>{% endif %}</span>
