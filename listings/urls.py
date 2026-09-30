@@ -5,6 +5,7 @@ from . import collab_views, views
 urlpatterns = [
     path("", views.listing_list, name="listing_list"),
     path("listing/<int:pk>/", views.listing_detail, name="listing_detail"),
+    path("listing/<int:pk>/vote/", collab_views.vote, name="vote"),
     path("listing/<int:pk>/comments/", collab_views.comment_list, name="comment_list"),
     path("listing/<int:pk>/comments/add/", collab_views.comment_add, name="comment_add"),
     path("listing/<int:pk>/comments/<int:comment_pk>/edit/", collab_views.comment_edit, name="comment_edit"),

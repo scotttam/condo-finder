@@ -7,7 +7,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import Comment, FeedEvent, Listing, ListingState, SourceListing, Status, TrendReport
+from .models import Comment, FeedEvent, Listing, ListingState, SourceListing, Status, TrendReport, Vote
 
 log = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ def unit_match(key, source, beds, baths, sqft, price):
 def touched(listing):
     """Whether anyone has done anything by hand (a status, a comment, an override, a hand-entered price)."""
     return bool(
-        listing.states.exclude(status=Status.NEW).exists() or listing.comments.exists() or listing.overrides
+        listing.states.exclude(status=Status.NEW).exists() or listing.comments.exists() or listing.votes.exists() or listing.overrides
         or listing.price_changes.filter(source="").exists()
     )
 
@@ -86,7 +86,7 @@ def survivor(a, b):
 
 @transaction.atomic
 def merge(keep, drop):
-    """Fold `drop` into `keep`: its sites, price history, feed, and every group's status and comments. Returns `keep`."""
+    """Fold `drop` into `keep`: its sites, price history, feed, and every group's status, comments and votes. Returns `keep`."""
     from .ingest import _apply_overrides, _recompute_price
 
     SourceListing.objects.filter(listing=drop).update(listing=keep)
@@ -102,6 +102,7 @@ def merge(keep, drop):
     events.update(listing=keep)
     _merge_states(keep, drop)
     Comment.objects.filter(listing=drop).update(listing=keep)
+    _merge_votes(keep, drop)
 
     keep.overrides = {**(drop.overrides or {}), **(keep.overrides or {})}
     for name in FILL_FIELDS:
@@ -136,6 +137,16 @@ def _merge_states(keep, drop):
         elif STATUS_RANK.get(state.status, 0) > STATUS_RANK.get(mine.status, 0):
             mine.status, mine.status_by, mine.status_at = state.status, state.status_by, state.status_at
             mine.save(update_fields=["status", "status_by", "status_at"])
+
+
+def _merge_votes(keep, drop):
+    """One vote per person: their vote on the survivor wins."""
+    for vote in drop.votes.all():
+        if keep.votes.filter(user_id=vote.user_id).exists():
+            vote.delete()
+        else:
+            vote.listing = keep
+            vote.save(update_fields=["listing"])
 
 
 def _repoint_reports(old, new):

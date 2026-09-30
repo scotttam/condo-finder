@@ -241,6 +241,23 @@ class Comment(models.Model):
     def by(self):
         return display_name(self.author) if self.author_id else (self.author_name or "Someone")
 
+
+class Vote(models.Model):
+    """One person's 👍 or 👎 on a listing, seen by their group."""
+
+    class Value(models.IntegerChoices):
+        UP = 1, "👍"
+        DOWN = -1, "👎"
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="votes")
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="votes")
+    value = models.SmallIntegerField(choices=Value.choices)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["listing", "user"], name="unique_listing_user_vote")]
+
 class PriceChange(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="price_changes")
     price = models.IntegerField()

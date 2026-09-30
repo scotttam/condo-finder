@@ -148,6 +148,10 @@
     .listing-map { height:340px; border-radius:10px; }
     /* Status pills + autosaving boxes */
     .status-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .votes { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0; }
+    .vote { font-size:13px; padding:2px 9px; border:1px solid var(--line); border-radius:999px; background:var(--card); cursor:pointer; }
+    .vote.mine { border-color:var(--accent); background:#eef6f2; font-weight:700; }
+    .vote-who { font-size:12px; }
     .status-by { flex-basis:100%; margin:2px 0 0; }
     .status-pill { margin:0; } .status-pill input { position:absolute; opacity:0; pointer-events:none; }
     .status-pill span { display:block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; background:var(--card); }

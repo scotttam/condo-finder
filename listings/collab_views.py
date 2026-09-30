@@ -1,10 +1,11 @@
-"""A group's comment thread on a listing (and, from the next PR, votes)."""
+"""A group's comment thread on a listing, and each member's vote."""
 
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from . import collab
-from .models import Comment, Listing
+from .models import Comment, Listing, Vote
 
 
 def _thread(request, listing, editing=None):
@@ -53,3 +54,21 @@ def comment_delete(request, pk, comment_pk):
     listing = comment.listing
     comment.delete()  # its Feed item goes with it
     return _thread(request, listing)
+
+
+VOTE_VALUES = {"up": Vote.Value.UP, "down": Vote.Value.DOWN}
+
+
+@require_POST
+def vote(request, pk):
+    """👍 or 👎 from the person; clicking their current vote again clears it."""
+    listing = get_object_or_404(Listing, pk=pk)
+    value = VOTE_VALUES.get(request.POST.get("value"))
+    if value is None:
+        return HttpResponseBadRequest("invalid vote")
+    current = Vote.objects.filter(listing=listing, user=request.user).values_list("value", flat=True).first()
+    collab.set_vote(listing, request.group, request.user, None if current == value else value)
+    collab.decorate([listing], request.group, request.user)
+    if request.headers.get("HX-Request"):
+        return render(request, "listings/_votes.html", {"listing": listing})
+    return redirect(listing)

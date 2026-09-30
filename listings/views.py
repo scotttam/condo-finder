@@ -67,11 +67,12 @@ PIN_MARKS = {Status.INTERESTED: ("♥ ", "pin-liked"), Status.REJECTED: ("✕ ",
 
 def _pin_style(listing):
     mark, status_class = PIN_MARKS.get(listing.group_status, ("", ""))
+    votes = collab.vote_mark(listing)
     drop = listing.price_drop
     special = bool(listing.special_offer)
     classes = ["pin", drop and "pin-drop", special and "pin-special", status_class, not listing.is_active and "pin-off"]
     return {
-        "label": f"{mark}{'↓' if drop else ''}{'★' if special else ''}{_short_price(listing.price)}",
+        "label": f"{mark}{votes + ' ' if votes else ''}{'↓' if drop else ''}{'★' if special else ''}{_short_price(listing.price)}",
         "classes": " ".join(c for c in classes if c),
     }
 
