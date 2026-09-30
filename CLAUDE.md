@@ -23,7 +23,7 @@ how to continue it.
   Funnel (plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once after
   the whole stack merges, following the README runbook "Going public with Tailscale Funnel";
   `create_owner` claims the owner's migrated notes (now comments). With `PUBLIC_URL` set, the app
-  refuses to start with a placeholder `DJANGO_SECRET_KEY`. 619 tests pass.
+  refuses to start with a placeholder `DJANGO_SECRET_KEY`. 623 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Until the accounts stack deploys, both users reach it over Tailscale at
   `http://<mac-mini>:8000`; afterwards everyone uses `https://<mac-mini>.<tailnet>.ts.net` through
@@ -94,6 +94,8 @@ its own data. Production data lives only on the Mac mini.
     leaves (either gives that person a fresh solo group; comments stay, votes go; removing someone also
     revokes the group's open invite links), manages invite
     links and changes the password.
+  - Development only (`DJANGO_DEBUG=1`): the header and login page have one-click logins for every
+    account (`accounts.views.dev_login_as`, which returns 404 unless `DEBUG`), to test as each person.
 - `listings/scrapers/`
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property
     manager is one entry.

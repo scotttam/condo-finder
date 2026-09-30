@@ -16,6 +16,7 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("invite/<str:token>/", views.invite, name="invite"),
+    path("dev/login-as/", views.dev_login_as, name="dev_login_as"),
     path("group/", views.group_settings, name="group_settings"),
     path("group/invites/new/", views.create_invite_view, name="create_invite"),
     path("group/invites/<int:pk>/revoke/", views.revoke_invite, name="revoke_invite"),

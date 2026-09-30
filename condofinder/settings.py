@@ -92,6 +92,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "listings.context_processors.listings_nav",
+                "accounts.context_processors.dev_accounts",
             ],
         },
     },

@@ -14,5 +14,6 @@
     <button type="submit">Log in</button>
   </form>
   <p class="muted small">Forgot your password? Ask the site admin to reset it.</p>
+  {% include "accounts/_dev_switch.html" with next_url=next|default:"/" %}
 </div>
 {% endblock %}

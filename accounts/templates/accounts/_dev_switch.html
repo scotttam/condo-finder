@@ -1,0 +1,14 @@
+{# Development only (DEBUG): log in as any account with one click, to test as each person. #}
+{% if dev_accounts %}
+<div class="dev-switch" aria-label="Development quick login">
+  <span class="muted small">Dev login:</span>
+  {% for profile in dev_accounts %}
+  <form method="post" action="{% url 'dev_login_as' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}">
+    {% if profile.user_id == user.pk %}<strong class="small">{{ profile.display_name }}</strong>
+    {% else %}<button type="submit" name="user" value="{{ profile.user_id }}" class="link">{{ profile.display_name }}</button>{% endif %}
+  </form>
+  {% endfor %}
+</div>
+{% endif %}
