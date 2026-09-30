@@ -65,11 +65,18 @@ CANNED_QUERIES = [
         ORDER BY price
     """),
     _q(HISTORY, "Biggest price drops", """
+        -- Current listing period only: history since each listing's latest "Listed for rent".
+        WITH period AS (
+          SELECT listing_id, MAX(CASE WHEN event = 'Listed for rent' THEN seen_at END) AS started
+          FROM listings_pricechange
+          GROUP BY listing_id
+        )
         SELECT l.id AS listing_id, l.address, MAX(pc.price) AS highest_price, l.price AS current_price,
                MAX(pc.price) - l.price AS price_drop,
                ROUND(100.0 * (MAX(pc.price) - l.price) / MAX(pc.price), 1) AS drop_pct
         FROM listings_listing l
-        JOIN listings_pricechange pc ON pc.listing_id = l.id
+        JOIN period p ON p.listing_id = l.id
+        JOIN listings_pricechange pc ON pc.listing_id = l.id AND (p.started IS NULL OR pc.seen_at >= p.started)
         WHERE l.is_active AND l.price IS NOT NULL
         GROUP BY l.id
         HAVING price_drop > 0
@@ -77,10 +84,18 @@ CANNED_QUERIES = [
         LIMIT 50
     """),
     _q(HISTORY, "Listings with several price cuts", """
-        WITH steps AS (
-          SELECT listing_id, price,
-                 LAG(price) OVER (PARTITION BY listing_id ORDER BY seen_at, id) AS previous_price
+        -- Current listing period only: history since each listing's latest "Listed for rent".
+        WITH period AS (
+          SELECT listing_id, MAX(CASE WHEN event = 'Listed for rent' THEN seen_at END) AS started
           FROM listings_pricechange
+          GROUP BY listing_id
+        ),
+        steps AS (
+          SELECT pc.listing_id, pc.price,
+                 LAG(pc.price) OVER (PARTITION BY pc.listing_id ORDER BY pc.seen_at, pc.id) AS previous_price
+          FROM listings_pricechange pc
+          JOIN period p ON p.listing_id = pc.listing_id
+          WHERE p.started IS NULL OR pc.seen_at >= p.started
         )
         SELECT l.id AS listing_id, l.address, l.price AS current_price, COUNT(*) AS cuts
         FROM steps

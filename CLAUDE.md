@@ -19,7 +19,7 @@ how to continue it.
   staff-only read-only SQL at `/sql/`). After deploying it, run `uv run python manage.py createsuperuser`
   on the Mac mini for the second owner, who has no login yet. After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
-  post-scrape pass would also do it on the next run). 615 tests pass.
+  post-scrape pass would also do it on the next run). 625 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
@@ -130,7 +130,7 @@ its own data. Production data lives only on the Mac mini.
     health).
 - `listings/sql_console.py`, `sql_queries.py`, `sql_views.py`: the staff-only SQL console at `/sql/`.
   User SQL runs on its own SQLite connection (`mode=ro`, `query_only`, and an authorizer blocking
-  `ATTACH` and `query_only = OFF`) with a 5 s progress-handler timeout and a 1,000-row page cap
+  `ATTACH` and any pragma that sets a value, since some are process-wide) with a 5 s progress-handler timeout and a 1,000-row page cap
   (`SQL_CONSOLE_*` settings). Starter queries live in `sql_queries.py`, and a test runs each one.
   `SavedQuery` holds saved queries; `QueryRun` logs runs for "Recent", pruned to 50. In tests the
   database is shared-cache memory, so `connect_readonly()` opens it with `read_uncommitted` instead

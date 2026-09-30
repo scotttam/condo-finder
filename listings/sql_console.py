@@ -36,11 +36,19 @@ class Table:
     columns: list  # (name, type) pairs
 
 
+# Pragmas that take an argument yet only read. Any other pragma given a value is refused: some change
+# settings (query_only) and some are process-wide (hard_heap_limit would break Django's connection too).
+_READ_PRAGMAS_WITH_ARG = {
+    "table_info", "table_xinfo", "index_list", "index_info", "index_xinfo",
+    "foreign_key_list", "foreign_key_check", "integrity_check", "quick_check",
+}
+
+
 def _authorize(action, arg1, arg2, db_name, trigger):
     # ATTACH creates (and can write) a new database file even on a mode=ro connection.
     if action in (sqlite3.SQLITE_ATTACH, sqlite3.SQLITE_DETACH):
         return sqlite3.SQLITE_DENY
-    if action == sqlite3.SQLITE_PRAGMA and (arg1 or "").lower() in ("query_only", "read_uncommitted") and arg2 is not None:
+    if action == sqlite3.SQLITE_PRAGMA and arg2 is not None and (arg1 or "").lower() not in _READ_PRAGMAS_WITH_ARG:
         return sqlite3.SQLITE_DENY
     return sqlite3.SQLITE_OK
 

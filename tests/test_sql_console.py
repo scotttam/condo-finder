@@ -143,3 +143,20 @@ def test_listing_link_columns():
     assert sql_console.listing_link_columns('SELECT id FROM "listings_listing" WHERE 1', ["id"]) == {0}
     assert sql_console.listing_link_columns("SELECT id FROM listings_trendreport", ["id"]) == set()
     assert sql_console.listing_link_columns("SELECT 1 AS id", ["id"]) == set()
+
+
+# Values that are harmless if a regression lets them through: 0 means "no limit", '' means the default.
+@pytest.mark.parametrize("sql", [
+    "PRAGMA hard_heap_limit = 0",
+    "PRAGMA soft_heap_limit = 0",
+    "PRAGMA temp_store_directory = ''",
+    "PRAGMA main.cache_size = 10",
+])
+def test_pragmas_that_change_settings_are_refused(db_file, sql):
+    # hard_heap_limit and friends are process-wide: one query could break Django's own connection.
+    assert "not authorized" in run(db_file, sql).error
+
+
+@pytest.mark.parametrize("sql", ["PRAGMA index_list(t)", "PRAGMA table_xinfo(t)", "PRAGMA quick_check", "PRAGMA hard_heap_limit"])
+def test_read_pragmas_still_work(db_file, sql):
+    assert run(db_file, sql).error == ""

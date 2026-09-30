@@ -95,3 +95,26 @@ def test_scrape_runs_by_source(seeded):
 
 def test_site_overlap(seeded):
     assert rows("Overlap between sites") == [{"site": "Zillow", "also_on": "Redfin", "listings": 1}]
+
+
+@pytest.fixture
+def relisted():
+    """A listing with an older, pricier listing period before the current one."""
+    listing = make_listing(address_key="1 relisted|2|97209", address="1 Relisted Way #2", unit="2", price=4500)
+    history = [
+        ("2024-06-21", 6500, "Listed for rent"), ("2024-08-06", 4950, "Price change"),
+        ("2024-09-08", 4500, "Price change"), ("2024-09-13", 4500, "Listing removed"),
+        ("2026-06-02", 4900, "Listed for rent"), ("2026-09-16", 4500, "Price change"),
+    ]
+    for day, price, event in history:
+        PriceChange.objects.create(listing=listing, price=price, event=event, source="Zillow",
+                                   seen_at=timezone.make_aware(timezone.datetime.fromisoformat(day)))
+    return listing
+
+
+def test_biggest_drops_only_count_the_current_listing_period(relisted):
+    assert [(row["highest_price"], row["price_drop"]) for row in rows("Biggest price drops")] == [(4900, 400)]
+
+
+def test_several_cuts_only_count_the_current_listing_period(relisted):
+    assert rows("Listings with several price cuts") == []
