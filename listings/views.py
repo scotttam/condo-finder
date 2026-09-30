@@ -9,6 +9,8 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from accounts.decorators import staff_required
+
 from .filters import apply_filters
 from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
 from .models import Listing, PriceChange, SearchPriorities, Source, SourceRun, Status, TrendReport
@@ -153,6 +155,7 @@ def _refreshable(listing):
 
 
 @require_POST
+@staff_required
 def refresh_listing(request, pk):
     """'Refresh from sites': re-fetch this listing's pages now and report per site."""
     listing = get_object_or_404(Listing, pk=pk)
@@ -209,6 +212,7 @@ def _history_response(request, listing, add_form=None, editing=None, edit_form=N
 
 
 @require_POST
+@staff_required
 def history_add(request, pk):
     listing = get_object_or_404(Listing, pk=pk)
     form = PriceEntryForm(request.POST)
@@ -219,6 +223,7 @@ def history_add(request, pk):
     return _history_response(request, listing, add_form=form)
 
 
+@staff_required
 def history_edit(request, pk, change_pk):
     listing = get_object_or_404(Listing, pk=pk)
     change = get_object_or_404(PriceChange, pk=change_pk, listing=listing)
@@ -237,6 +242,7 @@ def history_edit(request, pk, change_pk):
 
 
 @require_POST
+@staff_required
 def history_delete(request, pk, change_pk):
     listing = get_object_or_404(Listing, pk=pk)
     get_object_or_404(PriceChange, pk=change_pk, listing=listing).delete()
@@ -272,6 +278,7 @@ def set_status(request, pk):
     return redirect("listing_list")
 
 
+@staff_required
 def sources(request):
     sync_sources()
     return render(request, "listings/sources.html", {
@@ -283,6 +290,7 @@ def sources(request):
 
 
 @require_POST
+@staff_required
 def scrape_now(request):
     if is_running():
         messages.info(request, "A scrape is already running.")
