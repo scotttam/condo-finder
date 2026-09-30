@@ -145,7 +145,7 @@ its own data. Production data lives only on the Mac mini.
     looking for" (`SearchPriorities`, one per group). Market charts (`trend_stats`) are shared.
   - Each run is saved as a `TrendReport` with its group, usage and cost. Each group has its own
     reports and re-run cap (`TRENDS_MANUAL_RUNS_PER_DAY`). The scheduler's daily run, after the first
-    scrape of the day, makes one report per group with members, one after another in one background
+    scrape of the day, makes one report per group a member logged in to within 14 days, one after another in one background
     thread (about $0.50 each). One report runs at a time across all groups.
   - Tests use a `FakeClient` (`tests/test_analyst.py`) and never call the API. A real run costs
     about $0.50.

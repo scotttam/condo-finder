@@ -55,7 +55,11 @@ def test_manual_runs_are_counted_per_group(settings):
 
 
 def test_daily_runs_each_group_with_members_once(monkeypatch, owner):
+    from django.contrib.auth import get_user_model
+    from django.utils import timezone
+
     pat_group = make_user("pat@example.com", "Pat", group=new_group("Pat's search")).profile.group
+    get_user_model().objects.update(last_login=timezone.now())
     new_group("Nobody's search")
     started = []
     monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: started.append(([g.pk for g in groups], trigger)) or True)
@@ -84,3 +88,18 @@ def test_a_run_for_another_group_blocks_with_a_clear_message(client, monkeypatch
     TrendReport.objects.create(group=new_group("Pat's search"), status=TrendReport.Status.RUNNING)
     response = client.post("/trends/run/", follow=True)
     assert "Another household" in response.content.decode()
+
+
+def test_daily_skips_groups_nobody_has_logged_in_to_lately(monkeypatch, owner):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from accounts.models import Profile
+
+    idle = make_user("idle@example.com", "Idle", group=new_group("Idle's search"))
+    type(idle).objects.filter(pk=idle.pk).update(last_login=timezone.now() - timedelta(days=30))
+    type(owner).objects.filter(pk=owner.pk).update(last_login=timezone.now())
+    never = make_user("never@example.com", "Never", group=new_group("Never's search"))
+    assert Profile.objects.get(user=never).group.members.count() == 1
+    assert [g.pk for g in analyst.due_today()] == [home_group().pk]
