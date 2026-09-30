@@ -316,6 +316,7 @@ class TrendReport(models.Model):
         AUTO = "auto", "Daily"
         MANUAL = "manual", "Re-run"
 
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="trend_reports")
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.RUNNING)
     trigger = models.CharField(max_length=10, choices=Trigger.choices, default=Trigger.MANUAL)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
@@ -344,8 +345,9 @@ class TrendReport(models.Model):
 
 
 class SearchPriorities(models.Model):
-    """What we're looking for, in our own words. One shared row, read by the Trends analysis."""
+    """What a group is looking for, in its own words. Read by its Trends analysis."""
 
+    group = models.OneToOneField("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="priorities")
     text = models.TextField(blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -353,5 +355,5 @@ class SearchPriorities(models.Model):
         verbose_name_plural = "search priorities"
 
     @classmethod
-    def get(cls):
-        return cls.objects.get_or_create(pk=1)[0]
+    def get(cls, group):
+        return cls.objects.get_or_create(group=group)[0]

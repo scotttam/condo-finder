@@ -347,7 +347,7 @@ def trends_page(request):
         "snapshot": snapshot,
         "tracking_since": date.fromisoformat(weekly["tracking_since"]) if weekly.get("tracking_since") else None,
         "charts": _trend_charts(weekly),
-        "priorities": SearchPriorities.get(),
+        "priorities": SearchPriorities.get(request.group),
         "configured": analyst.is_configured(),
         "running": analyst.is_running(),
         "runs_left": analyst.manual_runs_left(),
@@ -383,7 +383,7 @@ def trends_run(request):
 
 @require_POST
 def trends_priorities(request):
-    priorities = SearchPriorities.get()
+    priorities = SearchPriorities.get(request.group)
     priorities.text = request.POST.get("text", "")
     priorities.save()
     if request.headers.get("HX-Request"):

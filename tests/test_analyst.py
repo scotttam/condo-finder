@@ -120,7 +120,7 @@ def test_compact_facts_describe_unknowns_and_history():
 def test_run_report_makes_two_passes_and_saves_picks():
     a, b, c = candidate(price=3000), candidate(price=3100), candidate(price=3200)
     rejected = candidate(status=Status.REJECTED, notes="Too dark")
-    SearchPriorities.objects.create(pk=1, text="Near a park")
+    SearchPriorities.objects.create(group=home_group(), text="Near a park")
     client = FakeClient(
         message({"shortlist": [{"id": a.pk, "reason": "value"}, {"id": b.pk, "reason": "deck"}, {"id": 99999, "reason": "?"}]},
                 used=usage(inp=40_000, out=2_000)),

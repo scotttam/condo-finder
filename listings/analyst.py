@@ -217,7 +217,7 @@ def _section(title, value):
 
 
 def _context(stats):
-    priorities = SearchPriorities.get().text.strip() or "(nothing written yet)"
+    priorities = SearchPriorities.get(owners_group()).text.strip() or "(nothing written yet)"
     return [
         f"Today is {timezone.localdate():%A, %B %-d, %Y}.",
         _section("what_we_are_looking_for", priorities),

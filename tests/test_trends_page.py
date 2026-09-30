@@ -5,7 +5,7 @@ import pytest
 
 from listings import analyst
 from listings.models import SearchPriorities, Status, TrendReport
-from tests.helpers import make_listing, status_of
+from tests.helpers import home_group, make_listing, status_of
 
 pytestmark = pytest.mark.django_db
 
@@ -120,12 +120,12 @@ def test_charts_show_a_placeholder_without_data(client):
 
 
 def test_priorities_box_saves(client):
-    SearchPriorities.objects.create(pk=1, text="Near a park")
+    SearchPriorities.objects.create(group=home_group(), text="Near a park")
     content = page(client)
     assert re.search(r'<textarea name="text"[^>]*>Near a park</textarea>', content)
     response = client.post("/trends/priorities/", {"text": "Quiet street, walkable"}, HTTP_HX_REQUEST="true")
     assert "Saved ✓" in response.content.decode()
-    assert SearchPriorities.get().text == "Quiet street, walkable"
+    assert SearchPriorities.get(home_group()).text == "Quiet street, walkable"
 
 
 def test_rerun_starts_a_report(client, monkeypatch):
