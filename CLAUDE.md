@@ -14,14 +14,18 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #54** (furnished label, migration 0007). **Open:** #55 (merge listings
-  that differ only by a missing unit number) and #56 (`map-zoom-focus`: the first click on a map no
-  longer scrolls the page and shifts the zoom buttons). 518 tests pass on #56.
+- **Merged to `main` through PR #55** (unit-number duplicates; no migration). **Open: #56**
+  (`map-zoom-focus`: the first click on a map no longer scrolls the page and shifts the zoom buttons).
+  After deploying #55, run `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then
+  without `--dry-run` (the post-scrape pass would also do it on the next run). 528 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
   migrates, collects static files and restarts the service.
 - **Recently shipped:**
+  - Unit-number duplicates: Redfin often drops the unit, so "821 NW 11th Ave" and
+    "821 NW 11th Ave #105" became two listings. Ingest now matches them, and a pass after each scrape
+    (and `manage.py merge_duplicates`) merges existing pairs, keeping the copy with notes or a status.
   - Furnished label: `is_furnished` detected in listing text, a "Furnished" pill on cards,
     the table, the listing page and the Feed, and a Furnished filter (Any / Hide / Only) under More filters.
   - Move-in specials: detected in listing text, shown on cards, pins, the listing page,
@@ -78,6 +82,9 @@ its own data. Production data lives only on the Mac mini.
 - `listings/ingest.py` turns scraped items into rows. The rules it enforces:
   - **Dedupe key** is normalized address + unit + ZIP. Units from the same site never merge
     (`address_key|site:id`), and hidden addresses never merge.
+  - **Missing unit numbers:** a listing without a unit joins the one listing at that street + ZIP with a
+    unit, from a different site, with the same beds/baths and sqft (price when sqft is missing); see
+    `listings/merge.py`. A site that omits the unit never erases a known one from the address.
   - **Price:** each `SourceListing.last_price` stores its own site's price, and `Listing.price` is the
     lowest across active sites. A `PriceChange` is recorded only when one site changes its own price.
   - **Off-market:** a listing goes off-market after 3 missed scrapes. Craigslist listings are
@@ -85,6 +92,11 @@ its own data. Production data lives only on the Mac mini.
   - **Implausible rents:** anything over `MAX_PLAUSIBLE_RENT` (25k) is rejected, e.g. Zillow home
     values.
   - **Empty scrapes:** a scrape that returns 0 items counts as a failure and never marks listings gone.
+- `listings/merge.py` matches with/without-unit pairs (`unit_match`) and merges two listings (`merge`):
+  sites, price history, feed events and Trends picks move over. The survivor is the copy the owners
+  touched (status, notes, overrides or hand-entered history), else the one with a unit. If both were
+  touched, notes are joined and the furthest status wins (new < interested < toured < applied < rejected).
+  `merge_unit_duplicates()` runs after every scrape; `manage.py merge_duplicates [--dry-run]` runs it now.
 - `listings/specials.py` finds move-in specials ("4 weeks free", "$500 off first month") and their
   value; `Listing.special_offer` holds the sentence. Unlike features, it's re-read from the listing's
   current text on every update, so it clears when a site drops it (admin override `special_offer: ""`

@@ -17,7 +17,7 @@ from .extract import (
     is_furnished,
     has_washer_dryer,
 )
-from . import feed
+from . import feed, merge
 from .specials import extract_special
 from .models import FeedEvent, Listing, PriceChange, PropertyType, SourceListing
 
@@ -87,14 +87,20 @@ def _listing_key(source, address, item):
         .values_list("listing__address_key", flat=True)
         .first()
     )
-    if current in (address.key, own):
-        return current
+    if current == own or (current and merge.same_home_keys(current, address.key)):
+        return current  # including a listing already matched with or without its unit number
     taken = (
         SourceListing.objects.filter(source=source, listing__address_key=address.key)
         .exclude(external_id=item.external_id)
         .exists()
     )
-    return own if taken else address.key
+    key = own if taken else address.key
+    if not Listing.objects.filter(address_key=key).exists():
+        # Redfin often leaves out the unit number that other sites give: the same home, not a new one.
+        match = merge.unit_match(address.key, source, item.beds, item.baths, item.sqft, _plausible_rent(item.price))
+        if match is not None:
+            return match.address_key
+    return key
 
 
 def _upsert_listing(address, item, now, source):
@@ -105,6 +111,10 @@ def _upsert_listing(address, item, now, source):
         listing = Listing(address_key=key, first_seen_at=now)
     was_active = created or listing.is_active
     before = None if created else feed.snapshot(listing)
+    if address.unit and listing.address_key == merge.bare_key(address.key) and not Listing.objects.filter(
+        address_key=address.key
+    ).exists():
+        listing.address_key = address.key  # now we know its unit number
     _apply_scraped(listing, address, item)
     _apply_overrides(listing)
     listing.is_active = True
@@ -184,9 +194,10 @@ def _import_history(listing, entries, source_name, announce_at=None):
 
 def _apply_scraped(listing, address, item):
     text = item.full_text
-    listing.address = address.display
-    listing.street = address.street
-    listing.unit = address.unit
+    if address.unit or not listing.unit:  # a site that leaves out the unit number doesn't erase it
+        listing.address = address.display
+        listing.street = address.street
+        listing.unit = address.unit
     listing.city = address.city
     listing.zip_code = address.zip_code
     listing.quadrant = portland_quadrant(address.street, address.city)
