@@ -1,0 +1,42 @@
+{% extends "listings/base.html" %}
+{% block title %}{{ group.name }} · Condo Finder{% endblock %}
+{% block content %}
+<h1>{{ group.name }}</h1>
+<p class="muted">Everyone here shares statuses, comments, votes, default filters, Trends and the Feed.</p>
+<div class="group-page">
+  <section class="panel">
+    <h3>Name</h3>
+    <form method="post" action="{% url 'rename_group' %}" class="inline-form">
+      {% csrf_token %}
+      <input type="text" name="name" value="{{ group.name }}" maxlength="100" required aria-label="Group name">
+      <button type="submit">Rename</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h3>Members</h3>
+    <div class="table-wrap"><table class="members">
+      {% for member in members %}
+      <tr>
+        <td>{{ member.display_name }}{% if member.user_id == user.pk %} <span class="muted">(you)</span>{% endif %}</td>
+        <td class="muted">{{ member.user.email }}</td>
+        <td class="muted nowrap">joined {{ member.joined_at|date:"M j, Y" }}</td>
+        <td>{% if member.user_id != user.pk %}
+          <form method="post" action="{% url 'remove_member' member.user_id %}"
+                onsubmit="return confirm('Remove {{ member.display_name|escapejs }}? They start a new search of their own; their comments stay here.')">
+            {% csrf_token %}<button type="submit" class="link danger">Remove</button></form>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table></div>
+    {% if can_leave %}
+    <form method="post" action="{% url 'leave_group' %}" onsubmit="return confirm('Leave {{ group.name|escapejs }}? You start a new search of your own; your comments stay here and your votes are removed.')">
+      {% csrf_token %}<button type="submit" class="link danger">Leave {{ group.name }}</button></form>
+    {% endif %}
+  </section>
+  {% block invites %}{% endblock %}
+  <section class="panel">
+    <h3>Your account</h3>
+    <p>{{ request.profile.display_name }} · {{ user.email }}</p>
+    <p><a href="{% url 'password_change' %}">Change password</a></p>
+  </section>
+</div>
+{% endblock %}

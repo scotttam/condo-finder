@@ -15,6 +15,10 @@
     header .brand { font-weight:700; color:var(--accent); text-decoration:none; font-size:18px; }
     header nav a { margin-right:16px; color:var(--ink); text-decoration:none; }
     header .account { margin-left:auto; display:flex; align-items:center; gap:8px; } header .account form { margin:0; }
+    .group-page { max-width:760px; } .group-page h3 { margin-top:0; }
+    .inline-form { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .inline-form input[type=text] { flex:1; min-width:0; padding:7px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+    .members form { margin:0; }
     .auth-card { max-width:400px; margin:40px auto; } .auth-card h1 { margin-top:0; font-size:22px; }
     .stack { display:block; margin:0 0 12px; font-size:14px; font-weight:600; }
     .stack input, .stack textarea { display:block; width:100%; margin-top:4px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-weight:400; }
@@ -341,6 +345,7 @@
       <a href="{{ listings_url }}">Listings</a>
       <a href="{% url 'trends' %}">Trends</a>
       <a href="{% url 'feed' %}">Feed{% include "listings/_feed_badge.html" %}</a>
+      <a href="{% url 'group_settings' %}">Group</a>
       {% if user.is_staff %}<a href="{% url 'sources' %}">Sources</a>
       <a href="/admin/">Admin</a>{% endif %}
     </nav>
