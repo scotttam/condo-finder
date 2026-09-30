@@ -14,10 +14,10 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #55** (unit-number duplicates; no migration). **Open: #56**
-  (`map-zoom-focus`: the first click on a map no longer scrolls the page and shifts the zoom buttons).
-  After deploying #55, run `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then
-  without `--dry-run` (the post-scrape pass would also do it on the next run). 528 tests pass.
+- **Merged to `main` through PR #56** (the first click on a map no longer scrolls the page and shifts
+  the zoom buttons). **Open: #57** (docs only: no inline shell comments). After deploying #55, run
+  `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
+  post-scrape pass would also do it on the next run). 528 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
