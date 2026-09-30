@@ -2,13 +2,16 @@ import csv
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from . import sql_console
+from .forms import SavedQueryForm
 from .models import QueryRun, SavedQuery
 from .sql_queries import by_category
 
@@ -70,3 +73,26 @@ def sql_csv(request):
     writer.writerow(result.columns)
     writer.writerows(result.rows)
     return response
+
+
+@staff_member_required
+@require_POST
+def sql_save(request):
+    pk = request.POST.get("pk", "")
+    instance = get_object_or_404(SavedQuery, pk=pk) if pk.isdigit() and not request.POST.get("as_new") else None
+    form = SavedQueryForm(request.POST, instance=instance)
+    if not form.is_valid():
+        messages.error(request, "Give the query a name and some SQL before saving.")
+        return redirect(_console_url(request.POST.get("sql", "").strip()))
+    saved = form.save()
+    messages.success(request, f"Saved “{saved.name}”.")
+    return redirect(_console_url(saved.sql, saved))
+
+
+@staff_member_required
+@require_POST
+def sql_delete(request, pk):
+    saved = get_object_or_404(SavedQuery, pk=pk)
+    saved.delete()
+    messages.success(request, f"Deleted “{saved.name}”.")
+    return redirect(_console_url(saved.sql))

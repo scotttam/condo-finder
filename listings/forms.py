@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.utils import timezone
 
-from .models import Listing, PropertyType, Quadrant, Source, Status
+from .models import Listing, PropertyType, Quadrant, SavedQuery, Source, Status
 
 FEATURE_CHOICES = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
 PRICE_SLIDER_MAX = 8000  # the slider's top value means "no maximum"
@@ -100,3 +100,9 @@ class TrackingForm(forms.ModelForm):
         model = Listing
         fields = ["status", "notes"]
         widgets = {"notes": forms.Textarea(attrs={"rows": 6})}
+
+
+class SavedQueryForm(forms.ModelForm):
+    class Meta:
+        model = SavedQuery
+        fields = ["name", "sql"]

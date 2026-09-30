@@ -20,4 +20,6 @@ urlpatterns = [
     path("sources/scrape/", views.scrape_now, name="scrape_now"),
     path("sql/", sql_views.sql_console_page, name="sql_console"),
     path("sql/csv/", sql_views.sql_csv, name="sql_csv"),
+    path("sql/save/", sql_views.sql_save, name="sql_save"),
+    path("sql/saved/<int:pk>/delete/", sql_views.sql_delete, name="sql_delete"),
 ]
