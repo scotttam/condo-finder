@@ -42,6 +42,8 @@ between the install and turning on Funnel.
 1. **Pull and set the public address.** Find the Mac mini's full Tailscale name in the
    [admin console](https://login.tailscale.com/admin/machines) (for example
    `mac-mini.tail1234.ts.net`). In `.env`, set `PUBLIC_URL=https://` followed by that name.
+   Check that `DJANGO_SECRET_KEY` there is a long random string: with `PUBLIC_URL` set, the app
+   refuses to start with a placeholder or a key under 50 characters, and says how to make one.
 
    ```bash
    git pull

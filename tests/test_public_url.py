@@ -40,3 +40,15 @@ def test_status_posts_pass_csrf_on_the_public_url(owner, settings):
 def test_unknown_hosts_are_refused(settings, anon_client):
     settings.ALLOWED_HOSTS = [HOST]
     assert anon_client.get("/login/", HTTP_HOST="evil.example.com").status_code == 400
+
+
+def test_a_public_site_refuses_a_placeholder_or_short_secret_key():
+    from django.core.exceptions import ImproperlyConfigured
+
+    from condofinder.settings import check_secret_key
+
+    for weak in ("dev-insecure-change-me", "change-me-to-a-long-random-string", "short"):
+        with pytest.raises(ImproperlyConfigured):
+            check_secret_key(weak, f"https://{HOST}")
+    check_secret_key("dev-insecure-change-me", "")  # local development is fine
+    check_secret_key("x" * 50, f"https://{HOST}")

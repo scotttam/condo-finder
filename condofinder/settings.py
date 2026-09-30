@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,19 @@ def web_security(public_url):
     }
 
 
+PLACEHOLDER_SECRET_KEYS = {"dev-insecure-change-me", "change-me-to-a-long-random-string"}
+
+
+def check_secret_key(secret_key, public_url):
+    """On the public internet a guessable key lets anyone forge a login cookie, so refuse to start."""
+    if public_url and (secret_key in PLACEHOLDER_SECRET_KEYS or len(secret_key) < 50):
+        raise ImproperlyConfigured(
+            "Set DJANGO_SECRET_KEY in .env to a long random string (50+ characters) before using PUBLIC_URL. "
+            "Generate one with: uv run python -c 'import secrets; print(secrets.token_urlsafe(50))'"
+        )
+
+
+check_secret_key(SECRET_KEY, PUBLIC_URL)
 _web = web_security(PUBLIC_URL)
 ALLOWED_HOSTS = _web["ALLOWED_HOSTS"]
 CSRF_TRUSTED_ORIGINS = _web["CSRF_TRUSTED_ORIGINS"]
