@@ -19,12 +19,13 @@ from django.db.models import Q
 from django.utils import timezone
 
 from accounts.groups import owners_group
+from accounts.models import display_name
 
 from . import trend_stats
 from .collab import attach_comments, decorate
 from .filters import apply_filters
 from .forms import ListingFilterForm, default_filter_data
-from .models import Listing, ListingState, SearchPriorities, Status, TrendReport
+from .models import Listing, ListingState, SearchPriorities, Status, TrendReport, Vote
 
 log = logging.getLogger(__name__)
 
@@ -116,6 +117,7 @@ def compact_facts(listing):
             for change in list(listing.price_changes.all())[-8:]
         ],
         "status": listing.group_status,
+        "votes": {display_name(vote.user): "like" if vote.value == Vote.Value.UP else "dislike" for vote in listing.group_votes},
         "comments": [
             {"by": comment.by, "date": timezone.localdate(comment.created_at).isoformat(), "text": comment.body}
             for comment in listing.group_comments

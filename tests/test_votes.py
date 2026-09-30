@@ -4,9 +4,12 @@ import pytest
 from django.test import Client
 
 from accounts.groups import move_to_group, new_group
+from listings import analyst
 from listings.collab import set_vote
+from listings.filters import apply_filters
+from listings.forms import ListingFilterForm, default_filter_data
 from listings.merge import merge
-from listings.models import Vote
+from listings.models import Listing, Vote
 from tests.helpers import home_group, make_listing, make_user
 
 pytestmark = pytest.mark.django_db
@@ -86,3 +89,40 @@ def test_merge_keeps_one_vote_per_person(owner, member):
     merge(keep, drop)
     assert sorted(Vote.objects.values_list("user__email", "value", "listing")) == [
         ("alex@example.com", UP, keep.pk), ("sam@example.com", UP, keep.pk)]
+
+
+def filtered(choice):
+    form = ListingFilterForm(default_filter_data() | {"votes": choice})
+    assert form.is_valid(), form.errors
+    return set(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True))
+
+
+def test_vote_filters(owner, member):
+    group = home_group()
+    both, one, split, nope = good_listing("both"), good_listing("one"), good_listing("split"), good_listing("nope")
+    good_listing("none")
+    set_vote(both, group, owner, UP)
+    set_vote(both, group, member, UP)
+    set_vote(one, group, owner, UP)
+    set_vote(split, group, owner, UP)
+    set_vote(split, group, member, DOWN)
+    set_vote(nope, group, member, DOWN)
+    assert filtered("everyone_likes") == {"both"}
+    assert filtered("someone_likes") == {"both", "one", "split"}
+    assert filtered("disagree") == {"split"}
+    assert filtered("unvoted") == {"none"}
+    assert filtered("any") == {"both", "one", "split", "nope", "none"}
+
+
+def test_vote_filter_is_in_the_more_filters_drawer(client):
+    content = client.get("/").content.decode()
+    assert '<select name="votes" id="id_votes">' in content
+    assert '"votes"' in content.split("DRAWER_FIELDS")[1].split("]")[0]
+
+
+def test_votes_reach_the_analyst(owner, member):
+    listing = good_listing()
+    set_vote(listing, home_group(), owner, UP)
+    set_vote(listing, home_group(), member, DOWN)
+    facts = analyst.compact_facts(analyst._prepare([listing], home_group())[0])
+    assert facts["votes"] == {"Sam": "like", "Alex": "dislike"}

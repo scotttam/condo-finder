@@ -13,6 +13,8 @@ BED_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
 BATH_CHOICES = [("", "Any"), ("1", "1+"), ("1.5", "1.5+"), ("2", "2+"), ("3", "3+")]
 PARKING_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+")]
 FURNISHED_CHOICES = [("any", "Any"), ("hide", "Hide furnished"), ("only", "Furnished only")]
+VOTE_FILTER_CHOICES = [("any", "Any"), ("everyone_likes", "Everyone 👍"), ("someone_likes", "Someone 👍"),
+                       ("disagree", "We disagree"), ("unvoted", "No votes yet")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
 
 
@@ -30,6 +32,7 @@ def default_filter_data():
         "ac": "yes_or_unknown",
         "outdoor": "yes_or_unknown",
         "furnished": "any",
+        "votes": "any",
         "sort": "price",
     }
 
@@ -56,6 +59,7 @@ class ListingFilterForm(forms.Form):
     sources = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     types = forms.MultipleChoiceField(required=False, choices=PropertyType.choices, widget=forms.CheckboxSelectMultiple)
     statuses = forms.MultipleChoiceField(required=False, choices=Status.choices, widget=forms.CheckboxSelectMultiple)
+    votes = forms.ChoiceField(required=False, choices=VOTE_FILTER_CHOICES, label="Votes")
     wd = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="In-unit W/D")
     ac = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="AC")
     outdoor = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Outdoor space")

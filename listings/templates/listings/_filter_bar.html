@@ -98,6 +98,8 @@
           <div class="check-list">
             {% for option in form.statuses %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
           </div>
+          <div class="panel-title">Our votes</div>
+          <label class="field">Votes {{ form.votes }}</label>
           <div class="panel-title">Sources</div>
           <div class="check-list columns">
             {% for option in form.sources %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}

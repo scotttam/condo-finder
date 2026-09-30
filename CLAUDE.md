@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 565 tests pass.
+  after the whole stack merges, following the README runbook. 577 tests pass.
   `create_owner` claims the owner's migrated notes (now comments) if the account didn't exist when migrating.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
@@ -113,6 +113,9 @@ its own data. Production data lives only on the Mac mini.
   `Comment` threads replace notes: author-only edit/delete in `collab_views.py`; the thread polls
   every 30s but not while a comment is being edited; each comment has a Feed item that follows edits
   and deletes.
+  `Vote` is one 👍/👎 per person per listing (cleared by clicking again; deleted when the person leaves
+  the group). The Votes filter (`everyone_likes`, `someone_likes`, `disagree`, `unvoted`) counts votes
+  with subqueries so it composes with the price-history join.
 - `listings/merge.py` matches with/without-unit pairs (`unit_match`) and merges two listings (`merge`):
   sites, price history, feed events and Trends picks move over. The survivor is the copy the owners
   touched (status, comments, overrides or hand-entered history), else the one with a unit. If both were
@@ -150,7 +153,7 @@ its own data. Production data lives only on the Mac mini.
   - Detail page, Feed, history add/edit/delete, refresh listing, tracking, and Sources (scraper
     health).
 - `listings/forms.py` holds `ListingFilterForm`, which carries the default filters: 2 bd / 2 ba /
-  2 parking, a $2,000 minimum, and apartments hidden.
+  2 parking, a $2,000 minimum, apartments hidden, and Votes: Any.
 - `deploy/`: `install.sh`, the launchd plist template, `launchd-restart.sh` (waits for bootout
   before bootstrapping) and `gunicorn.conf.py`.
 - Design docs: `docs/superpowers/specs/` and `plans/`. Architecture diagrams: `docs/architecture.html`.
