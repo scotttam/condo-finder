@@ -5,7 +5,7 @@ import pytest
 
 from listings import analyst
 from listings.models import SearchPriorities, Status, TrendReport
-from tests.helpers import make_listing, status_of
+from tests.helpers import home_group, make_listing, status_of
 
 pytestmark = pytest.mark.django_db
 
@@ -42,7 +42,7 @@ def done_report(picks, **extra):
                          "weekly": {"weeks": ["2026-09-22", "2026-09-29"], "tracking_since": "2026-09-20",
                                     "median_rent_by_city": {"Portland": [3200, 3100]}, "cut_share": [0.2, 0.25], "median_dom": [15, 18]}})
     fields.update(extra)
-    return TrendReport.objects.create(**fields)
+    return TrendReport.objects.create(group=home_group(), **fields)
 
 
 def page(client, url="/trends/"):
@@ -120,17 +120,17 @@ def test_charts_show_a_placeholder_without_data(client):
 
 
 def test_priorities_box_saves(client):
-    SearchPriorities.objects.create(pk=1, text="Near a park")
+    SearchPriorities.objects.create(group=home_group(), text="Near a park")
     content = page(client)
     assert re.search(r'<textarea name="text"[^>]*>Near a park</textarea>', content)
     response = client.post("/trends/priorities/", {"text": "Quiet street, walkable"}, HTTP_HX_REQUEST="true")
     assert "Saved ✓" in response.content.decode()
-    assert SearchPriorities.get().text == "Quiet street, walkable"
+    assert SearchPriorities.get(home_group()).text == "Quiet street, walkable"
 
 
 def test_rerun_starts_a_report(client, monkeypatch):
     started = []
-    monkeypatch.setattr(analyst, "start_report", lambda trigger: started.append(trigger) or True)
+    monkeypatch.setattr(analyst, "start_report", lambda group, trigger: started.append(trigger) or True)
     response = client.post("/trends/run/")
     assert response.status_code == 302 and response.url == "/trends/"
     assert started == ["manual"]
@@ -138,8 +138,8 @@ def test_rerun_starts_a_report(client, monkeypatch):
 
 def test_rerun_at_the_daily_cap_does_not_start(client, monkeypatch, settings):
     settings.TRENDS_MANUAL_RUNS_PER_DAY = 1
-    TrendReport.objects.create(status=TrendReport.Status.DONE)
-    monkeypatch.setattr(analyst, "start_report", lambda trigger: pytest.fail("should not start"))
+    TrendReport.objects.create(group=home_group(), status=TrendReport.Status.DONE)
+    monkeypatch.setattr(analyst, "start_report", lambda group, trigger: pytest.fail("should not start"))
     content = client.post("/trends/run/", follow=True).content.decode()
     assert "used all 1 re-runs" in content
     assert re.search(r'<button type="submit"[^>]*disabled', content)
@@ -147,26 +147,26 @@ def test_rerun_at_the_daily_cap_does_not_start(client, monkeypatch, settings):
 
 def test_rerun_without_a_key_does_not_start(client, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY")
-    monkeypatch.setattr(analyst, "start_report", lambda trigger: pytest.fail("should not start"))
+    monkeypatch.setattr(analyst, "start_report", lambda group, trigger: pytest.fail("should not start"))
     client.post("/trends/run/")
 
 
 def test_running_report_shows_a_polling_banner(client, monkeypatch):
-    monkeypatch.setattr(analyst, "is_running", lambda: True)
+    monkeypatch.setattr(analyst, "is_running", lambda group=None: True)
     content = page(client)
     assert re.search(r'<div id="trend-status"[^>]*hx-get="/trends/status/"[^>]*hx-trigger="every 4s"', content)
     assert client.get("/trends/status/").content.decode().count('id="trend-status"') == 1
 
 
 def test_status_endpoint_refreshes_the_page_when_done(client, monkeypatch):
-    monkeypatch.setattr(analyst, "is_running", lambda: False)
+    monkeypatch.setattr(analyst, "is_running", lambda group=None: False)
     response = client.get("/trends/status/")
     assert response.headers["HX-Refresh"] == "true"
 
 
 def test_failed_latest_report_shows_its_error(client):
     done_report([])
-    TrendReport.objects.create(status=TrendReport.Status.FAILED, error="Claude declined this request.")
+    TrendReport.objects.create(group=home_group(), status=TrendReport.Status.FAILED, error="Claude declined this request.")
     content = page(client)
     assert "The last run failed" in content and "Claude declined this request." in content
 

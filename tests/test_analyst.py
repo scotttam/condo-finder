@@ -120,13 +120,13 @@ def test_compact_facts_describe_unknowns_and_history():
 def test_run_report_makes_two_passes_and_saves_picks():
     a, b, c = candidate(price=3000), candidate(price=3100), candidate(price=3200)
     rejected = candidate(status=Status.REJECTED, notes="Too dark")
-    SearchPriorities.objects.create(pk=1, text="Near a park")
+    SearchPriorities.objects.create(group=home_group(), text="Near a park")
     client = FakeClient(
         message({"shortlist": [{"id": a.pk, "reason": "value"}, {"id": b.pk, "reason": "deck"}, {"id": 99999, "reason": "?"}]},
                 used=usage(inp=40_000, out=2_000)),
         message(final([pick(b.pk, headline="Best deck"), pick(a.pk)]), used=usage(inp=10_000, out=3_000)),
     )
-    report = analyst.run_report(client=client)
+    report = analyst.run_report(home_group(), client=client)
     assert report.status == TrendReport.Status.DONE, report.error
     first, second = client.calls
     for call in (first, second):
@@ -159,7 +159,7 @@ def test_picks_drop_unknown_duplicate_and_rejected_ids():
         message({"shortlist": [{"id": a.pk, "reason": ""}, {"id": b.pk, "reason": ""}]}),
         message(final([pick(rejected.pk), pick(a.pk), pick(a.pk), pick(424242), pick(b.pk)])),
     )
-    report = analyst.run_report(client=client)
+    report = analyst.run_report(home_group(), client=client)
     assert [(p["rank"], p["listing_id"]) for p in report.picks] == [(1, a.pk), (2, b.pk)]
 
 
@@ -169,34 +169,34 @@ def test_only_five_picks_are_kept():
         message({"shortlist": [{"id": l.pk, "reason": ""} for l in listings]}),
         message(final([pick(l.pk) for l in listings])),
     )
-    assert len(analyst.run_report(client=client).picks) == 5
+    assert len(analyst.run_report(home_group(), client=client).picks) == 5
 
 
 def test_refusal_fails_the_report():
     candidate()
     client = FakeClient(message({}, stop_reason="refusal"))
-    report = analyst.run_report(client=client)
+    report = analyst.run_report(home_group(), client=client)
     assert report.status == TrendReport.Status.FAILED
     assert "declined" in report.error
 
 
 def test_api_error_fails_the_report():
     candidate()
-    report = analyst.run_report(client=FakeClient(RuntimeError("connection reset")))
+    report = analyst.run_report(home_group(), client=FakeClient(RuntimeError("connection reset")))
     assert report.status == TrendReport.Status.FAILED
     assert "connection reset" in report.error
 
 
 def test_no_candidates_fails_without_calling_claude():
     client = FakeClient()
-    report = analyst.run_report(client=client)
+    report = analyst.run_report(home_group(), client=client)
     assert report.status == TrendReport.Status.FAILED
     assert client.calls == []
 
 
 def test_previous_picks_are_sent_and_changes_recorded():
     a, b, c = candidate(price=3000), candidate(), candidate()
-    TrendReport.objects.create(
+    TrendReport.objects.create(group=home_group(), 
         status=TrendReport.Status.DONE,
         picks=[{"listing_id": a.pk, "rank": 1, "headline": "Old A", "price_at_pick": 3200, "address": a.street},
                {"listing_id": c.pk, "rank": 2, "headline": "Old C", "price_at_pick": 3000, "address": c.street}],
@@ -206,7 +206,7 @@ def test_previous_picks_are_sent_and_changes_recorded():
         message({"shortlist": [{"id": a.pk, "reason": ""}, {"id": b.pk, "reason": ""}]}),
         message(final([pick(a.pk), pick(b.pk)])),
     )
-    report = analyst.run_report(client=client)
+    report = analyst.run_report(home_group(), client=client)
     assert "Old A" in client.calls[1]["messages"][0]["content"]
     assert report.changes["added"] == [b.pk]
     assert report.changes["dropped"] == [{"id": c.pk, "headline": "Old C", "address": c.street, "why": "you rejected it"}]
@@ -219,10 +219,10 @@ def test_cost_of_prices_every_token_kind():
 
 def test_manual_runs_left_counts_todays_manual_reports(settings):
     settings.TRENDS_MANUAL_RUNS_PER_DAY = 3
-    TrendReport.objects.create(trigger=TrendReport.Trigger.MANUAL)
-    TrendReport.objects.create(trigger=TrendReport.Trigger.AUTO)
-    TrendReport.objects.create(trigger=TrendReport.Trigger.MANUAL, created_at=timezone.now() - timedelta(days=1))
-    assert analyst.manual_runs_left() == 2
+    TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.MANUAL)
+    TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.AUTO)
+    TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.MANUAL, created_at=timezone.now() - timedelta(days=1))
+    assert analyst.manual_runs_left(home_group()) == 2
 
 
 def test_is_configured(monkeypatch):
@@ -235,48 +235,52 @@ def test_is_configured(monkeypatch):
 
 def test_start_report_refuses_while_one_is_running(monkeypatch):
     started = []
-    monkeypatch.setattr(analyst, "_launch", lambda report: started.append(report))
-    TrendReport.objects.create(status=TrendReport.Status.RUNNING)
+    monkeypatch.setattr(analyst, "_launch", lambda groups, trigger, first: started.append(first))
+    TrendReport.objects.create(group=home_group(), status=TrendReport.Status.RUNNING)
     assert analyst.is_running()
-    assert analyst.start_report("manual") is False
+    assert analyst.start_report(home_group(), "manual") is False
     assert started == []
 
 
 def test_stale_running_report_does_not_block_and_is_marked_failed(monkeypatch):
     started = []
-    monkeypatch.setattr(analyst, "_launch", lambda report: started.append(report))
-    stale = TrendReport.objects.create(status=TrendReport.Status.RUNNING, created_at=timezone.now() - timedelta(hours=2))
+    monkeypatch.setattr(analyst, "_launch", lambda groups, trigger, first: started.append(first))
+    stale = TrendReport.objects.create(group=home_group(), status=TrendReport.Status.RUNNING, created_at=timezone.now() - timedelta(hours=2))
     assert not analyst.is_running()
-    assert analyst.start_report("manual") is True
+    assert analyst.start_report(home_group(), "manual") is True
     stale.refresh_from_db()
     assert stale.status == TrendReport.Status.FAILED
     assert started[0].status == TrendReport.Status.RUNNING and started[0].trigger == "manual"
 
 
 def test_start_report_refuses_while_the_lock_is_held(monkeypatch):
-    monkeypatch.setattr(analyst, "_launch", lambda report: None)
+    monkeypatch.setattr(analyst, "_launch", lambda groups, trigger, first: None)
     with analyst._lock:
-        assert analyst.start_report("manual") is False
+        assert analyst.start_report(home_group(), "manual") is False
 
 
-def test_run_daily_if_due(monkeypatch):
+def test_run_daily_skips_groups_that_already_have_todays_report(monkeypatch, owner):
+    owner.last_login = timezone.now()
+    owner.save(update_fields=["last_login"])
     started = []
-    monkeypatch.setattr(analyst, "start_report", lambda trigger: started.append(trigger) or True)
+    monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: started.append(trigger) or True)
     monkeypatch.setattr(analyst, "is_configured", lambda: True)
     assert analyst.run_daily_if_due() is True
-    TrendReport.objects.create(trigger=TrendReport.Trigger.AUTO, status=TrendReport.Status.DONE)
+    TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.AUTO, status=TrendReport.Status.DONE)
     assert analyst.run_daily_if_due() is False
     assert started == ["auto"]
 
 
-def test_run_daily_retries_after_a_failed_daily_run(monkeypatch):
-    monkeypatch.setattr(analyst, "start_report", lambda trigger: True)
+def test_run_daily_retries_after_a_failed_daily_run(monkeypatch, owner):
+    owner.last_login = timezone.now()
+    owner.save(update_fields=["last_login"])
+    monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: True)
     monkeypatch.setattr(analyst, "is_configured", lambda: True)
-    TrendReport.objects.create(trigger=TrendReport.Trigger.AUTO, status=TrendReport.Status.FAILED)
+    TrendReport.objects.create(group=home_group(), trigger=TrendReport.Trigger.AUTO, status=TrendReport.Status.FAILED)
     assert analyst.run_daily_if_due() is True
 
 
-def test_run_daily_skips_when_not_configured(monkeypatch):
+def test_run_daily_skips_when_not_configured(monkeypatch, owner):
     monkeypatch.setattr(analyst, "is_configured", lambda: False)
-    monkeypatch.setattr(analyst, "start_report", lambda trigger: pytest.fail("should not start"))
+    monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: pytest.fail("should not start"))
     assert analyst.run_daily_if_due() is False

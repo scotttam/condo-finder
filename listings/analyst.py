@@ -18,8 +18,7 @@ from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import timezone
 
-from accounts.groups import owners_group
-from accounts.models import display_name
+from accounts.models import SearchGroup, display_name
 
 from . import trend_stats
 from .collab import attach_comments, decorate
@@ -131,19 +130,20 @@ def full_facts(listing):
 
 # --- Prompts ---
 
-SYSTEM = """You help a couple find a condo to rent in Portland, Lake Oswego or Beaverton, Oregon. They want \
-a condo or townhome in a small building (not an apartment complex) with 2+ bedrooms, 2+ bathrooms and \
-2 parking spaces, and treat in-unit washer/dryer, air conditioning and outdoor space as must-haves. \
-Their budget reaches about $5,000 a month.
+SYSTEM = """You help a household (one person, or a few people searching together) find a home to rent in \
+Portland, Lake Oswego or Beaverton, Oregon. Their default search filters, given below, say what they need: \
+bedrooms, bathrooms, parking, price range, property types and must-have features. Treat them as requirements \
+unless their own words say otherwise.
 
 You are given listings gathered from property-manager sites, Zillow, Redfin and Craigslist. Parking and \
 amenities were parsed from listing text: "unknown" means the listing didn't say, not that it's missing. \
 Each listing's price history shows how its asking rent has moved, and special_offer quotes any \
 move-in special (weeks free, dollars off), with effective_rent_12mo when its value is stated: count \
-specials toward value, and note that a landlord already offering one may have more room to negotiate. Their own comments and statuses \
-(interested, toured, applied, rejected) are the strongest signal of their taste: favor what they liked, \
-steer away from what they rejected and why, and weigh what they wrote under "What we're looking for" \
-above your own assumptions.
+specials toward value, and note that a landlord already offering one may have more room to negotiate. Their \
+comments, each person's vote (like or dislike) and the status they share (interested, toured, applied, \
+rejected) are the strongest signal of their taste: favor what they liked, steer away from what they rejected \
+or voted down and why, point out where they disagree, and weigh what they wrote under "What we're looking \
+for" above your own assumptions.
 
 Be concrete and honest. Name the specific facts behind each judgment, and say when something is \
 unknown and worth asking about rather than guessing."""
@@ -216,22 +216,23 @@ def _section(title, value):
     return f"<{title}>\n{body}\n</{title}>"
 
 
-def _context(stats):
-    priorities = SearchPriorities.get().text.strip() or "(nothing written yet)"
+def _context(stats, group):
+    priorities = SearchPriorities.get(group).text.strip() or "(nothing written yet)"
     return [
         f"Today is {timezone.localdate():%A, %B %-d, %Y}.",
+        _section("their_default_filters", default_filter_data(group)),
         _section("what_we_are_looking_for", priorities),
         _section("market_statistics", stats),
     ]
 
 
-def _shortlist_prompt(stats, pool):
-    return "\n\n".join([*_context(stats), _section("candidates", [compact_facts(l) for l in pool]), SHORTLIST_TASK])
+def _shortlist_prompt(stats, pool, group):
+    return "\n\n".join([*_context(stats, group), _section("candidates", [compact_facts(l) for l in pool]), SHORTLIST_TASK])
 
 
-def _picks_prompt(stats, shortlisted, rejected, previous):
+def _picks_prompt(stats, shortlisted, rejected, previous, group):
     parts = [
-        *_context(stats),
+        *_context(stats, group),
         _section("shortlist", [full_facts(l) for l in shortlisted]),
         _section("rejected_by_us", [compact_facts(l) for l in rejected]),
     ]
@@ -344,12 +345,12 @@ def diff_picks(previous_picks, picks, listings_by_id):
     return {"added": [p["listing_id"] for p in picks if p["listing_id"] not in before], "dropped": dropped, "price_moves": moves}
 
 
-def run_report(trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
-    """Runs both passes and saves the report. Never raises: a failure is saved on the report."""
-    report = report or TrendReport.objects.create(trigger=trigger)
+def run_report(group=None, trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
+    """Runs both passes for one group and saves the report. Never raises: a failure is saved on the report."""
+    report = report or TrendReport.objects.create(group=group, trigger=trigger)
+    group = report.group
     try:
-        group = owners_group()  # Task 14 makes reports per group
-        previous = TrendReport.objects.filter(status=TrendReport.Status.DONE).exclude(pk=report.pk).first()
+        previous = TrendReport.objects.filter(group=group, status=TrendReport.Status.DONE).exclude(pk=report.pk).first()
         pool = candidates(group)
         if not pool:
             raise AnalystError("No listings match the default filters yet, so there's nothing to analyze.")
@@ -361,7 +362,7 @@ def run_report(trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
             client = anthropic.Anthropic()
         by_id = {listing.pk: listing for listing in pool}
 
-        answer, message = _ask(client, _shortlist_prompt(stats, pool), SHORTLIST_SCHEMA, effort="medium")
+        answer, message = _ask(client, _shortlist_prompt(stats, pool, group), SHORTLIST_SCHEMA, effort="medium")
         _add_usage(report, message)
         shortlist = []
         for item in answer.get("shortlist", []):
@@ -373,7 +374,7 @@ def run_report(trigger=TrendReport.Trigger.MANUAL, client=None, report=None):
         report.shortlist = shortlist
 
         rejected = passed_on(group)
-        prompt = _picks_prompt(stats, [by_id[pk] for pk in shortlist], rejected, previous)
+        prompt = _picks_prompt(stats, [by_id[pk] for pk in shortlist], rejected, previous, group)
         answer, message = _ask(client, prompt, PICKS_SCHEMA, effort="high")
         _add_usage(report, message)
         report.picks = _clean_picks(answer.get("picks", []), {pk: by_id[pk] for pk in shortlist})
@@ -400,57 +401,80 @@ def _running_reports():
     return TrendReport.objects.filter(status=TrendReport.Status.RUNNING)
 
 
-def is_running():
-    return _lock.locked() or _running_reports().filter(created_at__gte=timezone.now() - STALE_AFTER).exists()
+def _fresh_running():
+    return _running_reports().filter(created_at__gte=timezone.now() - STALE_AFTER)
 
 
-def _launch(report):
+def is_running(group=None):
+    """Whether a report is being made for this group, or (without a group) for anyone."""
+    if group is None:
+        return _lock.locked() or _fresh_running().exists()
+    return _fresh_running().filter(group=group).exists()
+
+
+def _launch(groups, trigger, first):
+    """Runs one report per group, one after another, in a background thread; releases the lock after."""
     def target():
         try:
-            run_report(report=report)
+            for index, group in enumerate(groups):
+                try:
+                    run_report(group, trigger, report=first if index == 0 else None)
+                finally:
+                    close_old_connections()
         finally:
             _lock.release()
-            close_old_connections()
 
     threading.Thread(target=target, name="trend-report", daemon=True).start()
 
 
-def start_report(trigger):
-    """Starts a report in the background. False if one is already running."""
-    if not _lock.acquire(blocking=False):
+def start_reports(groups, trigger):
+    """Starts reports for these groups in the background, one at a time. False if one is already running."""
+    groups = list(groups)
+    if not groups or not _lock.acquire(blocking=False):
         return False
     try:
-        if _running_reports().filter(created_at__gte=timezone.now() - STALE_AFTER).exists():
+        if _fresh_running().exists():
             _lock.release()
             return False
         # Reports left "running" by a restart never finished.
         _running_reports().update(
             status=TrendReport.Status.FAILED, error="Interrupted before it finished.", finished_at=timezone.now()
         )
-        report = TrendReport.objects.create(trigger=trigger)
+        first = TrendReport.objects.create(group=groups[0], trigger=trigger)  # so the page shows it running at once
     except Exception:
         _lock.release()
         raise
-    _launch(report)  # releases the lock when the report finishes
+    _launch(groups, trigger, first)
     return True
+
+
+def start_report(group, trigger):
+    return start_reports([group], trigger)
 
 
 def _today_start():
     return timezone.make_aware(datetime.combine(timezone.localdate(), time.min))
 
 
-def manual_runs_left():
-    used = TrendReport.objects.filter(trigger=TrendReport.Trigger.MANUAL, created_at__gte=_today_start()).count()
+def manual_runs_left(group):
+    used = TrendReport.objects.filter(group=group, trigger=TrendReport.Trigger.MANUAL, created_at__gte=_today_start()).count()
     return max(settings.TRENDS_MANUAL_RUNS_PER_DAY - used, 0)
 
 
+ACTIVE_WITHIN = timedelta(days=14)  # daily reports only for groups someone has used lately (each costs ~$0.50)
+
+
+def due_today():
+    """Groups a member has logged in to lately that don't have today's automatic report yet."""
+    done = (TrendReport.objects.filter(trigger=TrendReport.Trigger.AUTO, created_at__gte=_today_start(), group__isnull=False)
+            .exclude(status=TrendReport.Status.FAILED).values("group"))  # no NULLs: NOT IN (…, NULL) matches nothing
+    active = SearchGroup.objects.filter(members__user__last_login__gte=timezone.now() - ACTIVE_WITHIN)
+    return list(active.exclude(pk__in=done).distinct().order_by("pk"))
+
+
 def run_daily_if_due():
-    """Starts today's automatic report, once per day, if an API key is set."""
+    """Starts today's automatic reports, one per group with members, if an API key is set."""
     if not is_configured():
         return False
-    done_today = TrendReport.objects.filter(
-        trigger=TrendReport.Trigger.AUTO, created_at__gte=_today_start()
-    ).exclude(status=TrendReport.Status.FAILED)
-    if done_today.exists():
-        return False
-    return start_report(TrendReport.Trigger.AUTO)
+    groups = due_today()
+    return start_reports(groups, TrendReport.Trigger.AUTO) if groups else False

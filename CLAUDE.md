@@ -20,7 +20,7 @@ how to continue it.
   post-scrape pass would also do it on the next run).
 - **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
   collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 584 tests pass.
+  after the whole stack merges, following the README runbook. 592 tests pass.
   `create_owner` claims the owner's migrated notes (now comments) if the account didn't exist when migrating.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
@@ -141,10 +141,12 @@ its own data. Production data lives only on the Mac mini.
     survivors are known for them).
   - `listings/analyst.py` makes two Claude calls (Opus 5.5, structured JSON output, server-side
     fallback). Pass 1 shortlists 25 candidates from compact facts; pass 2 ranks the top 5 from full
-    descriptions, comments, rejected listings and "What we're looking for" (`SearchPriorities`).
-  - Each run is saved as a `TrendReport` with usage and cost. One runs at a time in a background
-    thread. The scheduler starts the daily report after the first scrape of the day; manual re-runs
-    are capped by `TRENDS_MANUAL_RUNS_PER_DAY`.
+    descriptions, comments, votes, rejected listings, the group's default filters and "What we're
+    looking for" (`SearchPriorities`, one per group). Market charts (`trend_stats`) are shared.
+  - Each run is saved as a `TrendReport` with its group, usage and cost. Each group has its own
+    reports and re-run cap (`TRENDS_MANUAL_RUNS_PER_DAY`). The scheduler's daily run, after the first
+    scrape of the day, makes one report per group a member logged in to within 14 days, one after another in one background
+    thread (about $0.50 each). One report runs at a time across all groups.
   - Tests use a `FakeClient` (`tests/test_analyst.py`) and never call the API. A real run costs
     about $0.50.
 - `listings/views.py`:

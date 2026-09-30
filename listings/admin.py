@@ -67,8 +67,8 @@ class FeedEventAdmin(admin.ModelAdmin):
 
 @admin.register(TrendReport)
 class TrendReportAdmin(admin.ModelAdmin):
-    list_display = ("created_at", "trigger", "status", "cost_usd", "summary")
-    list_filter = ("status", "trigger")
+    list_display = ("created_at", "group", "trigger", "status", "cost_usd", "summary")
+    list_filter = ("group", "status", "trigger")
 
     def has_add_permission(self, request):
         return False  # reports come from the Trends page and the daily run
@@ -76,4 +76,4 @@ class TrendReportAdmin(admin.ModelAdmin):
 
 @admin.register(SearchPriorities)
 class SearchPrioritiesAdmin(admin.ModelAdmin):
-    list_display = ("updated_at",)
+    list_display = ("group", "updated_at")
