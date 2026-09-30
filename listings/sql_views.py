@@ -3,12 +3,13 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+
+from accounts.decorators import staff_required
 
 from . import sql_console
 from .forms import SavedQueryForm
@@ -35,7 +36,7 @@ def _cells(result):
     ]
 
 
-@staff_member_required
+@staff_required
 def sql_console_page(request):
     sql = request.GET.get("q", "").strip()
     result = None
@@ -59,7 +60,7 @@ def sql_console_page(request):
     })
 
 
-@staff_member_required
+@staff_required
 def sql_csv(request):
     sql = request.GET.get("q", "").strip()
     if not sql:
@@ -75,7 +76,7 @@ def sql_csv(request):
     return response
 
 
-@staff_member_required
+@staff_required
 @require_POST
 def sql_save(request):
     pk = request.POST.get("pk", "")
@@ -89,7 +90,7 @@ def sql_save(request):
     return redirect(_console_url(saved.sql, saved))
 
 
-@staff_member_required
+@staff_required
 @require_POST
 def sql_delete(request, pk):
     saved = get_object_or_404(SavedQuery, pk=pk)

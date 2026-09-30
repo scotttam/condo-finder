@@ -14,6 +14,18 @@
     header { display:flex; align-items:center; gap:24px; padding:12px 20px; background:var(--card); border-bottom:1px solid var(--line); }
     header .brand { font-weight:700; color:var(--accent); text-decoration:none; font-size:18px; }
     header nav a { margin-right:16px; color:var(--ink); text-decoration:none; }
+    .dev-switch { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:2px 8px; border:1px dashed var(--unk); border-radius:8px; } .dev-switch form { margin:0; }
+    .auth-card .dev-switch { margin-top:14px; }
+    header .account { margin-left:auto; display:flex; align-items:center; gap:8px; } header .account form { margin:0; }
+    .group-page { max-width:760px; } .group-page h3 { margin-top:0; }
+    .inline-form { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .inline-form input[type=text] { flex:1; min-width:0; padding:7px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+    .members form { margin:0; }
+    .invite { margin-top:10px; } .invite .inline-form form { margin:0; }
+    .auth-card { max-width:400px; margin:40px auto; } .auth-card h1 { margin-top:0; font-size:22px; }
+    .stack { display:block; margin:0 0 12px; font-size:14px; font-weight:600; }
+    .stack input, .stack textarea { display:block; width:100%; margin-top:4px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-weight:400; }
+    .auth-card button[type=submit] { padding:8px 18px; border:0; border-radius:8px; background:var(--accent); color:#fff; font:600 15px/1.2 inherit; cursor:pointer; }
     main { padding:20px; max-width:1400px; margin:0 auto; }
     a { color:var(--accent); }
     .messages { list-style:none; margin:12px 20px 0; padding:10px 14px; background:#eaf4ef; border-radius:8px; }
@@ -61,6 +73,7 @@
     .range-values { display:flex; justify-content:space-between; font-weight:600; font-size:14px; }
     .more-count[hidden] { display:none; }
     .more-count { display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:9px; background:var(--accent); color:#fff; font-size:12px; text-align:center; }
+    .save-defaults { font-size:14px; border:0; background:none; color:var(--accent); cursor:pointer; padding:0 4px; white-space:nowrap; }
     .filter-bar .reset { font-size:14px; margin-left:4px; }
     .results-controls { display:flex; align-items:center; gap:12px; }
     .sort { font-size:14px; color:var(--muted); } .sort select { margin-left:6px; padding:5px 8px; border:1px solid var(--line); border-radius:6px; font:inherit; color:var(--ink); background:var(--card); }
@@ -141,8 +154,13 @@
     .description.collapsible::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3em; background:linear-gradient(transparent, var(--card)); }
     .description.collapsible.expanded { max-height:none; } .description.collapsible.expanded::after { display:none; }
     .listing-map { height:340px; border-radius:10px; }
-    /* Status pills + autosaving notes */
+    /* Status pills + autosaving boxes */
     .status-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .votes { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0; }
+    .vote { font-size:13px; padding:2px 9px; border:1px solid var(--line); border-radius:999px; background:var(--card); cursor:pointer; }
+    .vote.mine { border-color:var(--accent); background:#eef6f2; font-weight:700; }
+    .vote-who { font-size:12px; }
+    .status-by { flex-basis:100%; margin:2px 0 0; }
     .status-pill { margin:0; } .status-pill input { position:absolute; opacity:0; pointer-events:none; }
     .status-pill span { display:block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; background:var(--card); }
     .status-pill input:focus-visible + span { outline:2px solid var(--accent); outline-offset:2px; }
@@ -151,6 +169,13 @@
     .pill-toured input:checked + span, .pill-applied input:checked + span { background:#f5c542; border-color:#e0ad1f; color:#3d2e00; }
     .pill-rejected input:checked + span { background:#667085; border-color:#667085; color:#fff; }
     #tracking textarea { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:14px; resize:vertical; }
+    .comment { padding:8px 0; border-bottom:1px solid var(--line); } .comment:last-child { border-bottom:0; }
+    .comment-head { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; font-size:14px; }
+    .comment-head .row-actions { margin-left:auto; }
+    .comment-body { margin-top:2px; font-size:14px; overflow-wrap:anywhere; }
+    #comment-form, .comment-edit { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+    #comment-form textarea, .comment-edit textarea { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:14px; resize:vertical; }
+    #comment-form button[type=submit], .comment-edit button[type=submit] { align-self:flex-start; }
     .tracking-foot { min-height:20px; margin-top:4px; font-size:12px; }
     .save-state.saved { color:var(--yes); font-weight:600; } .save-state.error { color:var(--no); }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px; }
@@ -204,6 +229,7 @@
     .kind-new_listing { background:#e8f0fe; color:#1a56db; } .kind-drop { background:#e3f5ea; color:var(--yes); }
     .kind-price_change:not(.kind-drop) { background:#fff4d6; color:#8a6d00; } .kind-off_market { background:#fde8e7; color:var(--no); }
     .kind-back_on_market { background:#e3f5ea; color:var(--yes); } .kind-new_site { background:#f0e8fe; color:#6b3fd4; }
+    .kind-status, .kind-comment, .kind-vote { background:#eef2ff; color:#3730a3; }
     .feed-thumb img, .feed-thumb span { display:block; width:64px; height:46px; object-fit:cover; border-radius:6px; background:#ddd; }
     .feed-listing { min-width:200px; } .feed-summary { min-width:220px; }
     .panel-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
@@ -334,13 +360,21 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <header>
     <a class="brand" href="{% url 'listing_list' %}">Condo Finder</a>
+    {% if user.is_authenticated %}
     <nav>
       <a href="{{ listings_url }}">Listings</a>
       <a href="{% url 'trends' %}">Trends</a>
-      <a href="{% url 'feed' %}">Feed{% if feed_unread %} <span class="nav-badge">{{ feed_unread }}</span>{% endif %}</a>
-      <a href="{% url 'sources' %}">Sources</a>
-      <a href="/admin/">Admin</a>
+      <a href="{% url 'feed' %}">Feed{% include "listings/_feed_badge.html" %}</a>
+      <a href="{% url 'group_settings' %}">Group</a>
+      {% if user.is_staff %}<a href="{% url 'sources' %}">Sources</a>
+      <a href="/admin/">Admin</a>{% endif %}
     </nav>
+    <div class="account">
+      <span class="muted whoami">{{ request.profile.display_name }}</span>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="link">Log out</button></form>
+      {% include "accounts/_dev_switch.html" with next_url=request.get_full_path %}
+    </div>
+    {% endif %}
   </header>
   {% if messages %}<ul class="messages">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
   <main>{% block content %}{% endblock %}</main>

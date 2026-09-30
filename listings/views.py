@@ -9,10 +9,12 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from accounts.decorators import staff_required
+
 from .filters import apply_filters
-from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, TrackingForm, default_filter_data
+from .forms import HISTORY_EVENTS, ListingFilterForm, PriceEntryForm, default_filter_data
 from .models import Listing, PriceChange, SearchPriorities, Source, SourceRun, Status, TrendReport
-from . import analyst, feed, trend_stats
+from . import analyst, collab, feed, trend_stats
 from .charts import line_chart
 from .ingest import refresh_source_listing
 from .runner import is_running, run_all_in_background, sync_sources
@@ -32,25 +34,45 @@ def listing_list(request):
     request.session["listing_view"] = view
     request.session["listing_query"] = f"?{request.GET.urlencode()}" if request.GET else ""
     has_filters = any(key not in NON_FILTER_PARAMS for key in request.GET)
-    form = ListingFilterForm(request.GET if has_filters else default_filter_data())
+    form = ListingFilterForm(request.GET if has_filters else default_filter_data(request.group))
     queryset = Listing.objects.all()
     if form.is_valid():
-        queryset = apply_filters(queryset, form.cleaned_data)
+        queryset = apply_filters(queryset, form.cleaned_data, request.group)
     page_obj = Paginator(queryset.prefetch_related("source_listings__source", "price_changes"), PAGE_SIZE).get_page(
         request.GET.get("page")
     )
+    listings = collab.decorate(page_obj.object_list, request.group, request.user)
     return render(request, "listings/list.html", {
         "form": form,
-        "filter_defaults": default_filter_data(),
+        "filter_defaults": default_filter_data(request.group),
         "view": view,
         "page_obj": page_obj,
-        "listings": page_obj.object_list,
-        "map_points": _map_points(page_obj.object_list) if view == "map" else [],
+        "listings": listings,
+        "map_points": _map_points(listings) if view == "map" else [],
         "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
         "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
         "map_url": _url_with(request, view="map"),
         "list_url": _url_with(request, view="list"),
     })
+
+
+MULTI_VALUE_FILTERS = ("cities", "quadrants", "sources", "types", "statuses")
+AREA_FILTERS = ("north", "south", "east", "west")  # "Search this area" isn't a default
+
+
+@require_POST
+def save_default_filters(request):
+    """'Save as our defaults': the filter bar as it is now becomes where the group's visits start."""
+    form = ListingFilterForm(request.POST)
+    if not form.is_valid():
+        return HttpResponseBadRequest("invalid filters")
+    request.group.default_filters = {
+        name: request.POST.getlist(name) if name in MULTI_VALUE_FILTERS else request.POST.get(name, "")
+        for name in form.fields
+        if name not in AREA_FILTERS
+    }
+    request.group.save(update_fields=["default_filters"])
+    return render(request, "listings/_save_defaults.html", {"saved": True})
 
 
 def _short_price(price):
@@ -63,12 +85,13 @@ PIN_MARKS = {Status.INTERESTED: ("♥ ", "pin-liked"), Status.REJECTED: ("✕ ",
 
 
 def _pin_style(listing):
-    mark, status_class = PIN_MARKS.get(listing.status, ("", ""))
+    mark, status_class = PIN_MARKS.get(listing.group_status, ("", ""))
+    votes = collab.vote_mark(listing)
     drop = listing.price_drop
     special = bool(listing.special_offer)
     classes = ["pin", drop and "pin-drop", special and "pin-special", status_class, not listing.is_active and "pin-off"]
     return {
-        "label": f"{mark}{'↓' if drop else ''}{'★' if special else ''}{_short_price(listing.price)}",
+        "label": f"{mark}{votes + ' ' if votes else ''}{'↓' if drop else ''}{'★' if special else ''}{_short_price(listing.price)}",
         "classes": " ".join(c for c in classes if c),
     }
 
@@ -82,7 +105,7 @@ def _map_points(listings):
             "lng": listing.longitude,
             "short": _short_price(listing.price),
             "drop": bool(listing.price_drop),
-            "status": listing.status,
+            "status": listing.group_status,
             "active": listing.is_active,
             **_pin_style(listing),
             "url": listing.get_absolute_url(),
@@ -93,11 +116,12 @@ def _map_points(listings):
 
 
 def feed_page(request):
-    """New listings and updates to listings you're tracking, newest first; unread since your last visit."""
-    tab = request.GET.get("tab") if request.GET.get("tab") in ("new", "updates") else "all"
+    """New listings, updates to listings the group tracks, and the group's own activity, newest first."""
+    requested = request.GET.get("tab")
+    tab = requested if requested in ("new", "updates", "activity") else "all"
     show_apartments = request.GET.get("apartments") == "show"
-    last_seen = feed.seen_at(request)
-    page_obj = Paginator(feed.events(tab, show_apartments), FEED_PAGE_SIZE).get_page(request.GET.get("page"))
+    last_seen = feed.seen_at(request.profile)
+    page_obj = Paginator(feed.events(request.group, tab, show_apartments), FEED_PAGE_SIZE).get_page(request.GET.get("page"))
     today = timezone.localdate()
     rows = []
     for event in page_obj.object_list:
@@ -107,11 +131,13 @@ def feed_page(request):
             "event": event,
             "listing": event.listing,
             "label": feed.label(event),
-            "unread": event.created_at > last_seen,
+            "unread": feed.is_unread(event, request.profile, last_seen),
             "day": "Today" if day == today else "Yesterday" if (today - day).days == 1 else f"{day:%A, %b} {day.day}",
             "happened": happened if happened != day else None,
         })
-    response = render(request, "listings/feed.html", {
+    collab.decorate([row["listing"] for row in rows], request.group, request.user)
+    feed.mark_seen(request.profile)
+    return render(request, "listings/feed.html", {
         "rows": rows,
         "page_obj": page_obj,
         "tab": tab,
@@ -120,8 +146,11 @@ def feed_page(request):
         "prev_url": _url_with(request, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
         "next_url": _url_with(request, page=page_obj.next_page_number()) if page_obj.has_next() else "",
     })
-    response.set_cookie(feed.SEEN_COOKIE, timezone.now().isoformat(), max_age=60 * 60 * 24 * 365, samesite="Lax")
-    return response
+
+
+def feed_badge(request):
+    """The nav's unread count, polled every 30 seconds."""
+    return render(request, "listings/_feed_badge.html", {"feed_unread": feed.unread_count(request.profile)})
 
 
 def _url_with(request, **params):
@@ -135,10 +164,11 @@ def listing_detail(request, pk):
     listing = get_object_or_404(
         Listing.objects.prefetch_related("source_listings__source", "price_changes"), pk=pk
     )
+    collab.decorate([listing], request.group, request.user)
     return render(request, "listings/detail.html", {
         **_history_context(listing),
         "listing": listing,
-        "tracking_form": TrackingForm(instance=listing),
+        "comments": collab.comments_for(listing, request.group),
     })
 
 
@@ -153,6 +183,7 @@ def _refreshable(listing):
 
 
 @require_POST
+@staff_required
 def refresh_listing(request, pk):
     """'Refresh from sites': re-fetch this listing's pages now and report per site."""
     listing = get_object_or_404(Listing, pk=pk)
@@ -209,6 +240,7 @@ def _history_response(request, listing, add_form=None, editing=None, edit_form=N
 
 
 @require_POST
+@staff_required
 def history_add(request, pk):
     listing = get_object_or_404(Listing, pk=pk)
     form = PriceEntryForm(request.POST)
@@ -219,6 +251,7 @@ def history_add(request, pk):
     return _history_response(request, listing, add_form=form)
 
 
+@staff_required
 def history_edit(request, pk, change_pk):
     listing = get_object_or_404(Listing, pk=pk)
     change = get_object_or_404(PriceChange, pk=change_pk, listing=listing)
@@ -237,22 +270,11 @@ def history_edit(request, pk, change_pk):
 
 
 @require_POST
+@staff_required
 def history_delete(request, pk, change_pk):
     listing = get_object_or_404(Listing, pk=pk)
     get_object_or_404(PriceChange, pk=change_pk, listing=listing).delete()
     return _history_response(request, listing)
-
-
-@require_POST
-def update_tracking(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-    form = TrackingForm(request.POST, instance=listing)
-    saved = form.is_valid()
-    if saved:
-        form.save()
-    if request.headers.get("HX-Request"):
-        return render(request, "listings/_tracking.html", {"listing": listing, "tracking_form": form, "saved": saved})
-    return redirect(listing)
 
 
 @require_POST
@@ -261,8 +283,8 @@ def set_status(request, pk):
     status = request.POST.get("status")
     if status not in Status.values:
         return HttpResponseBadRequest("invalid status")
-    listing.status = status
-    listing.save(update_fields=["status", "updated_at"])
+    collab.set_status(listing, request.group, request.user, status)
+    collab.decorate([listing], request.group, request.user)
     if request.headers.get("HX-Request"):
         template = "listings/_status_pills.html" if request.POST.get("variant") == "pills" else "listings/_status.html"
         return render(request, template, {"listing": listing})
@@ -272,6 +294,7 @@ def set_status(request, pk):
     return redirect("listing_list")
 
 
+@staff_required
 def sources(request):
     sync_sources()
     return render(request, "listings/sources.html", {
@@ -283,6 +306,7 @@ def sources(request):
 
 
 @require_POST
+@staff_required
 def scrape_now(request):
     if is_running():
         messages.info(request, "A scrape is already running.")
@@ -302,16 +326,19 @@ def _trend_charts(weekly):
 
 
 def trends_page(request):
-    done = TrendReport.objects.filter(status=TrendReport.Status.DONE)
+    group = request.group
+    reports = TrendReport.objects.filter(group=group)
+    done = reports.filter(status=TrendReport.Status.DONE)
     newest = done.first()
     requested = request.GET.get("report", "")
     report = (done.filter(pk=requested).first() if requested.isdigit() else None) or newest
-    latest = TrendReport.objects.first()
+    latest = reports.first()
     stats = report.stats if report else {}
     snapshot = stats.get("now") or trend_stats.market_snapshot()
     weekly = stats.get("weekly") or trend_stats.weekly_series()
     picks = report.picks if report else []
     listings = Listing.objects.in_bulk([pick["listing_id"] for pick in picks])
+    collab.decorate(listings.values(), request.group, request.user)
     return render(request, "listings/trends.html", {
         "report": report,
         "is_latest": report == newest,
@@ -322,10 +349,10 @@ def trends_page(request):
         "snapshot": snapshot,
         "tracking_since": date.fromisoformat(weekly["tracking_since"]) if weekly.get("tracking_since") else None,
         "charts": _trend_charts(weekly),
-        "priorities": SearchPriorities.get(),
+        "priorities": SearchPriorities.get(request.group),
         "configured": analyst.is_configured(),
-        "running": analyst.is_running(),
-        "runs_left": analyst.manual_runs_left(),
+        "running": analyst.is_running(group),
+        "runs_left": analyst.manual_runs_left(group),
         "runs_per_day": settings.TRENDS_MANUAL_RUNS_PER_DAY,
     })
 
@@ -344,21 +371,24 @@ def _trend_changes(report):
 
 @require_POST
 def trends_run(request):
+    group = request.group
     if not analyst.is_configured():
         messages.error(request, "Add ANTHROPIC_API_KEY to .env and restart the app to run the analysis.")
-    elif analyst.manual_runs_left() <= 0:
+    elif analyst.manual_runs_left(group) <= 0:
         limit = settings.TRENDS_MANUAL_RUNS_PER_DAY
         messages.info(request, f"You've used all {limit} re-runs for today. The daily report still runs after the morning scrape.")
-    elif analyst.start_report(TrendReport.Trigger.MANUAL):
+    elif analyst.start_report(group, TrendReport.Trigger.MANUAL):
         messages.success(request, "Analysis started. It takes a minute or two.")
-    else:
+    elif analyst.is_running(group):
         messages.info(request, "An analysis is already running.")
+    else:
+        messages.info(request, "Another household's analysis is running. Try again in a few minutes.")
     return redirect("trends")
 
 
 @require_POST
 def trends_priorities(request):
-    priorities = SearchPriorities.get()
+    priorities = SearchPriorities.get(request.group)
     priorities.text = request.POST.get("text", "")
     priorities.save()
     if request.headers.get("HX-Request"):
@@ -368,7 +398,7 @@ def trends_priorities(request):
 
 def trends_status(request):
     """Polled while an analysis runs; tells HTMX to reload the page once it's finished."""
-    if analyst.is_running():
+    if analyst.is_running(request.group):
         return render(request, "listings/_trend_status.html")
     response = HttpResponse("")
     response["HX-Refresh"] = "true"

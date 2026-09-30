@@ -13,10 +13,13 @@ BED_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
 BATH_CHOICES = [("", "Any"), ("1", "1+"), ("1.5", "1.5+"), ("2", "2+"), ("3", "3+")]
 PARKING_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+")]
 FURNISHED_CHOICES = [("any", "Any"), ("hide", "Hide furnished"), ("only", "Furnished only")]
+VOTE_FILTER_CHOICES = [("any", "Any"), ("everyone_likes", "Everyone 👍"), ("someone_likes", "Someone 👍"),
+                       ("disagree", "We disagree"), ("unvoted", "No votes yet")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
 
 
-def default_filter_data():
+def app_default_filters():
+    """The filters a new group starts from."""
     return {
         "min_beds": "2",
         "min_baths": "2",
@@ -30,8 +33,14 @@ def default_filter_data():
         "ac": "yes_or_unknown",
         "outdoor": "yes_or_unknown",
         "furnished": "any",
+        "votes": "any",
         "sort": "price",
     }
+
+
+def default_filter_data(group=None):
+    """The group's saved defaults over the app defaults (so a filter added later still has a value)."""
+    return {**app_default_filters(), **(group.default_filters if group else {})}
 
 
 class ListingFilterForm(forms.Form):
@@ -56,6 +65,7 @@ class ListingFilterForm(forms.Form):
     sources = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     types = forms.MultipleChoiceField(required=False, choices=PropertyType.choices, widget=forms.CheckboxSelectMultiple)
     statuses = forms.MultipleChoiceField(required=False, choices=Status.choices, widget=forms.CheckboxSelectMultiple)
+    votes = forms.ChoiceField(required=False, choices=VOTE_FILTER_CHOICES, label="Votes")
     wd = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="In-unit W/D")
     ac = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="AC")
     outdoor = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Outdoor space")
@@ -93,13 +103,6 @@ class PriceEntryForm(forms.Form):
     def seen_at(self):
         day = self.cleaned_data["date"]
         return timezone.make_aware(datetime.combine(day, time(12)))
-
-
-class TrackingForm(forms.ModelForm):
-    class Meta:
-        model = Listing
-        fields = ["status", "notes"]
-        widgets = {"notes": forms.Textarea(attrs={"rows": 6})}
 
 
 class SavedQueryForm(forms.ModelForm):

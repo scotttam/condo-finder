@@ -9,12 +9,13 @@
       <a href="?tab=all{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "all" %} class="active"{% endif %}>All</a>
       <a href="?tab=new{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "new" %} class="active"{% endif %}>New listings</a>
       <a href="?tab=updates{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "updates" %} class="active"{% endif %}>Updates</a>
+      <a href="?tab=activity{% if show_apartments %}&amp;apartments=show{% endif %}"{% if tab == "activity" %} class="active"{% endif %}>Activity</a>
     </nav>
     <a class="toggle-link" href="?tab={{ tab }}{% if not show_apartments %}&amp;apartments=show{% endif %}">
       {% if show_apartments %}Hide apartments{% else %}Show apartments{% endif %}</a>
   </div>
 </div>
-<p class="muted">New listings, plus updates to listings you've given a status (Interested, Toured, Applied, Rejected).</p>
+<p class="muted">New listings, updates to listings your group has given a status, and what your group has been doing (statuses, comments, votes).</p>
 
 {% regroup rows by day as days %}
 {% for day in days %}
@@ -47,7 +48,7 @@
     </td>
     <td class="nowrap"><strong>{% if listing.price %}${{ listing.price|intcomma }}{% else %}?{% endif %}</strong>
       <div class="muted">{{ listing.beds }} bd · {{ listing.baths|floatformat:"-1" }} ba{% if not listing.is_active %} · <span class="offmarket">off market</span>{% endif %}</div></td>
-    <td class="nowrap">{% if listing.status != "new" %}<span class="status status-{{ listing.status }}">{{ listing.get_status_display }}</span>{% endif %}</td>
+    <td class="nowrap">{% if listing.group_status != "new" %}<span class="status status-{{ listing.group_status }}">{{ listing.group_status_label }}</span>{% endif %}</td>
   </tr>
   {% endwith %}
   {% endfor %}

@@ -2,6 +2,7 @@ from urllib.parse import parse_qs, urlencode
 
 import pytest
 from bs4 import BeautifulSoup
+from django.urls import reverse
 
 from listings.models import SavedQuery
 
@@ -9,8 +10,8 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def staff_client(client, django_user_model):
-    client.force_login(django_user_model.objects.create_user("owner", password="pw", is_staff=True))
+def staff_client(client):
+    """The conftest client: Sam, the site admin."""
     return client
 
 
@@ -63,12 +64,19 @@ def test_delete_requires_post(staff_client):
     assert SavedQuery.objects.exists()
 
 
-def test_anonymous_cannot_save_or_delete(client):
+def test_anonymous_cannot_save_or_delete(anon_client):
     saved = SavedQuery.objects.create(name="Stays", sql="SELECT 3")
-    save = client.post("/sql/save/", {"name": "X", "sql": "SELECT 1"})
-    delete = client.post(f"/sql/saved/{saved.pk}/delete/")
-    assert save["Location"].startswith("/admin/login/")
-    assert delete["Location"].startswith("/admin/login/")
+    save = anon_client.post("/sql/save/", {"name": "X", "sql": "SELECT 1"})
+    delete = anon_client.post(f"/sql/saved/{saved.pk}/delete/")
+    assert save["Location"].startswith(reverse("login"))
+    assert delete["Location"].startswith(reverse("login"))
+    assert list(SavedQuery.objects.values_list("name", flat=True)) == ["Stays"]
+
+
+def test_members_who_are_not_staff_cannot_save_or_delete(member_client):
+    saved = SavedQuery.objects.create(name="Stays", sql="SELECT 3")
+    assert member_client.post("/sql/save/", {"name": "X", "sql": "SELECT 1"}).status_code == 403
+    assert member_client.post(f"/sql/saved/{saved.pk}/delete/").status_code == 403
     assert list(SavedQuery.objects.values_list("name", flat=True)) == ["Stays"]
 
 

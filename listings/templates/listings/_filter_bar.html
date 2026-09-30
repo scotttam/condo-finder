@@ -98,6 +98,8 @@
           <div class="check-list">
             {% for option in form.statuses %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
           </div>
+          <div class="panel-title">Our votes</div>
+          <label class="field">Votes {{ form.votes }}</label>
           <div class="panel-title">Sources</div>
           <div class="check-list columns">
             {% for option in form.sources %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}
@@ -110,6 +112,7 @@
   <button type="button" class="area-chip" data-clear-area hidden title="Stop limiting results to the map area">Map area ✕</button>
   <div class="chip-backdrop" data-chip-backdrop hidden></div>
   <a class="reset" href="{% url 'listing_list' %}{% if view == 'list' %}?view=list{% endif %}">Reset</a>
+  {% include "listings/_save_defaults.html" %}
   <noscript><button type="submit">Apply filters</button></noscript>
 </form>
 {{ filter_defaults|json_script:"filter-defaults" }}

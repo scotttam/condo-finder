@@ -50,6 +50,8 @@ class FakeFetcher:
 def make_listing(**overrides):
     from listings.models import Listing
 
+    status = overrides.pop("status", None)
+    notes = overrides.pop("notes", "")
     fields = dict(
         address_key="937 nw glisan st|435|97209",
         address="937 NW Glisan Street #435, Portland, OR 97209",
@@ -59,7 +61,16 @@ def make_listing(**overrides):
         zip_code="97209",
     )
     fields.update(overrides)
-    return Listing.objects.create(**fields)
+    listing = Listing.objects.create(**fields)
+    if status:
+        from listings.collab import set_status
+
+        set_status(listing, home_group(), None, status)
+    if notes:
+        from listings.models import Comment
+
+        Comment.objects.create(listing=listing, group=home_group(), author_name="Sam", body=notes)
+    return listing
 
 
 def scraped(**overrides):
@@ -89,3 +100,26 @@ def make_source(key="pearl"):
 
     platform = key if key in PLATFORMS else "appfolio"  # e.g. make_source("zillow") is a Zillow source
     return Source.objects.get_or_create(key=key, defaults={"name": key.title(), "platform": platform})[0]
+
+
+def home_group():
+    """The owners' group: the oldest group, made by accounts' migration (re-made if a test flushed it)."""
+    from accounts.groups import owners_group
+
+    return owners_group()
+
+
+def make_user(email, name, group=None, staff=False):
+    from django.contrib.auth import get_user_model
+
+    from accounts.models import Profile
+
+    user = get_user_model().objects.create_user(username=email, email=email, password="pw", is_staff=staff)
+    Profile.objects.create(user=user, group=group or home_group(), display_name=name)
+    return user
+
+
+def status_of(listing, group=None):
+    from listings.collab import decorate
+
+    return decorate([listing], group or home_group())[0].group_status

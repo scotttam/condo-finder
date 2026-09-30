@@ -14,17 +14,21 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #58** (#57, docs only: no inline shell comments; #58, docs only:
-  the grill-me → Superpowers planning workflow). **Open: #70** (SQL console,
-  staff-only read-only SQL at `/sql/`). After deploying it, run `uv run python manage.py createsuperuser`
-  on the Mac mini for the second owner, who has no login yet. After deploying #55, run
-  `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
-  post-scrape pass would also do it on the next run). 625 tests pass.
+- **Merged to `main` through PR #68** and deployed on 2026-09-30: the accounts stack (#59–#68: logins,
+  search groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via
+  Tailscale Funnel; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). 724 tests
+  pass with #70. **Open: #70** (SQL console: staff-only
+  read-only SQL at `/sql/`).
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
-  7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
+  7, 11, 15, 19 and 23 o'clock. Everyone uses `https://<mac-mini>.<tailnet>.ts.net` through Tailscale
+  Funnel; gunicorn listens on 127.0.0.1:8000 only. One group, "Scott and Kristi's Search" (pk 1, the
+  owners' group), holds all the migrated data.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
-  migrates, collects static files and restarts the service.
+  migrates, collects static files and restarts the service. `PUBLIC_URL` in `.env` must be the Funnel
+  address (README: Going public with Tailscale Funnel).
 - **Recently shipped:**
+  - Accounts and collaboration (#59–#68). Each household is a search group; see `accounts/` and
+    `listings/collab.py` in the code map.
   - Unit-number duplicates: Redfin often drops the unit, so "821 NW 11th Ave" and
     "821 NW 11th Ave #105" became two listings. Ingest now matches them, and a pass after each scrape
     (and `manage.py merge_duplicates`) merges existing pairs, keeping the copy with notes or a status.
@@ -41,6 +45,10 @@ how to continue it.
   - Cluster map pins when zoomed out.
   - Let a manual price-history entry update the listing's current price.
   - Speed up the Zillow price-history catch-up.
+  - From the accounts review (minor): double-clicking "Create account" can show a 500 on the second
+    submit; every vote click adds a Feed item and clearing a vote leaves a stale "voted 👍"; the login
+    redirect after an expired session drops the page's query string; two members with the same name
+    look like one person to Trends.
 - **Slow on purpose:** Redfin listing pages are behind a WAF, so detail fetches are paced at 10 per
   run with a 20s delay and stop at the first challenge. Backfilling Redfin history takes days.
 
@@ -50,6 +58,7 @@ how to continue it.
 uv sync
 uv run playwright install chromium
 uv run python manage.py migrate
+uv run python manage.py create_owner --email you@example.com --name You
 uv run python manage.py scrape [--source zillow]
 DJANGO_DEBUG=1 uv run python manage.py runserver 127.0.0.1:8000
 uv run pytest -q
@@ -71,6 +80,23 @@ its own data. Production data lives only on the Mac mini.
 
 ## Code map
 
+- `accounts/`: logins and search groups (spec: `docs/superpowers/specs/2026-09-30-accounts-decisions.md`).
+  - `SearchGroup` owns everything a household says about listings; each user has one `Profile` in
+    exactly one group. `accounts/groups.py` has `owners_group()` (the oldest group), `profile_for()`
+    (makes a solo group for accounts created outside the app) and `move_to_group()`.
+  - `LoginRequired` middleware guards every page (views opt out with `@login_not_required`); an HTMX
+    request without a login gets `HX-Redirect` to the login page. `CurrentGroup` sets `request.profile`
+    and `request.group`.
+  - Log in with email (`username` is the lowercased email). `manage.py create_owner --email --name`
+    makes the site admin (staff) in the owners' group; `manage.py changepassword <email>` resets a password.
+  - `Invite` links (`accounts/invites.py`) are single-use (`claim()` is one conditional UPDATE) and expire
+    after `INVITE_DAYS` (7). Any member makes join links; staff also make new-household links. Links use
+    `PUBLIC_URL`. The Group page (`/group/`) renames the group, lists members, removes a member or
+    leaves (either gives that person a fresh solo group; comments stay, votes go; removing someone also
+    revokes the group's open invite links), manages invite
+    links and changes the password.
+  - Development only (`DJANGO_DEBUG=1`): the header and login page have one-click logins for every
+    account (`accounts.views.dev_login_as`, which returns 404 unless `DEBUG`), to test as each person.
 - `listings/scrapers/`
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property
     manager is one entry.
@@ -95,10 +121,20 @@ its own data. Production data lives only on the Mac mini.
   - **Implausible rents:** anything over `MAX_PLAUSIBLE_RENT` (25k) is rejected, e.g. Zillow home
     values.
   - **Empty scrapes:** a scrape that returns 0 items counts as a failure and never marks listings gone.
+- `listings/collab.py`: everything a search group says about a listing. `ListingState` holds its
+  status (no row = New) with who set it and when. `decorate(listings, group, user)` attaches
+  `group_status`/`group_status_label`/`state` for templates; `status_expr(group)` annotates querysets
+  (the statuses filter). `apply_filters(queryset, data, group)` needs the group.
+  `Comment` threads replace notes: author-only edit/delete in `collab_views.py`; the thread polls
+  every 30s but not while a comment is being edited; each comment has a Feed item that follows edits
+  and deletes.
+  `Vote` is one 👍/👎 per person per listing (cleared by clicking again; deleted when the person leaves
+  the group). The Votes filter (`everyone_likes`, `someone_likes`, `disagree`, `unvoted`) counts votes
+  with subqueries so it composes with the price-history join.
 - `listings/merge.py` matches with/without-unit pairs (`unit_match`) and merges two listings (`merge`):
   sites, price history, feed events and Trends picks move over. The survivor is the copy the owners
-  touched (status, notes, overrides or hand-entered history), else the one with a unit. If both were
-  touched, notes are joined and the furthest status wins (new < interested < toured < applied < rejected).
+  touched (status, comments, overrides or hand-entered history), else the one with a unit. If both were
+  touched, comments from both are kept and each group keeps one status, the furthest along (new < interested < toured < applied < rejected).
   `merge_unit_duplicates()` runs after every scrape; `manage.py merge_duplicates [--dry-run]` runs it now.
 - `listings/specials.py` finds move-in specials ("4 weeks free", "$500 off first month") and their
   value; `Listing.special_offer` holds the sentence. Unlike features, it's re-read from the listing's
@@ -108,19 +144,24 @@ its own data. Production data lives only on the Mac mini.
   type from listing text. `is_furnished` stays unknown when a listing is offered either way ("furnished
   or unfurnished", "furnished if desired") or when the phrase is about the building ("Furnished
   apartments available"). `reextract_all()` re-runs them over stored text after a parser change.
-- `listings/feed.py` records `FeedEvent` rows for new listings and for changes to listings with a
-  status. `happened_at` is when the change happened; `created_at` is when we learned of it. Unread
-  state is per browser, in the `feed_seen_at` cookie.
+- `listings/feed.py` records `FeedEvent` rows. Scraped events (new listings, changes) have no
+  `group`, and every group sees them; change events show for listings the group tracks (status ≠ New).
+  A group's own activity (status changes, comments, votes) has `group` and `actor` and shows only to
+  that group. `happened_at` is when the change happened; `created_at` is when we learned of it. Unread
+  state is per person (`Profile.feed_seen_at`); your own actions never count as unread. The nav badge
+  polls `/feed/badge/` every 30s.
 - **Trends** (spec: `docs/superpowers/specs/2026-09-29-trends-design.md`):
   - `listings/trend_stats.py` computes weekly median rent by city, the price-cut share and days on
     market over comparable listings. Weeks before the first scrape are blank on purpose (only
     survivors are known for them).
   - `listings/analyst.py` makes two Claude calls (Opus 5.5, structured JSON output, server-side
     fallback). Pass 1 shortlists 25 candidates from compact facts; pass 2 ranks the top 5 from full
-    descriptions, notes, rejected listings and "What we're looking for" (`SearchPriorities`).
-  - Each run is saved as a `TrendReport` with usage and cost. One runs at a time in a background
-    thread. The scheduler starts the daily report after the first scrape of the day; manual re-runs
-    are capped by `TRENDS_MANUAL_RUNS_PER_DAY`.
+    descriptions, comments, votes, rejected listings, the group's default filters and "What we're
+    looking for" (`SearchPriorities`, one per group). Market charts (`trend_stats`) are shared.
+  - Each run is saved as a `TrendReport` with its group, usage and cost. Each group has its own
+    reports and re-run cap (`TRENDS_MANUAL_RUNS_PER_DAY`). The scheduler's daily run, after the first
+    scrape of the day, makes one report per group a member logged in to within 14 days, one after another in one background
+    thread (about $0.50 each). One report runs at a time across all groups.
   - Tests use a `FakeClient` (`tests/test_analyst.py`) and never call the API. A real run costs
     about $0.50.
 - `listings/views.py`:
@@ -128,15 +169,18 @@ its own data. Production data lives only on the Mac mini.
   - Trends page, run/priorities/status endpoints, and the chart helper in `listings/charts.py`.
   - Detail page, Feed, history add/edit/delete, refresh listing, tracking, and Sources (scraper
     health).
-- `listings/sql_console.py`, `sql_queries.py`, `sql_views.py`: the staff-only SQL console at `/sql/`.
+- `listings/sql_console.py`, `sql_queries.py`, `sql_views.py`: the staff-only SQL console at `/sql/`
+  (`staff_required`; it reads every table, every group's comments and votes and the auth tables included).
   User SQL runs on its own SQLite connection (`mode=ro`, `query_only`, and an authorizer blocking
   `ATTACH` and any pragma that sets a value, since some are process-wide) with a 5 s progress-handler timeout and a 1,000-row page cap
   (`SQL_CONSOLE_*` settings). Starter queries live in `sql_queries.py`, and a test runs each one.
   `SavedQuery` holds saved queries; `QueryRun` logs runs for "Recent", pruned to 50. In tests the
   database is shared-cache memory, so `connect_readonly()` opens it with `read_uncommitted` instead
   of `mode=ro`. Queries run by GET `?q=`, which is why `gunicorn.conf.py` sets `limit_request_line = 0`.
-- `listings/forms.py` holds `ListingFilterForm`, which carries the default filters: 2 bd / 2 ba /
-  2 parking, a $2,000 minimum, and apartments hidden.
+- `listings/forms.py` holds `ListingFilterForm`. `app_default_filters()` (2 bd / 2 ba / 2 parking, a
+  $2,000 minimum, apartments and rejected hidden, Votes: Any) is where a new group starts;
+  `default_filter_data(group)` lays the group's saved defaults (`SearchGroup.default_filters`, set by
+  "Save as our defaults") over them. The owners' group got the old hard-coded defaults as its saved copy.
 - `deploy/`: `install.sh`, the launchd plist template, `launchd-restart.sh` (waits for bootout
   before bootstrapping) and `gunicorn.conf.py`.
 - Design docs: `docs/superpowers/specs/` and `plans/`. Architecture diagrams: `docs/architecture.html`.
@@ -153,10 +197,16 @@ its own data. Production data lives only on the Mac mini.
   `base.html`, so matching on them passes even when the element is missing.
   `tests/helpers.py` has `FakeFetcher`/`FakeResponse` and fixtures. Scraper tests use saved HTML
   and JSON in `tests/fixtures/`.
+  The `client` fixture is logged in as Sam, a staff user in the owners' group (`home_group()`);
+  `anon_client` is logged out. `make_user()` in `tests/helpers.py` adds more people.
 - **Verify in a browser.** Check UI changes against the local dev server with real data, on desktop
   and at phone width. Nothing should scroll sideways and the console should be error-free. Restore
-  any status or notes you changed while testing.
-- **Admin-style controls on normal pages are fine.** Only the two owners use the app.
+  any status or comments you changed while testing.
+  Log in first (`create_owner` on your dev database). Check group features with two accounts in two
+  browsers.
+- **Staff-only controls.** Price-history edits, Refresh from sites, the Sources page, the SQL console
+  and admin overrides are for the site admin (`is_staff`, via `accounts.decorators.staff_required`, and hidden
+  in templates with `{% if user.is_staff %}`). Everyone else sees that data read-only.
 - **Scrape politely.** Keep delays and budgets, and stop when a site starts blocking.
   Realtor.com is deliberately skipped because of its Kasada bot protection.
 - Commit messages use `feat:` / `fix:` / `docs:` prefixes.
@@ -197,6 +247,9 @@ reapply that line or save the summary by hand.
 
 ## Gotchas
 
+- Group state (status, comments, votes) isn't on `Listing`. Use `collab.decorate()` before rendering
+  listings, and pass the group to `apply_filters`.
+- Data migrations that need the owners' group take the oldest `SearchGroup`.
 - The shell is zsh. It doesn't word-split variables, and its arrays are 1-based.
 - Don't put `# comments` after commands you give the owner to paste. Interactive zsh doesn't
   treat `#` as a comment, so the comment is passed to the command as arguments. Explain the command in

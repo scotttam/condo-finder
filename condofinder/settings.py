@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,7 +15,41 @@ def env_list(name, default):
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-change-me")
 DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
-ALLOWED_HOSTS = ["*"]  # LAN-only app
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "").rstrip("/")  # e.g. https://mac-mini.tail1234.ts.net; invite links use it
+
+
+def web_security(public_url):
+    """Hosts, CSRF origins and cookie flags. Without a public URL (local development) anything goes;
+    with one (Tailscale Funnel), only that host, plus localhost for install.sh's health check."""
+    if not public_url:
+        return {"ALLOWED_HOSTS": ["*"], "CSRF_TRUSTED_ORIGINS": [], "SESSION_COOKIE_SECURE": False, "CSRF_COOKIE_SECURE": False}
+    secure = public_url.startswith("https://")
+    return {
+        "ALLOWED_HOSTS": [urlsplit(public_url).hostname, "localhost", "127.0.0.1"],
+        "CSRF_TRUSTED_ORIGINS": [public_url],
+        "SESSION_COOKIE_SECURE": secure,
+        "CSRF_COOKIE_SECURE": secure,
+    }
+
+
+PLACEHOLDER_SECRET_KEYS = {"dev-insecure-change-me", "change-me-to-a-long-random-string"}
+
+
+def check_secret_key(secret_key, public_url):
+    """On the public internet a guessable key lets anyone forge a login cookie, so refuse to start."""
+    if public_url and (secret_key in PLACEHOLDER_SECRET_KEYS or len(secret_key) < 50):
+        raise ImproperlyConfigured(
+            "Set DJANGO_SECRET_KEY in .env to a long random string (50+ characters) before using PUBLIC_URL. "
+            "Generate one with: uv run python -c 'import secrets; print(secrets.token_urlsafe(50))'"
+        )
+
+
+check_secret_key(SECRET_KEY, PUBLIC_URL)
+_web = web_security(PUBLIC_URL)
+ALLOWED_HOSTS = _web["ALLOWED_HOSTS"]
+CSRF_TRUSTED_ORIGINS = _web["CSRF_TRUSTED_ORIGINS"]
+SESSION_COOKIE_SECURE = _web["SESSION_COOKIE_SECURE"]
+CSRF_COOKIE_SECURE = _web["CSRF_COOKIE_SECURE"]
 # Map tiles from tile.openstreetmap.org are refused without a Referer header,
 # which Django's default "same-origin" policy suppresses.
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
@@ -26,6 +62,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "accounts",
     "listings",
 ]
 
@@ -36,6 +73,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "accounts.middleware.LoginRequired",
+    "accounts.middleware.CurrentGroup",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -53,6 +92,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "listings.context_processors.listings_nav",
+                "accounts.context_processors.dev_accounts",
             ],
         },
     },
@@ -86,6 +126,16 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "login"
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 10}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -101,6 +151,7 @@ DEFAULT_MAX_PRICE = int(os.environ.get("DEFAULT_MAX_PRICE", "5000"))
 REQUEST_DELAY_SECONDS = float(os.environ.get("REQUEST_DELAY_SECONDS", "1.5"))
 NOMINATIM_EMAIL = os.environ.get("NOMINATIM_EMAIL", "")
 OFF_MARKET_AFTER_MISSES = 3
+INVITE_DAYS = 7
 TRENDS_MANUAL_RUNS_PER_DAY = int(os.environ.get("TRENDS_MANUAL_RUNS_PER_DAY", "5"))
 SQL_CONSOLE_TIMEOUT_SECONDS = 5
 SQL_CONSOLE_MAX_ROWS = 1000

@@ -30,10 +30,10 @@ if ! curl -fs -o /dev/null http://127.0.0.1:8000/; then
   echo "The app didn't respond within 60s. Check: tail -50 $PROJECT_DIR/logs/web.log" >&2
   exit 1
 fi
-echo "Condo Finder is running."
-echo "  Home network: http://$(scutil --get LocalHostName).local:8000"
-TAILSCALE="$(command -v tailscale || echo /Applications/Tailscale.app/Contents/MacOS/Tailscale)"
-if [ -x "$TAILSCALE" ]; then
-  TS_NAME="$("$TAILSCALE" status --json 2>/dev/null | python3 -c 'import json, sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))' 2>/dev/null || true)"
-  [ -n "$TS_NAME" ] && echo "  Anywhere (Tailscale): http://$TS_NAME:8000"
+echo "Condo Finder is running on 127.0.0.1:8000. People reach it through Tailscale Funnel."
+PUBLIC_URL="$(grep -E '^PUBLIC_URL=' .env 2>/dev/null | cut -d= -f2- || true)"
+if [ -n "$PUBLIC_URL" ]; then
+  echo "  $PUBLIC_URL"
+else
+  echo "  PUBLIC_URL isn't set in .env. See README: Going public with Tailscale Funnel." >&2
 fi

@@ -3,6 +3,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from accounts.models import display_name
+
 from .specials import effective_rent, special_label
 
 
@@ -104,8 +106,6 @@ class Listing(models.Model):
         help_text='Manual corrections that survive re-scrapes, e.g. {"parking_spaces": 2, "has_ac": true}',
     )
 
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
-    notes = models.TextField(blank=True)
 
     is_active = models.BooleanField(default=True)
     listed_at = models.DateField(null=True, blank=True, help_text="When the current rental listing started, per the listing site")
@@ -202,6 +202,62 @@ class SourceListing(models.Model):
         ]
 
 
+
+class ListingState(models.Model):
+    """A search group's shared status for a listing. No row means New."""
+
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="listing_states")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="states")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    status_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    status_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["group", "listing"], name="unique_group_listing_state")]
+
+    @property
+    def status_by_name(self):
+        return display_name(self.status_by)
+
+
+class Comment(models.Model):
+    """One message in a group's thread on a listing. Only its author edits or deletes it."""
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="comments")
+    author_name = models.CharField(max_length=60, blank=True)  # the author's name when written, shown if the account is gone
+    body = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    edited_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"{self.by}: {self.body[:40]}"
+
+    @property
+    def by(self):
+        return display_name(self.author) if self.author_id else (self.author_name or "Someone")
+
+
+class Vote(models.Model):
+    """One person's 👍 or 👎 on a listing, seen by their group."""
+
+    class Value(models.IntegerChoices):
+        UP = 1, "👍"
+        DOWN = -1, "👎"
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="votes")
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="votes")
+    value = models.SmallIntegerField(choices=Value.choices)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["listing", "user"], name="unique_listing_user_vote")]
+
 class PriceChange(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="price_changes")
     price = models.IntegerField()
@@ -223,6 +279,9 @@ class FeedEvent(models.Model):
         BACK_ON_MARKET = "back_on_market", "Back on market"
         NEW_SITE = "new_site", "Listed on another site"
         DETAILS_CHANGED = "details_changed", "Details changed"
+        STATUS = "status", "Status"
+        COMMENT = "comment", "Comment"
+        VOTE = "vote", "Vote"
 
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="feed_events")
     kind = models.CharField(max_length=20, choices=Kind.choices)
@@ -232,6 +291,11 @@ class FeedEvent(models.Model):
     source = models.CharField(max_length=100, blank=True)
     old_price = models.IntegerField(null=True, blank=True)
     new_price = models.IntegerField(null=True, blank=True)
+    # A group's own activity (status changes, comments, votes) has its group and who did it. Scraped
+    # events have no group, and every group sees them.
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="feed_events")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    comment = models.ForeignKey("Comment", on_delete=models.CASCADE, null=True, blank=True, related_name="feed_events")
 
     class Meta:
         ordering = ["-created_at", "-pk"]
@@ -252,6 +316,7 @@ class TrendReport(models.Model):
         AUTO = "auto", "Daily"
         MANUAL = "manual", "Re-run"
 
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="trend_reports")
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.RUNNING)
     trigger = models.CharField(max_length=10, choices=Trigger.choices, default=Trigger.MANUAL)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
@@ -280,8 +345,9 @@ class TrendReport(models.Model):
 
 
 class SearchPriorities(models.Model):
-    """What we're looking for, in our own words. One shared row, read by the Trends analysis."""
+    """What a group is looking for, in its own words. Read by its Trends analysis."""
 
+    group = models.OneToOneField("accounts.SearchGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="priorities")
     text = models.TextField(blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -289,8 +355,8 @@ class SearchPriorities(models.Model):
         verbose_name_plural = "search priorities"
 
     @classmethod
-    def get(cls):
-        return cls.objects.get_or_create(pk=1)[0]
+    def get(cls, group):
+        return cls.objects.get_or_create(group=group)[0]
 
 
 class SavedQuery(models.Model):

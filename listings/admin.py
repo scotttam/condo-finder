@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FeedEvent, Listing, PriceChange, SearchPriorities, Source, SourceListing, SourceRun, TrendReport
+from .models import Comment, FeedEvent, Listing, ListingState, PriceChange, SearchPriorities, Source, SourceListing, SourceRun, TrendReport, Vote
 
 
 class SourceListingInline(admin.TabularInline):
@@ -22,10 +22,29 @@ class PriceChangeInline(admin.TabularInline):
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ("address", "price", "beds", "baths", "parking_spaces", "property_type", "status", "is_active", "first_seen_at")
-    list_filter = ("status", "property_type", "city", "quadrant", "is_active")
+    list_display = ("address", "price", "beds", "baths", "parking_spaces", "property_type", "is_active", "first_seen_at")
+    list_filter = ("property_type", "city", "quadrant", "is_active")
     search_fields = ("address", "title", "neighborhood")
     inlines = [SourceListingInline, PriceChangeInline]
+
+
+@admin.register(ListingState)
+class ListingStateAdmin(admin.ModelAdmin):
+    list_display = ("listing", "group", "status", "status_by", "status_at")
+    list_filter = ("group", "status")
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "listing", "group", "author", "body")
+    list_filter = ("group",)
+    search_fields = ("body", "listing__address")
+
+
+@admin.register(Vote)
+class VoteAdmin(admin.ModelAdmin):
+    list_display = ("listing", "group", "user", "value", "updated_at")
+    list_filter = ("group",)
 
 
 @admin.register(Source)
@@ -48,8 +67,8 @@ class FeedEventAdmin(admin.ModelAdmin):
 
 @admin.register(TrendReport)
 class TrendReportAdmin(admin.ModelAdmin):
-    list_display = ("created_at", "trigger", "status", "cost_usd", "summary")
-    list_filter = ("status", "trigger")
+    list_display = ("created_at", "group", "trigger", "status", "cost_usd", "summary")
+    list_filter = ("group", "status", "trigger")
 
     def has_add_permission(self, request):
         return False  # reports come from the Trends page and the daily run
@@ -57,4 +76,4 @@ class TrendReportAdmin(admin.ModelAdmin):
 
 @admin.register(SearchPriorities)
 class SearchPrioritiesAdmin(admin.ModelAdmin):
-    list_display = ("updated_at",)
+    list_display = ("group", "updated_at")

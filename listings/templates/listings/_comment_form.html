@@ -1,0 +1,8 @@
+{# Posting swaps in the updated thread and clears the box. Without JavaScript it posts and reloads. #}
+<form id="comment-form" method="post" action="{% url 'comment_add' listing.pk %}"
+      hx-post="{% url 'comment_add' listing.pk %}" hx-target="#comments" hx-swap="outerHTML"
+      hx-on::after-request="if (event.detail.successful) this.reset()">
+  {% csrf_token %}
+  <textarea name="body" rows="3" placeholder="Thoughts, questions for the landlord, tour notes…" required></textarea>
+  <button type="submit">Post</button>
+</form>

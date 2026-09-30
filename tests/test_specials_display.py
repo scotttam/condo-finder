@@ -7,7 +7,7 @@ import pytest
 from listings import analyst
 from listings.ingest import ingest
 from listings.models import Listing, PropertyType, Status
-from tests.helpers import make_listing, make_source, scraped
+from tests.helpers import home_group, make_listing, make_source, scraped
 
 pytestmark = pytest.mark.django_db
 
@@ -75,6 +75,6 @@ def test_feed_new_listing_row_shows_the_special(client):
 
 def test_trends_facts_include_the_special():
     listing = special_listing()
-    facts = analyst.compact_facts(listing)
+    facts = analyst.compact_facts(analyst._prepare([listing], home_group())[0])
     assert facts["special_offer"] == OFFER
     assert facts["effective_rent_12mo"] == listing.effective_rent

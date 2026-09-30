@@ -5,8 +5,10 @@ from django.core.management import call_command
 
 from listings.ingest import ingest
 from listings.merge import merge_unit_duplicates
-from listings.models import FeedEvent, Listing, PriceChange, SourceListing, Status, TrendReport
-from tests.helpers import make_source, scraped
+from listings.models import Comment, FeedEvent, Listing, PriceChange, SourceListing, Status, TrendReport
+from accounts.groups import new_group
+from listings.collab import set_status
+from tests.helpers import home_group, make_source, scraped, status_of
 
 pytestmark = pytest.mark.django_db
 
@@ -74,8 +76,8 @@ def test_same_site_never_matches_its_own_listing():
 
 def test_sweep_keeps_the_listing_with_notes_and_takes_the_unit_address():
     bare, unit = _duplicates()
-    bare.notes, bare.status = "High ceilings.", Status.INTERESTED
-    bare.save()
+    Comment.objects.create(listing=bare, group=home_group(), body="High ceilings.")
+    set_status(bare, home_group(), None, Status.INTERESTED)
     PriceChange.objects.create(listing=unit, price=4100, event="Listed for rent", source="Zillow")
     report = TrendReport.objects.create(shortlist=[unit.pk], picks=[{"listing_id": unit.pk, "rank": 1}])
 
@@ -83,7 +85,8 @@ def test_sweep_keeps_the_listing_with_notes_and_takes_the_unit_address():
 
     assert merged == [(bare.pk, unit.pk, UNIT)]
     listing = Listing.objects.get()
-    assert listing.pk == bare.pk and listing.notes == "High ceilings." and listing.status == Status.INTERESTED
+    assert listing.pk == bare.pk and status_of(listing) == Status.INTERESTED
+    assert list(listing.comments.values_list("body", flat=True)) == ["High ceilings."]
     assert listing.address == UNIT and listing.address_key == "821 nw 11th ave|105|97209"
     assert sorted(SourceListing.objects.values_list("external_id", flat=True)) == ["r1", "z1"]
     assert listing.price_changes.filter(price=4100).exists()
@@ -108,12 +111,15 @@ def test_sweep_keeps_the_unit_listing_when_only_it_was_touched():
 
 def test_sweep_merges_notes_and_status_when_both_were_touched():
     bare, unit = _duplicates()
-    Listing.objects.filter(pk=bare.pk).update(notes="High ceilings.", status=Status.INTERESTED)
-    Listing.objects.filter(pk=unit.pk).update(notes="Toured Tuesday.", status=Status.TOURED, overrides={"has_ac": True})
+    Comment.objects.create(listing=bare, group=home_group(), body="High ceilings.")
+    Comment.objects.create(listing=unit, group=home_group(), body="Toured Tuesday.")
+    Listing.objects.filter(pk=unit.pk).update(overrides={"has_ac": True})
+    set_status(bare, home_group(), None, Status.INTERESTED)
+    set_status(unit, home_group(), None, Status.TOURED)
     merge_unit_duplicates()
     listing = Listing.objects.get()
-    assert listing.notes == "Toured Tuesday.\n\nHigh ceilings."
-    assert listing.status == Status.TOURED and listing.overrides == {"has_ac": True}
+    assert sorted(listing.comments.values_list("body", flat=True)) == ["High ceilings.", "Toured Tuesday."]
+    assert status_of(listing) == Status.TOURED and listing.overrides == {"has_ac": True}
 
 
 def test_merge_duplicates_command_dry_run_changes_nothing():
@@ -124,3 +130,14 @@ def test_merge_duplicates_command_dry_run_changes_nothing():
     assert Listing.objects.count() == 2
     call_command("merge_duplicates", stdout=StringIO())
     assert Listing.objects.count() == 1
+
+
+def test_merge_keeps_every_groups_status():
+    bare, unit = _duplicates()
+    other = new_group("Pat's search")
+    set_status(bare, home_group(), None, Status.INTERESTED)
+    set_status(unit, other, None, Status.REJECTED)
+    set_status(unit, home_group(), None, Status.TOURED)
+    merge_unit_duplicates()
+    listing = Listing.objects.get()
+    assert status_of(listing) == Status.TOURED and status_of(listing, other) == Status.REJECTED

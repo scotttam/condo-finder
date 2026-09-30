@@ -1,10 +1,11 @@
-{# Status as a row of pills that saves on click. Posts to set_status, which swaps this form back in. #}
+{# The group's shared status as a row of pills that saves on click. Posts to set_status, which swaps this form back in. #}
 <form id="pills-{{ listing.pk }}" class="status-pills" method="post" action="{% url 'set_status' listing.pk %}"
       hx-post="{% url 'set_status' listing.pk %}" hx-trigger="change" hx-target="this" hx-swap="outerHTML" role="radiogroup" aria-label="Status">
   {% csrf_token %}
   <input type="hidden" name="variant" value="pills">
   {% for value, label in listing.STATUS_CHOICES %}
-  <label class="status-pill pill-{{ value }}"><input type="radio" name="status" value="{{ value }}"{% if listing.status == value %} checked{% endif %}><span>{{ label }}</span></label>
+  <label class="status-pill pill-{{ value }}"><input type="radio" name="status" value="{{ value }}"{% if listing.group_status == value %} checked{% endif %}><span>{{ label }}</span></label>
   {% endfor %}
+  {% if listing.state.status_at %}<p class="muted small status-by">Set by {{ listing.state.status_by_name|default:"someone" }} · {{ listing.state.status_at|date:"M j" }}</p>{% endif %}
   <noscript><button type="submit">Save</button></noscript>
 </form>

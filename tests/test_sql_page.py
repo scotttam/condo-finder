@@ -4,6 +4,7 @@ from urllib.parse import parse_qs, urlencode
 
 import pytest
 from bs4 import BeautifulSoup
+from django.urls import reverse
 
 from listings.models import Listing, QueryRun
 from tests.helpers import make_listing
@@ -12,8 +13,8 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def staff_client(client, django_user_model):
-    client.force_login(django_user_model.objects.create_user("owner", password="pw", is_staff=True))
+def staff_client(client):
+    """The conftest client: Sam, the site admin."""
     return client
 
 
@@ -31,19 +32,16 @@ def result_rows(response):
 
 
 @pytest.mark.parametrize("path", ["/sql/", "/sql/csv/?q=SELECT+1"])
-def test_anonymous_is_sent_to_admin_login(client, path):
-    response = client.get(path)
+def test_anonymous_is_sent_to_login(anon_client, path):
+    response = anon_client.get(path)
     assert response.status_code == 302
-    assert response["Location"].startswith("/admin/login/?next=/sql/")
+    assert response["Location"].startswith(reverse("login") + "?next=/sql/")
     assert not QueryRun.objects.exists()
 
 
 @pytest.mark.parametrize("path", ["/sql/", "/sql/csv/?q=SELECT+1"])
-def test_non_staff_user_is_sent_to_admin_login(client, django_user_model, path):
-    client.force_login(django_user_model.objects.create_user("guest", password="pw"))
-    response = client.get(path)
-    assert response.status_code == 302
-    assert response["Location"].startswith("/admin/login/")
+def test_members_who_are_not_staff_are_refused(member_client, path):
+    assert member_client.get(path).status_code == 403
     assert not QueryRun.objects.exists()
 
 
@@ -67,7 +65,7 @@ def test_running_a_query_shows_results_and_logs_it(staff_client):
     assert result_rows(response) == [[str(listing.pk), listing.address, "2500"]]
     assert "1 row" in page.select_one("p.sql-summary").get_text()
     run = QueryRun.objects.get()
-    assert (run.sql, run.row_count, run.error, run.user.username) == ("SELECT id, address, price FROM listings_listing", 1, "", "owner")
+    assert (run.sql, run.row_count, run.error, run.user.username) == ("SELECT id, address, price FROM listings_listing", 1, "", "sam@example.com")
     assert page.select_one("textarea#sql-input").get_text().strip() == "SELECT id, address, price FROM listings_listing"
 
 
@@ -108,8 +106,8 @@ def test_timeout_is_shown_and_logged(staff_client, settings):
 
 
 def test_values_are_escaped_and_nulls_marked(staff_client):
-    make_listing(notes="<script>alert(1)</script>")
-    response = get(staff_client, "SELECT notes, NULL AS empty_value FROM listings_listing")
+    make_listing(description="<script>alert(1)</script>")
+    response = get(staff_client, "SELECT description, NULL AS empty_value FROM listings_listing")
     assert b"<script>alert(1)</script>" not in response.content
     cells = soup(response).select("div.sql-results td")
     assert cells[0].get_text() == "<script>alert(1)</script>"

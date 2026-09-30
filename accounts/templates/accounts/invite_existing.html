@@ -1,0 +1,15 @@
+{% extends "listings/base.html" %}
+{% block title %}Invite link · Condo Finder{% endblock %}
+{% block content %}
+<div class="panel auth-card">
+  {% if reason == "join" %}
+  <h1>Join {{ invite.group.name }}?</h1>
+  <p>You're in {{ request.group.name }} now. Joining moves you: your comments stay in {{ request.group.name }}, and your votes there are removed.</p>
+  <form method="post">{% csrf_token %}<button type="submit">Join {{ invite.group.name }}</button></form>
+  <p class="small"><a href="{% url 'listing_list' %}">Stay where I am</a></p>
+  {% else %}
+  <h1>You already have an account</h1>
+  <p>This link is for someone new starting their own search. Pass it on, or <a href="{% url 'group_settings' %}">invite people to your group</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

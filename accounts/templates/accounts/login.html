@@ -1,0 +1,19 @@
+{% extends "listings/base.html" %}
+{% block title %}Log in · Condo Finder{% endblock %}
+{% block content %}
+<div class="panel auth-card">
+  <h1>Log in</h1>
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<p class="form-error">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+    <label class="stack">Email
+      <input type="email" name="username" value="{{ form.username.value|default_if_none:'' }}" autocomplete="email" required autofocus></label>
+    <label class="stack">Password
+      <input type="password" name="password" autocomplete="current-password" required></label>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit">Log in</button>
+  </form>
+  <p class="muted small">Forgot your password? Ask the site admin to reset it.</p>
+  {% include "accounts/_dev_switch.html" with next_url=next|default:"/" %}
+</div>
+{% endblock %}

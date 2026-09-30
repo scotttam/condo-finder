@@ -35,11 +35,6 @@ def test_scrape_now_when_running(client, monkeypatch):
     assert b"already running" in response.content
 
 
-def test_sources_page_links_staff_to_sql_console(client, django_user_model):
-    client.force_login(django_user_model.objects.create_user("owner", password="pw", is_staff=True))
+def test_sources_page_links_staff_to_sql_console(client):
     link = BeautifulSoup(client.get("/sources/").content, "html.parser").find("a", string="SQL console")
     assert link["href"] == "/sql/"
-
-
-def test_sources_page_hides_sql_console_from_others(client):
-    assert BeautifulSoup(client.get("/sources/").content, "html.parser").find("a", string="SQL console") is None

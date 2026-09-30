@@ -166,13 +166,29 @@ CANNED_QUERIES = [
         WHERE a.unit = '' AND instr(a.address_key, '|') > 0 AND a.is_active AND b.is_active
         ORDER BY a.address
     """),
-    _q(TRACKING, "Listings by status, with notes", """
-        SELECT id AS listing_id, address, status, price, is_active, notes, updated_at
-        FROM listings_listing
-        WHERE status <> 'new' OR notes <> ''
-        ORDER BY CASE status WHEN 'applied' THEN 1 WHEN 'toured' THEN 2 WHEN 'interested' THEN 3
-                             WHEN 'new' THEN 4 ELSE 5 END,
-                 updated_at DESC
+    _q(TRACKING, "Listings by status, per group", """
+        SELECT st.listing_id, l.address, g.name AS search_group, st.status, l.price, l.is_active,
+               (SELECT COUNT(*) FROM listings_comment c
+                WHERE c.listing_id = st.listing_id AND c.group_id = st.group_id) AS comments,
+               (SELECT COALESCE(SUM(v.value), 0) FROM listings_vote v
+                WHERE v.listing_id = st.listing_id AND v.group_id = st.group_id) AS vote_score,
+               st.status_at
+        FROM listings_listingstate st
+        JOIN listings_listing l ON l.id = st.listing_id
+        JOIN accounts_searchgroup g ON g.id = st.group_id
+        WHERE st.status <> 'new'
+        ORDER BY g.name,
+                 CASE st.status WHEN 'applied' THEN 1 WHEN 'toured' THEN 2 WHEN 'interested' THEN 3
+                                WHEN 'rejected' THEN 5 ELSE 4 END,
+                 st.status_at DESC
+    """),
+    _q(TRACKING, "Recent comments", """
+        SELECT c.listing_id, l.address, g.name AS search_group, c.author_name AS author, c.body, c.created_at
+        FROM listings_comment c
+        JOIN listings_listing l ON l.id = c.listing_id
+        JOIN accounts_searchgroup g ON g.id = c.group_id
+        ORDER BY c.created_at DESC
+        LIMIT 100
     """),
     _q(TRACKING, "Feed events by day and kind (30 days)", """
         SELECT date(created_at, 'localtime') AS day, kind, COUNT(*) AS events
@@ -182,10 +198,11 @@ CANNED_QUERIES = [
         ORDER BY day DESC, events DESC
     """),
     _q(TRACKING, "Trends report costs", """
-        SELECT id, datetime(created_at, 'localtime') AS created, "trigger", status, model,
-               input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, cost_usd
-        FROM listings_trendreport
-        ORDER BY created_at DESC
+        SELECT r.id, datetime(r.created_at, 'localtime') AS created, g.name AS search_group, r."trigger",
+               r.status, r.model, r.input_tokens, r.output_tokens, r.cache_read_tokens, r.cache_write_tokens, r.cost_usd
+        FROM listings_trendreport r
+        LEFT JOIN accounts_searchgroup g ON g.id = r.group_id
+        ORDER BY r.created_at DESC
     """),
 ]
 

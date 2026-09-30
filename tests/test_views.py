@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from listings.models import Status
-from tests.helpers import make_listing
+from tests.helpers import make_listing, status_of
 
 pytestmark = pytest.mark.django_db
 
@@ -37,22 +37,12 @@ def test_detail_page(client):
     assert listing.get_absolute_url() == f"/listing/{listing.pk}/"
 
 
-def test_update_tracking_htmx_returns_partial(client):
-    listing = good_listing()
-    response = client.post(f"/listing/{listing.pk}/tracking/", {"status": "toured", "notes": "Great light"},
-                           HTTP_HX_REQUEST="true")
-    assert response.status_code == 200
-    assert b"Saved" in response.content
-    listing.refresh_from_db()
-    assert (listing.status, listing.notes) == (Status.TOURED, "Great light")
-
-
-def test_set_status_keeps_notes(client):
+def test_set_status_keeps_comments(client):
     listing = good_listing(notes="keep me")
     response = client.post(f"/listing/{listing.pk}/status/", {"status": "interested"}, HTTP_HX_REQUEST="true")
     assert response.status_code == 200
-    listing.refresh_from_db()
-    assert (listing.status, listing.notes) == (Status.INTERESTED, "keep me")
+    assert status_of(listing) == Status.INTERESTED
+    assert list(listing.comments.values_list("body", flat=True)) == ["keep me"]
 
 
 def test_set_status_rejects_invalid(client):
@@ -226,28 +216,3 @@ def test_detail_without_description_says_details_are_pending(client):
     content = client.get(f"/listing/{listing.pk}/").content.decode()
     assert "Full details haven't been fetched from the listing site yet" in content
     assert 'class="panel description"' not in content
-
-
-TAILSCALE_HOST = "mac-mini.tail1234.ts.net:8000"
-
-
-def test_pages_load_over_a_tailscale_hostname(client):
-    listing = good_listing()
-    assert client.get("/", HTTP_HOST=TAILSCALE_HOST).status_code == 200
-    assert client.get(f"/listing/{listing.pk}/", HTTP_HOST=TAILSCALE_HOST).status_code == 200
-
-
-def test_status_buttons_pass_csrf_over_tailscale():
-    from django.test import Client
-
-    listing = good_listing()
-    browser = Client(enforce_csrf_checks=True)
-    browser.get("/", HTTP_HOST=TAILSCALE_HOST)
-    token = browser.cookies["csrftoken"].value
-    response = browser.post(
-        f"/listing/{listing.pk}/status/", {"status": "interested"},
-        HTTP_HOST=TAILSCALE_HOST, HTTP_ORIGIN=f"http://{TAILSCALE_HOST}", HTTP_X_CSRFTOKEN=token, HTTP_HX_REQUEST="true",
-    )
-    assert response.status_code == 200
-    listing.refresh_from_db()
-    assert listing.status == Status.INTERESTED

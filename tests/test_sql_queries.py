@@ -1,20 +1,19 @@
 import pytest
 from django.utils import timezone
 
-from listings.models import FeedEvent, PriceChange, Source, SourceListing, SourceRun, TrendReport
+from listings.models import Comment, FeedEvent, ListingState, PriceChange, Source, SourceListing, SourceRun, TrendReport, Vote
 from listings.sql_console import run_query
 from listings.sql_queries import CANNED_QUERIES, by_category
-from tests.helpers import make_listing
+from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def seeded():
+def seeded(owner):
     zillow = Source.objects.create(key="zillow-t", name="Zillow", platform="zillow")
     redfin = Source.objects.create(key="redfin-t", name="Redfin", platform="redfin")
-    with_unit = make_listing(price=2600, beds=2, sqft=1000, special_offer="4 weeks free",
-                             status="interested", notes="Nice view")
+    with_unit = make_listing(price=2600, beds=2, sqft=1000, special_offer="4 weeks free")
     no_unit = make_listing(address_key="937 nw glisan st||97209", address="937 NW Glisan Street, Portland, OR 97209",
                            unit="", price=2650, beds=2, sqft=1000)
     for listing, source in ((with_unit, zillow), (with_unit, redfin), (no_unit, redfin)):
@@ -26,7 +25,10 @@ def seeded():
     SourceRun.objects.create(source=zillow, ok=True, finished_at=timezone.now())
     SourceRun.objects.create(source=redfin, ok=False, finished_at=timezone.now(), error="blocked")
     FeedEvent.objects.create(listing=with_unit, kind="new_listing", happened_at=timezone.now(), summary="New")
-    TrendReport.objects.create(status="done", cost_usd="0.51", input_tokens=1000)
+    TrendReport.objects.create(status="done", cost_usd="0.51", input_tokens=1000, group=home_group())
+    ListingState.objects.create(group=home_group(), listing=with_unit, status="interested")
+    Comment.objects.create(listing=with_unit, group=home_group(), author=owner, author_name="Sam", body="Nice view")
+    Vote.objects.create(listing=with_unit, group=home_group(), user=owner, value=1)
     return {"with_unit": with_unit, "no_unit": no_unit}
 
 
@@ -118,3 +120,20 @@ def test_biggest_drops_only_count_the_current_listing_period(relisted):
 
 def test_several_cuts_only_count_the_current_listing_period(relisted):
     assert rows("Listings with several price cuts") == []
+
+
+def test_status_per_group_counts_comments_and_votes(seeded):
+    assert [
+        (row["listing_id"], row["search_group"], row["status"], row["comments"], row["vote_score"])
+        for row in rows("Listings by status, per group")
+    ] == [(seeded["with_unit"].pk, home_group().name, "interested", 1, 1)]
+
+
+def test_recent_comments(seeded):
+    assert [(row["search_group"], row["author"], row["body"]) for row in rows("Recent comments")] == [
+        (home_group().name, "Sam", "Nice view"),
+    ]
+
+
+def test_trends_costs_name_the_group(seeded):
+    assert [row["search_group"] for row in rows("Trends report costs")] == [home_group().name]
