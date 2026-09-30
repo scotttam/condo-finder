@@ -5,7 +5,7 @@ it. This file covers what it's for, so future changes stay pointed the same way.
 
 ## The problem
 
-Two of us are looking for a place to rent together in Portland, Lake Oswego or Beaverton. The places
+We (two of us, and now a few friends) are looking for places to rent in Portland, Lake Oswego or Beaverton. The places
 we want are condos: units in small, owner-occupied buildings. They're scattered across a dozen
 property-manager sites, Zillow, Redfin and Craigslist. Each site shows only part of the market,
 most filters can't express what we care about, and the big sites bury condos under apartment
@@ -26,16 +26,18 @@ those sites:
   shows as "unknown" instead of a guess, and can be corrected by hand.
 - **Price history.** Every price change is recorded and past history is imported from Zillow and
   Redfin where available, so drops and time on market are visible at a glance.
-- **Shared tracking.** A status (Interested, Toured, Applied, Rejected) and notes on each listing,
-  shared between us. The Feed shows what's new and what changed on listings we're tracking.
+- **Shared tracking, per household.** Each household is a search group with its own status on each
+  listing (who set it and when), a comment thread, each person's 👍/👎, default filters, Trends
+  report and Feed. Partners see each other's activity; other households never do.
 - **Map-first browsing.** A map beside the list, with quadrant, neighborhood and "search this area"
   filters.
 
 ## Who it's for
 
-Just the two of us, on laptops and phones. There are no other users, accounts or permissions to
-design for. Admin-style controls on normal pages (editing price history, refreshing a listing) are
-fine.
+The two of us first, and a handful of invited households, on laptops and phones. Everyone logs in
+with an email and password and belongs to exactly one search group; invites are copy-paste links.
+The site admin (staff) alone edits shared scraped data: price history, refreshes, sources and
+overrides. Keep choices compatible with open signup later, but don't build for it yet.
 
 ## Principles
 
@@ -53,9 +55,9 @@ fine.
 
 ## Key decisions
 
-- **Runs at home on a Mac mini, reached over Tailscale.** A residential IP keeps Zillow and Redfin
-  scraping workable; cloud IPs get blocked. Tailscale gives both of us private access from anywhere
-  without exposing anything publicly.
+- **Runs at home on a Mac mini, published with Tailscale Funnel.** A residential IP keeps Zillow and
+  Redfin scraping workable; cloud IPs get blocked. Funnel gives a public HTTPS address with an
+  automatic certificate, and gunicorn listens on localhost only, so every request passes the login.
 - **Django + SQLite + HTMX.** Server-rendered pages with small HTMX swaps. No front-end build step.
 - **In-process scheduler.** Scrapes run at 7am, 11am, 3pm, 7pm and 11pm from inside the web process.
 - **Scraper health lives on the Sources page.** Push notifications were tried and removed.
@@ -63,7 +65,7 @@ fine.
 
 ## Non-goals
 
-- A public or multi-user product.
+- Open public signup (for now), outgoing email, or accounts in more than one group.
 - Buying, sales listings or market analytics.
 - Contacting landlords or applying from inside the app.
 - Perfect coverage of every site. If a source costs more to maintain than it finds, drop it.

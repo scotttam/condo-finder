@@ -87,14 +87,14 @@ td:first-child { white-space: nowrap; font-weight: 600; }
 <main>
 <header>
   <h1>How Condo Finder works</h1>
-  <p class="lede">One Django process on the Mac mini at home does everything. A scheduler inside it scrapes twelve listing sites five times a day into SQLite, and the same process serves the pages you two browse over Tailscale.</p>
+  <p class="lede">One Django process on the Mac mini at home does everything. A scheduler inside it scrapes twelve listing sites five times a day into SQLite, and the same process serves the pages. Each household logs in and browses them over HTTPS through Tailscale Funnel; everything a household says about listings stays inside its own search group.</p>
 </header>
 
 <section>
   <h2>The whole system</h2>
   <div class="key" aria-hidden="true">
     <span><i class="k-scrape"></i>Scrape path: data coming in</span>
-    <span><i class="k-web"></i>Web path: the two of you</span>
+    <span><i class="k-web"></i>Web path: people logged in</span>
     <span><i class="k-dash"></i>Triggered by hand</span>
   </div>
   <figure class="wide">
@@ -148,7 +148,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <line class="edge" x1="545" y1="98" x2="545" y2="118" marker-end="url(#ah)"/>
 
       <rect class="box" x="306" y="120" width="478" height="440" rx="9"/>
-      <text class="t" x="320" y="142">gunicorn</text><text class="s" x="392" y="142">1 worker × 4 threads · Django · port 8000</text>
+      <text class="t" x="320" y="142">gunicorn</text><text class="s" x="392" y="142">1 worker × 4 threads · Django · 127.0.0.1:8000</text>
 
       <!-- scrape column -->
       <rect class="box scrape" x="322" y="162" width="200" height="48" rx="7"/>
@@ -189,12 +189,12 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <!-- web column -->
       <rect class="box web" x="560" y="162" width="198" height="72" rx="7"/>
       <text class="t" x="572" y="182">views + templates</text>
-      <text class="s" x="572" y="200">listings · listing</text>
-      <text class="s" x="572" y="216">feed · sources · admin</text>
+      <text class="s" x="572" y="200">login required · per group</text>
+      <text class="s" x="572" y="216">listings · feed · group</text>
       <line class="edge web" x1="659" y1="234" x2="659" y2="386" marker-start="url(#ahw)" marker-end="url(#ahw)"/>
-      <text class="lbl w-t" x="667" y="300">reads; saves</text>
-      <text class="lbl w-t" x="667" y="315">status, notes,</text>
-      <text class="lbl w-t" x="667" y="330">price history</text>
+      <text class="lbl w-t" x="667" y="300">reads; saves the</text>
+      <text class="lbl w-t" x="667" y="315">group's status,</text>
+      <text class="lbl w-t" x="667" y="330">comments, votes</text>
 
       <path class="edge dash" d="M560 212 C 540 212, 545 262, 524 262" marker-end="url(#ah)"/>
       <path class="edge dash" d="M560 226 C 548 226, 552 330, 524 330" marker-end="url(#ah)"/>
@@ -203,16 +203,18 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="lbl" x="566" y="366">listing</text>
 
       <!-- people -->
-      <text class="cap" x="846" y="142">YOU TWO</text>
+      <text class="cap" x="846" y="142">HOUSEHOLDS</text>
       <rect class="zone" x="836" y="150" width="196" height="134" rx="10"/>
       <rect class="box web" x="846" y="162" width="176" height="48" rx="7"/>
-      <text class="t" x="858" y="182">Laptop &amp; phone</text><text class="s" x="858" y="200">browser</text>
+      <text class="t" x="858" y="182">Laptop &amp; phone</text><text class="s" x="858" y="200">any browser, logged in</text>
       <rect class="box web" x="846" y="222" width="176" height="48" rx="7"/>
-      <text class="t" x="858" y="242">Partner's phone</text><text class="s" x="858" y="260">shared machine</text>
+      <text class="t" x="858" y="242">Invited people</text><text class="s" x="858" y="260">join by invite link</text>
       <path class="edge web" d="M836 198 L 760 198" marker-end="url(#ahw)"/>
       <text class="lbl w-t" x="798" y="188" text-anchor="middle">HTMX</text>
       <text class="lbl" x="798" y="216" text-anchor="middle">via</text>
       <text class="lbl" x="798" y="230" text-anchor="middle">Tailscale</text>
+      <text class="lbl" x="798" y="244" text-anchor="middle">Funnel</text>
+      <text class="lbl" x="798" y="258" text-anchor="middle">(HTTPS)</text>
 
       <!-- browser-loaded assets -->
       <text class="cap" x="846" y="412">LOADED BY THE BROWSER</text>
@@ -232,7 +234,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="lbl w-t" x="760" y="514">picks</text>
     </svg>
     </div>
-    <figcaption>Scraping and serving share one process. Gunicorn runs exactly one worker because the scheduler lives inside it, and a second worker would scrape twice. You two reach it at <code>http://&lt;mac-mini&gt;:8000</code> over Tailscale. Only the scrape path, address lookups and the Trends analyst's calls to Claude leave the house; the Mac mini's home IP is what keeps Zillow and Redfin willing to answer.</figcaption>
+    <figcaption>Scraping and serving share one process. Gunicorn runs exactly one worker because the scheduler lives inside it, and a second worker would scrape twice. People reach it at <code>https://&lt;mac-mini&gt;.&lt;tailnet&gt;.ts.net</code>: Tailscale Funnel terminates HTTPS and forwards to gunicorn, which listens on localhost only, and every page needs a login. Only the scrape path, address lookups and the Trends analyst's calls to Claude leave the house; the Mac mini's home IP is what keeps Zillow and Redfin willing to answer.</figcaption>
   </figure>
 </section>
 
@@ -314,10 +316,11 @@ td:first-child { white-space: nowrap; font-weight: 600; }
 <section>
   <h2>What's stored</h2>
   <p>A <code>Listing</code> is the apartment. A <code>SourceListing</code> is one site's ad for it. The same unit on Zillow, Redfin and Craigslist is one Listing with three SourceListings.</p>
-  <p>The Trends page adds two standalone tables. <code>TrendReport</code> keeps each analysis: the ranked picks (with a snapshot of address, photo and price when picked), Claude's market read, the statistics it was given, token usage and cost, and what changed since the previous report. <code>SearchPriorities</code> is one shared row holding "What we're looking for".</p>
+  <p>The Trends page adds two standalone tables. <code>TrendReport</code> keeps each analysis: the ranked picks (with a snapshot of address, photo and price when picked), Claude's market read, the statistics it was given, token usage and cost, and what changed since the previous report. <code>SearchPriorities</code> holds each group's "What we're looking for". Both belong to a search group.</p>
+  <p>People log in with an email. Each <code>Profile</code> puts one person in exactly one <code>SearchGroup</code> (a household), and an <code>Invite</code> is a single-use link into a new or existing group. Everything a group says about a listing lives in its own rows: <code>ListingState</code> (the shared status and who set it), <code>Comment</code> and <code>Vote</code>. Scraped data stays global.</p>
   <figure class="wide">
     <div class="scroll">
-    <svg viewBox="0 0 1040 300" role="img" aria-label="Source has many SourceRuns and many SourceListings. Each SourceListing belongs to one Listing. A Listing has many PriceChanges and FeedEvents.">
+    <svg viewBox="0 0 1040 560" role="img" aria-label="Source has many SourceRuns and many SourceListings. Each SourceListing belongs to one Listing. A Listing has many PriceChanges and FeedEvents. Each SearchGroup has Profiles and Invites, and its own ListingState, Comment and Vote rows for each Listing.">
       <defs>
         <marker id="ch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
       </defs>
@@ -360,7 +363,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="s" x="548" y="186">has_outdoor_space · is_furnished</text>
       <text class="s" x="548" y="202">property_type · special_offer</text>
       <text class="s" x="548" y="218">description · photo_url</text>
-      <text class="s" x="548" y="240" style="fill:var(--warm)">status · notes (yours)</text>
+      <text class="s" x="548" y="240">status, votes: per group ↓</text>
       <text class="s" x="548" y="256" style="fill:var(--warm)">overrides (admin fixes)</text>
       <line class="edge" x1="476" y1="96" x2="534" y2="96" marker-end="url(#ch)"/>
       <text class="lbl" x="505" y="88" text-anchor="middle">many → 1</text>
@@ -375,14 +378,54 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="t" x="844" y="192">FeedEvent</text>
       <text class="s" x="844" y="214">kind · summary</text>
       <text class="s" x="844" y="230">happened_at</text>
-      <text class="s" x="844" y="246">created_at (we learned)</text>
+      <text class="s" x="844" y="246">group · actor (activity)</text>
       <line class="edge" x1="772" y1="80" x2="830" y2="80" marker-end="url(#ch)"/>
       <line class="edge" x1="772" y1="220" x2="830" y2="220" marker-end="url(#ch)"/>
       <text class="lbl" x="801" y="72" text-anchor="middle">history</text>
       <text class="lbl" x="801" y="212" text-anchor="middle">Feed</text>
+
+      <!-- accounts + per-group rows -->
+      <text class="cap" x="16" y="322">PER SEARCH GROUP</text>
+      <rect class="box web" x="16" y="334" width="190" height="100" rx="8"/>
+      <text class="t" x="28" y="356">SearchGroup</text>
+      <text class="s" x="28" y="378">name · default_filters</text>
+      <text class="s" x="28" y="394">TrendReport · priorities</text>
+      <text class="s" x="28" y="410">one household</text>
+      <rect class="box web" x="16" y="456" width="190" height="84" rx="8"/>
+      <text class="t" x="28" y="478">Profile</text>
+      <text class="s" x="28" y="500">user · display_name</text>
+      <text class="s" x="28" y="516">feed_seen_at</text>
+      <line class="edge" x1="111" y1="454" x2="111" y2="436" marker-end="url(#ch)"/>
+      <text class="lbl" x="119" y="449">one group each</text>
+      <rect class="box web" x="266" y="456" width="210" height="84" rx="8"/>
+      <text class="t" x="278" y="478">Invite</text>
+      <text class="s" x="278" y="500">token · kind · expires_at</text>
+      <text class="s" x="278" y="516">used_by (single use)</text>
+      <path class="edge" d="M266 498 C 236 498, 236 420, 208 420" marker-end="url(#ch)"/>
+
+      <rect class="box web" x="266" y="334" width="210" height="100" rx="8"/>
+      <text class="t" x="278" y="356">ListingState</text>
+      <text class="s" x="278" y="378">status (none = New)</text>
+      <text class="s" x="278" y="394">status_by · status_at</text>
+      <text class="s" x="278" y="410">one per group + listing</text>
+      <rect class="box web" x="536" y="334" width="236" height="100" rx="8"/>
+      <text class="t" x="548" y="356">Comment</text>
+      <text class="s" x="548" y="378">author · body · edited_at</text>
+      <text class="s" x="548" y="394">author edits or deletes</text>
+      <text class="s" x="548" y="410">has a Feed item</text>
+      <rect class="box web" x="832" y="334" width="192" height="100" rx="8"/>
+      <text class="t" x="844" y="356">Vote</text>
+      <text class="s" x="844" y="378">user · 👍 or 👎</text>
+      <text class="s" x="844" y="394">one per person</text>
+      <line class="edge" x1="206" y1="384" x2="264" y2="384" marker-end="url(#ch)"/>
+      <path class="edge" d="M560 280 C 560 305, 400 305, 380 332" marker-end="url(#ch)"/>
+      <line class="edge" x1="654" y1="280" x2="654" y2="332" marker-end="url(#ch)"/>
+      <path class="edge" d="M750 280 C 750 305, 910 305, 920 332" marker-end="url(#ch)"/>
+      <text class="lbl w-t" x="560" y="470">Each group sees only its own status, comments and votes.</text>
+      <text class="lbl" x="560" y="488">SearchGroup → ListingState, Comment and Vote the same way.</text>
     </svg>
     </div>
-    <figcaption>The scrape writes everything in black and green; only the amber fields on Listing belong to you. Re-scrapes never overwrite status and notes, and admin overrides are re-applied after every update.</figcaption>
+    <figcaption>The scrape writes everything in black and green, and it's shared by every group. Everything amber belongs to one search group: re-scrapes never touch it, and other groups never see it. Admin overrides are re-applied after every update.</figcaption>
   </figure>
 </section>
 
@@ -393,10 +436,12 @@ td:first-child { white-space: nowrap; font-weight: 600; }
     <thead><tr><th>Page</th><th>What it does</th><th>How it talks to the server</th></tr></thead>
     <tbody>
       <tr><td>Listings</td><td>Filter bar, list or table beside the map, "Search this area"</td><td>Any filter change sends a GET. HTMX swaps in <code>#results</code> and updates the URL.</td></tr>
-      <tr><td>Listing</td><td>Price and stats, sources, map, status pills, notes, price history</td><td>Status and notes POST as you type. History add, edit, delete and "Refresh from sites" swap the history panel.</td></tr>
+      <tr><td>Log in</td><td>Email and password</td><td>The only page, with invite links, open without a login. An HTMX request after the session ends gets <code>HX-Redirect</code> to it.</td></tr>
+      <tr><td>Listing</td><td>Price and stats, sources, map, the group's status and votes, comment thread, price history</td><td>Status pills and votes POST on click. The comment thread polls every 30 s (not while you edit one). History edits and "Refresh from sites" are staff-only.</td></tr>
       <tr><td>Trends</td><td>Claude's top 5 picks with negotiating angles, market charts, "What we're looking for", older reports</td><td>Re-run POSTs start a background analysis; a banner polls every 4 s and reloads when it's done. Pick-card status pills and the priorities box save as you use them.</td></tr>
-      <tr><td>Feed</td><td>New listings and changes to listings you've given a status</td><td>Plain GET. A <code>feed_seen_at</code> cookie tracks unread items per browser.</td></tr>
-      <tr><td>Sources</td><td>Each site's last success, count and last error</td><td>"Scrape now" starts a run in a background thread.</td></tr>
+      <tr><td>Feed</td><td>New listings, changes to listings the group tracks, and the group's own activity</td><td>Plain GET. Unread state is per person (<code>Profile.feed_seen_at</code>); the nav badge polls every 30 s.</td></tr>
+      <tr><td>Group</td><td>Name, members, invite links, leave or remove, change password</td><td>Plain form POSTs. Invite links are copy-paste; no email is sent.</td></tr>
+      <tr><td>Sources</td><td>Each site's last success, count and last error (staff only)</td><td>"Scrape now" starts a run in a background thread.</td></tr>
       <tr><td>Admin</td><td>Django admin for correcting data</td><td>Standard Django forms</td></tr>
     </tbody>
   </table>
@@ -408,7 +453,9 @@ td:first-child { white-space: nowrap; font-weight: 600; }
   <ul class="rules">
     <li><b>One worker, one scheduler</b>Gunicorn must stay at <code>workers = 1</code>. More workers would each start a scheduler.</li>
     <li><b>Units never cross-merge</b>Two units at one address from the same site stay separate. Hidden addresses never merge.</li>
-    <li><b>A missing unit number still matches</b>Redfin often drops the unit. A listing without one joins the single listing at that address with one, from another site, with the same beds and size (or price when a size is missing). Ambiguous matches stay separate. When copies merge, the one with notes or a status wins; if both have them, notes and statuses combine.</li>
+    <li><b>A missing unit number still matches</b>Redfin often drops the unit. A listing without one joins the single listing at that address with one, from another site, with the same beds and size (or price when a size is missing). Ambiguous matches stay separate. When copies merge, the one someone worked on wins; every group keeps its comments and votes, and its furthest-along status.</li>
+    <li><b>Group state stays in its group</b>Status, comments, votes, default filters, Trends and Feed activity belong to one search group. Scraped listings, price history and sources are shared by all.</li>
+    <li><b>One person, one group</b>Leaving or being removed starts a fresh solo group; comments stay behind and votes are removed.</li>
     <li><b>Gone takes proof</b>A listing needs three missed runs, or a direct page check, before it's marked gone.</li>
     <li><b>Rents stay plausible</b>Anything over $25,000 is treated as a sale price or home value and ignored.</li>
     <li><b>Polite by default</b>Every source has a delay and a detail-page budget. Redfin stops at the first bot challenge.</li>

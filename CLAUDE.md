@@ -18,14 +18,18 @@ how to continue it.
   the zoom buttons; #57 and #58, docs only). After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
   post-scrape pass would also do it on the next run).
-- **Open: the accounts stack, `[Accounts 1/10]`–`[Accounts 10/10]`** (logins, search groups,
-  collaboration; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once
-  after the whole stack merges, following the README runbook. 613 tests pass.
-  `create_owner` claims the owner's migrated notes (now comments) if the account didn't exist when migrating.
+- **Open: the accounts stack, #59–#68 (`[Accounts 1/10]`–`[Accounts 10/10]`)**: logins, search
+  groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale
+  Funnel (plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). Deploy once after
+  the whole stack merges, following the README runbook "Going public with Tailscale Funnel";
+  `create_owner` claims the owner's migrated notes (now comments). 615 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
-  7, 11, 15, 19 and 23 o'clock. Both users reach it over Tailscale at `http://<mac-mini>:8000`.
+  7, 11, 15, 19 and 23 o'clock. Until the accounts stack deploys, both users reach it over Tailscale at
+  `http://<mac-mini>:8000`; afterwards everyone uses `https://<mac-mini>.<tailnet>.ts.net` through
+  Tailscale Funnel, and gunicorn listens on 127.0.0.1:8000 only.
 - **Deploy:** on the Mac mini, run `git pull && ./deploy/install.sh`. It syncs deps, installs Chromium,
-  migrates, collects static files and restarts the service.
+  migrates, collects static files and restarts the service. `PUBLIC_URL` in `.env` must be the Funnel
+  address (README: Going public with Tailscale Funnel).
 - **Recently shipped:**
   - Unit-number duplicates: Redfin often drops the unit, so "821 NW 11th Ave" and
     "821 NW 11th Ave #105" became two listings. Ingest now matches them, and a pass after each scrape
@@ -52,6 +56,7 @@ how to continue it.
 uv sync
 uv run playwright install chromium
 uv run python manage.py migrate
+uv run python manage.py create_owner --email you@example.com --name You
 uv run python manage.py scrape [--source zillow]
 DJANGO_DEBUG=1 uv run python manage.py runserver 127.0.0.1:8000
 uv run pytest -q
@@ -184,6 +189,8 @@ its own data. Production data lives only on the Mac mini.
 - **Verify in a browser.** Check UI changes against the local dev server with real data, on desktop
   and at phone width. Nothing should scroll sideways and the console should be error-free. Restore
   any status or comments you changed while testing.
+  Log in first (`create_owner` on your dev database). Check group features with two accounts in two
+  browsers.
 - **Staff-only controls.** Price-history edits, Refresh from sites, the Sources page and admin
   overrides are for the site admin (`is_staff`, via `accounts.decorators.staff_required`, and hidden
   in templates with `{% if user.is_staff %}`). Everyone else sees that data read-only.
@@ -227,6 +234,9 @@ reapply that line or save the summary by hand.
 
 ## Gotchas
 
+- Group state (status, comments, votes) isn't on `Listing`. Use `collab.decorate()` before rendering
+  listings, and pass the group to `apply_filters`.
+- Data migrations that need the owners' group take the oldest `SearchGroup`.
 - The shell is zsh. It doesn't word-split variables, and its arrays are 1-based.
 - Don't put `# comments` after commands you give the owner to paste. Interactive zsh doesn't
   treat `#` as a comment, so the comment is passed to the command as arguments. Explain the command in
