@@ -46,3 +46,20 @@ def test_scraper_fetches_details_only_for_candidates():
     candidates = [i for i in items if is_candidate(i)]
     assert len(fetcher.requested) == 1 + len(candidates)
     assert all("Amenities" in i.amenities for i in candidates)
+
+
+def test_north_star_scrapes_its_portland_area_listings():
+    # North Star also manages Bend and Redmond; those fail is_candidate, so they get no detail fetch.
+    from listings.scrapers.registry import SOURCES, build_scraper
+
+    config = next(config for config in SOURCES if config["key"] == "north-star")
+    base = "https://northstarproperties.appfolio.com"
+    fetcher = FakeFetcher({f"{base}/listings": load_fixture("appfolio_northstar_list.html")}, default=load_fixture("appfolio_detail.html"))
+    items = build_scraper(config, fetcher=fetcher).scrape()
+    assert len(items) == 21
+    details = [url for url in fetcher.requested if "/listings/detail/" in url]
+    assert len(details) == 10
+    pinnacle = next(item for item in items if item.address.startswith("2323 NW Pinnacle Dr"))
+    assert (pinnacle.price, pinnacle.beds, pinnacle.sqft) == (4845, 4, 4043)
+    assert pinnacle.url in details
+    assert not any("Bend" in item.address and item.url in details for item in items)

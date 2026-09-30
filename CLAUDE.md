@@ -14,11 +14,11 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #68** and deployed on 2026-09-30: the accounts stack (#59–#68: logins,
-  search groups, per-group status/comments/votes/default filters/Trends/Feed, invites, HTTPS via
-  Tailscale Funnel; plan: `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`). 724 tests
-  pass with #70. **Open: #70** (SQL console: staff-only
-  read-only SQL at `/sql/`).
+- **Merged to `main` through PR #70.** The accounts stack (#59–#68: logins, search groups, per-group
+  status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale Funnel; plan:
+  `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`) was deployed on 2026-09-30. #70 adds
+  the staff-only read-only SQL console at `/sql/`. **Open: #71**, North Star Property Management as a
+  source (AppFolio `northstarproperties`; its Bend and Redmond listings drop out by city). 726 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Everyone uses `https://<mac-mini>.<tailnet>.ts.net` through Tailscale
   Funnel; gunicorn listens on 127.0.0.1:8000 only. One group, "Scott and Kristi's Search" (pk 1, the

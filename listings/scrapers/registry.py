@@ -23,6 +23,8 @@ SOURCES = [
     {"key": "mainlander", "name": "Mainlander", "platform": "appfolio", "subdomain": "mainlander"},
     {"key": "propm", "name": "PropM (AppFolio)", "platform": "appfolio", "subdomain": "propmhomes"},
     {"key": "utopia", "name": "Utopia Management", "platform": "appfolio", "subdomain": "utopiamanagement"},
+    # Also manages Bend and Redmond; is_candidate drops those by city.
+    {"key": "north-star", "name": "North Star Property Management", "platform": "appfolio", "subdomain": "northstarproperties"},
     {"key": "uptown", "name": "Uptown Properties", "platform": "nesthub", "list_url": "https://www.uptownpm.com/portland-homes-for-rent"},
     {"key": "propm-site", "name": "PropM (website)", "platform": "nesthub", "list_url": "https://www.propmhomes.com/portland-homes-for-rent"},
     # RentEngine: `slug` is the company's embed name (rentengine.io/c/<slug>); loaded in headless Chromium.
