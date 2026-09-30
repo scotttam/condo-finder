@@ -46,13 +46,14 @@ how to continue it.
 
 ```bash
 uv sync
-uv run playwright install chromium          # once; RentEngine (Chroma) uses headless Chromium
+uv run playwright install chromium
 uv run python manage.py migrate
 uv run python manage.py scrape [--source zillow]
 DJANGO_DEBUG=1 uv run python manage.py runserver 127.0.0.1:8000
 uv run pytest -q
 ```
 
+Run `playwright install chromium` once per machine; RentEngine (Chroma) uses headless Chromium.
 Settings come from `.env` (see `.env.example`). `db.sqlite3` is not in git, so every machine has
 its own data. Production data lives only on the Mac mini.
 
@@ -154,6 +155,9 @@ its own data. Production data lives only on the Mac mini.
 ## Gotchas
 
 - The shell is zsh. It doesn't word-split variables, and its arrays are 1-based.
+- Don't put `# comments` after commands you give the owner to paste. Interactive zsh doesn't
+  treat `#` as a comment, so the comment is passed to the command as arguments. Explain the command in
+  prose instead, and give each command its own code block when they run at different times.
 - `git mv` fails on untracked files. Use `mv`.
 - Zillow shows a home's *value* on off-market pages. The refresh code checks for `FOR_RENT` and
   treats anything else as removed.
