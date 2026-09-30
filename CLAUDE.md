@@ -15,8 +15,8 @@ how to continue it.
 ## Current state (updated 2026-09-30)
 
 - **Merged to `main` through PR #57** (#56: the first click on a map no longer scrolls the page and shifts
-  the zoom buttons; #57, docs only: no inline shell comments). **Open:** a docs-only PR adding
-  the grill-me → Superpowers planning workflow. After deploying #55, run
+  the zoom buttons; #57, docs only: no inline shell comments). **Open: #58** (docs only: adds
+  the grill-me → Superpowers planning workflow). After deploying #55, run
   `uv run python manage.py merge_duplicates --dry-run` on the Mac mini, then without `--dry-run` (the
   post-scrape pass would also do it on the next run). 528 tests pass.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
