@@ -114,4 +114,6 @@ DEFAULT_MAX_PRICE = int(os.environ.get("DEFAULT_MAX_PRICE", "5000"))
 REQUEST_DELAY_SECONDS = float(os.environ.get("REQUEST_DELAY_SECONDS", "1.5"))
 NOMINATIM_EMAIL = os.environ.get("NOMINATIM_EMAIL", "")
 OFF_MARKET_AFTER_MISSES = 3
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "").rstrip("/")  # e.g. https://mac-mini.tail1234.ts.net; invite links use it
+INVITE_DAYS = 7
 TRENDS_MANUAL_RUNS_PER_DAY = int(os.environ.get("TRENDS_MANUAL_RUNS_PER_DAY", "5"))

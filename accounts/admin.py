@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Profile, SearchGroup
+from .models import Invite, Profile, SearchGroup
 
 
 class ProfileInline(admin.TabularInline):
@@ -20,3 +20,10 @@ class SearchGroupAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("display_name", "user", "group", "joined_at")
     list_filter = ("group",)
+
+
+@admin.register(Invite)
+class InviteAdmin(admin.ModelAdmin):
+    list_display = ("kind", "group", "created_by", "created_at", "expires_at", "used_by")
+    list_filter = ("kind",)
+    readonly_fields = ("token", "used_at", "used_by")

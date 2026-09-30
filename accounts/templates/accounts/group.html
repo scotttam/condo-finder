@@ -32,11 +32,43 @@
       {% csrf_token %}<button type="submit" class="link danger">Leave {{ group.name }}</button></form>
     {% endif %}
   </section>
-  {% block invites %}{% endblock %}
+  <section class="panel">
+    <h3>Invite links</h3>
+    <p class="muted">Each link works once and expires after {{ invite_days }} days. The app sends no email: copy a link and send it yourself.</p>
+    <form method="post" action="{% url 'create_invite' %}" class="inline-form">
+      {% csrf_token %}
+      <button type="submit" name="kind" value="join">New link to join {{ group.name }}</button>
+      {% if user.is_staff %}<button type="submit" name="kind" value="new_group">New link for another household</button>{% endif %}
+    </form>
+    {% for invite, url in invites %}
+    <div class="invite">
+      <span class="muted">{% if invite.kind == "join" %}Joins {{ group.name }}{% else %}New household{% endif %} · expires {{ invite.expires_at|date:"M j" }}</span>
+      <div class="inline-form">
+        <input type="text" readonly value="{{ url }}" aria-label="Invite link" onclick="this.select()">
+        <button type="button" data-copy="{{ url }}">Copy</button>
+        <form method="post" action="{% url 'revoke_invite' invite.pk %}">{% csrf_token %}<button type="submit" class="link danger">Revoke</button></form>
+      </div>
+    </div>
+    {% empty %}
+    <p class="muted">No open invite links.</p>
+    {% endfor %}
+  </section>
   <section class="panel">
     <h3>Your account</h3>
     <p>{{ request.profile.display_name }} · {{ user.email }}</p>
     <p><a href="{% url 'password_change' %}">Change password</a></p>
   </section>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.querySelectorAll("[data-copy]").forEach(button => button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      button.textContent = "Copied ✓";
+    } catch {
+      button.previousElementSibling.select();  // no clipboard access: select it for a manual copy
+    }
+  }));
+</script>
 {% endblock %}
