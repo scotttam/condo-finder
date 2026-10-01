@@ -17,6 +17,8 @@ _PARKING_COUNT_PATTERNS = [
     rf"\b{_NUM}\s+{_QUALIFIER}+(?:spaces?|spots?|stalls?)\b",
     rf"\bparking\s+for\s+{_NUM}\b",
     rf"\b(an?)\s+{_QUALIFIER}+(?:parking\s+)?(?:spaces?|spots?|stalls?)\b",
+    # Fact lists: "Parking: Off Street, 1 spaces", "Parking: 1 Total space".
+    rf"\bparking:\s*(?:[a-z][a-z\s-]*,\s*)?{_NUM}\s+(?:total\s+)?(?:spaces?|spots?)\b",
 ]
 _PARKING_POSITIVE = (
     r"\b(?:garage|carport|driveway|w/\s?parking|with parking"
@@ -35,7 +37,7 @@ _WD_SHARED = (
     r"|laundry (?:room|facilities|facility|on[\s-]?site|in (?:bldg|building))"
 )
 
-_AC_NONE = r"\bno (?:air[\s-]conditioning|a/c|ac)\b"
+_AC_NONE = r"\bno (?:air[\s-]conditioning|a/c|ac)\b|\bcooling:\s*none\b"
 _AC_YES = r"air[\s-]condition|\ba/c\b|\bac\b|central air|ductless|mini[\s-]splits?|heat pump|cooling"
 
 _OUTDOOR_NONE = r"\bno (?:balcony|patio|deck|yard|outdoor space)"

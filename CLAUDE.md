@@ -14,11 +14,14 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #70.** The accounts stack (#59–#68: logins, search groups, per-group
+- **Merged to `main` through PR #71.** The accounts stack (#59–#68: logins, search groups, per-group
   status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale Funnel; plan:
   `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`) was deployed on 2026-09-30. #70 adds
-  the staff-only read-only SQL console at `/sql/`. **Open: #71**, North Star Property Management as a
-  source (AppFolio `northstarproperties`; its Bend and Redmond listings drop out by city). 726 tests pass.
+  the staff-only read-only SQL console at `/sql/`; #71 adds North Star Property Management (AppFolio
+  `northstarproperties`; its Bend and Redmond listings drop out by city). **Open:** Ziprent as a source
+  (a new `ziprent` platform), plus parsing "Cooling: None" and "Parking: Off Street, N spaces". 740 tests pass.
+- **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
+  (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
   7, 11, 15, 19 and 23 o'clock. Everyone uses `https://<mac-mini>.<tailnet>.ts.net` through Tailscale
   Funnel; gunicorn listens on 127.0.0.1:8000 only. One group, "Scott and Kristi's Search" (pk 1, the
@@ -102,7 +105,9 @@ its own data. Production data lives only on the Mac mini.
     manager is one entry.
   - `base.py` holds `Fetcher` (polite delays), the `Scraper` base, `RefreshBlocked`, and the
     `known_ids`/`details_version` logic that decides which detail pages get re-fetched.
-  - One module per platform: appfolio, nesthub, rentengine, redfin, zillow, craigslist.
+  - One module per platform: appfolio, nesthub, rentengine, redfin, zillow, craigslist, ziprent.
+    Ziprent's search API returns every listing nationwide in one POST, with owner-side fields (contact
+    details, lockbox, bank account) that `ziprent.py` never reads; keep it to the listing fields.
   - Per-source options:
     - `request_delay`: pause between requests.
     - `max_detail_fetches`: detail-page budget per run.

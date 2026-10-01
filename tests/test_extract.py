@@ -133,3 +133,29 @@ def test_classify_property_type(hint, text, expected):
 )
 def test_has_parking(text, expected):
     assert has_parking(text) is expected
+
+
+# Fact lists written "Label: value" (Ziprent, some Zillow pages).
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("Parking: Off Street, 1 spaces", 1),
+        ("Parking: Garage, 2 spaces", 2),
+        ("Parking:\n1 Total space Off Street", 1),
+        ("Parking: Street", 0),
+    ],
+)
+def test_extract_parking_from_fact_lists(text, expected):
+    assert extract_parking(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("Heating: Wall\nCooling: None", False),
+        ("Cooling: Central Air", True),
+        ("Heating: Forced air\nCooling: none\nLaundry: Shared", False),
+    ],
+)
+def test_has_ac_from_fact_lists(text, expected):
+    assert has_ac(text) is expected
