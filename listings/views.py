@@ -337,7 +337,8 @@ def trends_page(request):
     snapshot = stats.get("now") or trend_stats.market_snapshot()
     weekly = stats.get("weekly") or trend_stats.weekly_series()
     picks = report.picks if report else []
-    listings = Listing.objects.in_bulk([pick["listing_id"] for pick in picks])
+    discoveries = report.discoveries if report else []
+    listings = Listing.objects.in_bulk([row["listing_id"] for row in [*picks, *discoveries]])
     collab.decorate(listings.values(), request.group, request.user)
     return render(request, "listings/trends.html", {
         "report": report,
@@ -346,6 +347,7 @@ def trends_page(request):
         "changes": _trend_changes(report),
         "failed": latest if latest and latest.status == TrendReport.Status.FAILED else None,
         "picks": [{**pick, "listing": listings.get(pick["listing_id"])} for pick in picks],
+        "discoveries": [{**d, "listing": listings.get(d["listing_id"])} for d in discoveries],
         "snapshot": snapshot,
         "tracking_since": date.fromisoformat(weekly["tracking_since"]) if weekly.get("tracking_since") else None,
         "charts": _trend_charts(weekly),

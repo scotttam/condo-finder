@@ -23,7 +23,8 @@ how to continue it.
   e.g. 2980 SW Montgomery Dr) is now worked around with price-band sweeps, and `Source` gained an
   `is_enabled` toggle with name edits that persist (admin). (PR #73) **Open:** a warning when a Zillow city
   search hits its 20-page cap (audit found Zillow returns all distinct listings today, but Portland sits at
-  19 of 20 pages, so it's close). 749 tests pass. (PR #74)
+  19 of 20 pages, so it's close). (PR #74) **Open:** the Trends page gains a "Worth exploring" section —
+  five untouched listings matched to the group's taste (may stretch just outside the filters). 754 tests pass. (PR #75)
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -169,9 +170,13 @@ its own data. Production data lives only on the Mac mini.
     market over comparable listings. Weeks before the first scrape are blank on purpose (only
     survivors are known for them).
   - `listings/analyst.py` makes two Claude calls (Opus 5.5, structured JSON output, server-side
-    fallback). Pass 1 shortlists 25 candidates from compact facts; pass 2 ranks the top 5 from full
-    descriptions, comments, votes, rejected listings, the group's default filters and "What we're
-    looking for" (`SearchPriorities`, one per group). Market charts (`trend_stats`) are shared.
+    fallback). Pass 1 shortlists 25 candidates from compact facts and nominates up to 12 untouched
+    "discovery" candidates (including near-misses just outside the filters, from `near_misses()`); pass 2
+    ranks the top 5 picks and 5 discoveries from full descriptions, comments, votes, rejected listings,
+    the group's default filters and "What we're looking for" (`SearchPriorities`, one per group).
+    Discoveries are listings nobody in the group has touched (status New, no votes, no comments) and
+    never one of the picks; each may note what's outside the filters. Saved on `TrendReport.discoveries`
+    and shown in the "Worth exploring" section. Market charts (`trend_stats`) are shared.
   - Each run is saved as a `TrendReport` with its group, usage and cost. Each group has its own
     reports and re-run cap (`TRENDS_MANUAL_RUNS_PER_DAY`). The scheduler's daily run, after the first
     scrape of the day, makes one report per group a member logged in to within 14 days, one after another in one background

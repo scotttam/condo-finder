@@ -207,3 +207,28 @@ def test_what_changed_panel(client):
 def test_no_changes_panel_without_changes(client):
     done_report([])
     assert '<section class="changes"' not in page(client)
+
+
+def discovery_for(item, **extra):
+    fields = dict(listing_id=item.pk, headline="Under the radar", why="Fits what you liked",
+                  outside_filters="", price_at_pick=item.price, address=item.street, photo_url="")
+    fields.update(extra)
+    return fields
+
+
+def test_discoveries_section_renders_untouched_finds(client):
+    pick_item = listing(price=3000)
+    find = listing(price=3300)
+    stretch = listing(price=5400)
+    done_report([pick_for(pick_item, 1)],
+                discoveries=[discovery_for(find), discovery_for(stretch, outside_filters="$400 over budget")])
+    content = page(client)
+    assert "Worth exploring" in content
+    assert content.count('<article class="discovery"') == 2
+    assert f'href="/listing/{find.pk}/"' in content
+    assert "$400 over budget" in content  # the stretch note shows
+
+
+def test_no_discoveries_section_without_discoveries(client):
+    done_report([pick_for(listing(), 1)])
+    assert "Worth exploring" not in page(client)

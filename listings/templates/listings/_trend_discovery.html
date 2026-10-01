@@ -1,0 +1,35 @@
+{% load humanize %}
+{# One untouched "worth exploring" listing. d is the saved snapshot; d.listing is the live Listing or None. #}
+{% with l=d.listing %}
+<article class="discovery">
+  <div class="discovery-photo">
+    {% if l %}<a href="{{ l.get_absolute_url }}">{% endif %}
+    {% if d.photo_url %}<img src="{{ d.photo_url }}" alt="" loading="lazy">{% else %}<div class="no-photo">No photo</div>{% endif %}
+    {% if l %}</a>{% endif %}
+  </div>
+  <div class="discovery-body">
+    <div class="pick-top">
+      <div class="pick-where">
+        <h3>{% if l %}<a href="{{ l.get_absolute_url }}">{{ d.address }}</a>{% else %}{{ d.address }}{% endif %}</h3>
+        {% if l %}<div class="muted">{{ l.location_label }} · {{ l.get_property_type_display }}</div>{% endif %}
+      </div>
+      <div class="pick-price">
+        {% if l.price %}${{ l.price|intcomma }}<span>/mo</span>{% elif d.price_at_pick %}${{ d.price_at_pick|intcomma }}<span>/mo</span>{% endif %}
+      </div>
+    </div>
+    <div class="pick-facts">
+      {% if l %}
+      <span>{{ l.beds|default_if_none:"?" }} bd</span><span>{{ l.baths|floatformat:"-1"|default:"?" }} ba</span>
+      {% if l.sqft %}<span>{{ l.sqft|intcomma }} sq ft</span>{% endif %}
+      <span>{% if l.parking_spaces is not None %}{{ l.parking_spaces }} parking{% elif l.has_parking %}parking, spaces?{% else %}parking ?{% endif %}</span>
+      {% include "listings/_special.html" with listing=l %}
+      {% endif %}
+      {% if d.outside_filters %}<span class="stretch-pill" title="Outside your filters">{{ d.outside_filters }}</span>{% endif %}
+      {% if not l or not l.is_active %}<span class="offmarket-pill">Off market</span>{% endif %}
+    </div>
+    <p class="pick-headline">{{ d.headline }}</p>
+    <p class="pick-why">{{ d.why }}</p>
+    {% if l %}<div class="pick-actions">{% include "listings/_status_pills.html" with listing=l %}<a href="{{ l.get_absolute_url }}">Open listing →</a></div>{% endif %}
+  </div>
+</article>
+{% endwith %}
