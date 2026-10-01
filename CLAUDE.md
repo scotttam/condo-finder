@@ -18,7 +18,7 @@ how to continue it.
   status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale Funnel; plan:
   `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`) was deployed on 2026-09-30. #70 adds
   the staff-only read-only SQL console at `/sql/`; #71 adds North Star Property Management (AppFolio
-  `northstarproperties`; its Bend and Redmond listings drop out by city). **Open:** Ziprent as a source
+  `northstarproperties`; its Bend and Redmond listings drop out by city). **Open: #72**, Ziprent as a source
   (a new `ziprent` platform), plus parsing "Cooling: None" and "Parking: Off Street, N spaces". 740 tests pass.
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
