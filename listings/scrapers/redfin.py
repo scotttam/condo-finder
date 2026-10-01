@@ -14,6 +14,12 @@ log = logging.getLogger(__name__)
 
 API_URL = "https://www.redfin.com/stingray/api/v1/search/rentals"
 PHOTO_URL = "https://ssl.cdn-redfin.com/photo/rent/{rental_id}/islphoto/genIsl.{position}_{version}.jpg"
+# Redfin returns at most this many homes per query and ignores page_number, so a region with more
+# matches than this silently loses the rest (the oldest, under days-on-redfin-asc).
+RESULT_CAP = 350
+# When a region is over the cap, re-query it in these min_price/max_price bands and merge. Each band
+# stays well under RESULT_CAP even in the densest region (Portland's busiest band was ~340 unsplit).
+PRICE_BANDS = [(None, 1999), (2000, 2499), (2500, 2999), (3000, 3499), (3500, 3999), (4000, 4999), (5000, None)]
 # Redfin propertyType codes, verified against live results 2026-09-26.
 PROPERTY_TYPES = {3: "Condo", 4: "Multi-family", 5: "Apartment", 6: "Single Family Home", 13: "Townhouse"}
 
@@ -143,19 +149,32 @@ class RedfinScraper(Scraper):
     def refresh_listing(self, url):
         return parse_detail(self._listing_page(url))
 
+    def _search(self, region_id, price_band=None):
+        params = {
+            "al": 1, "isRentals": "true", "market": "portland", "num_homes": RESULT_CAP,
+            "ord": "days-on-redfin-asc", "page_number": 1, "region_id": region_id,
+            "region_type": 6, "num_beds": 2, "num_baths": 2, "status": 9, "v": 8,
+        }
+        if price_band:
+            low, high = price_band
+            if low is not None:
+                params["min_price"] = low
+            if high is not None:
+                params["max_price"] = high
+        return self.fetcher.get_json(API_URL, params=params)
+
     def scrape(self):
         by_id = {}
         for region_id in self.options["region_ids"]:
-            data = self.fetcher.get_json(
-                API_URL,
-                params={
-                    "al": 1, "isRentals": "true", "market": "portland", "num_homes": 350,
-                    "ord": "days-on-redfin-asc", "page_number": 1, "region_id": region_id,
-                    "region_type": 6, "num_beds": 2, "num_baths": 2, "status": 9, "v": 8,
-                },
-            )
+            data = self._search(region_id)
             for item in parse_rentals(data):
                 by_id[item.external_id] = item
+            # One query caps at RESULT_CAP; when a region has more, sweep price bands so the listings
+            # past the cap (the oldest) aren't dropped. Small regions stay a single request.
+            if (data.get("numMatchedHomes") or 0) > RESULT_CAP:
+                for band in PRICE_BANDS:
+                    for item in parse_rentals(self._search(region_id, band)):
+                        by_id.setdefault(item.external_id, item)
         items = list(by_id.values())
         fetched = 0
         for item in sorted(items, key=detail_priority):

@@ -45,6 +45,7 @@ class Source(models.Model):
     last_error = models.TextField(blank=True)
     last_error_at = models.DateTimeField(null=True, blank=True)
     consecutive_failures = models.IntegerField(default=0)
+    is_enabled = models.BooleanField(default=True)  # off = the scraper skips it; set in admin
 
     class Meta:
         ordering = ["name"]

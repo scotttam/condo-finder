@@ -65,3 +65,25 @@ def test_source_links_are_read_only_without_an_add_row(admin_client):
     listing = make_listing()
     content = admin_client.get(f"/admin/listings/listing/{listing.pk}/change/").content.decode()
     assert 'name="source_listings-__prefix__-' not in content  # no "Add another" row that could only save nothing
+
+
+def test_source_name_and_enabled_are_editable_in_admin(admin_client):
+    from listings.models import Source
+
+    source = Source.objects.create(key="k", name="A Source", platform="appfolio")
+    soup = BeautifulSoup(admin_client.get(f"/admin/listings/source/{source.pk}/change/").content, "html.parser")
+    assert soup.find("input", attrs={"name": "name"}) is not None
+    assert soup.find("input", attrs={"name": "is_enabled"}) is not None
+    # key and platform are code-driven, shown read-only (no form input).
+    assert soup.find("input", attrs={"name": "key"}) is None
+    assert soup.find("select", attrs={"name": "platform"}) is None and soup.find("input", attrs={"name": "platform"}) is None
+
+
+def test_admin_can_disable_a_source(admin_client):
+    from listings.models import Source
+
+    source = Source.objects.create(key="k2", name="Toggle", platform="appfolio")
+    data = {"name": "Toggle", "_save": "Save"}  # is_enabled checkbox unchecked = disabled
+    admin_client.post(f"/admin/listings/source/{source.pk}/change/", data)
+    source.refresh_from_db()
+    assert source.is_enabled is False

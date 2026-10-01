@@ -18,8 +18,10 @@ how to continue it.
   status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale Funnel; plan:
   `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`) was deployed on 2026-09-30. #70 adds
   the staff-only read-only SQL console at `/sql/`; #71 adds North Star Property Management (AppFolio
-  `northstarproperties`; its Bend and Redmond listings drop out by city). **Open: #72**, Ziprent as a source
-  (a new `ziprent` platform), plus parsing "Cooling: None" and "Parking: Off Street, N spaces". 740 tests pass.
+  `northstarproperties`; its Bend and Redmond listings drop out by city); #72 adds Ziprent (a new `ziprent`
+  platform). **Open:** the Redfin 350-per-query cap (it was dropping the older half of Portland's rentals,
+  e.g. 2980 SW Montgomery Dr) is now worked around with price-band sweeps, and `Source` gained an
+  `is_enabled` toggle with name edits that persist (admin). 747 tests pass. (PR #73)
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -53,7 +55,9 @@ how to continue it.
     redirect after an expired session drops the page's query string; two members with the same name
     look like one person to Trends.
 - **Slow on purpose:** Redfin listing pages are behind a WAF, so detail fetches are paced at 10 per
-  run with a 20s delay and stop at the first challenge. Backfilling Redfin history takes days.
+  run with a 20s delay and stop at the first challenge. Backfilling Redfin history takes days. Redfin's
+  search also caps a query at 350 homes and ignores `page_number`, so a region over the cap is re-queried
+  in `PRICE_BANDS` (`min_price`/`max_price`) and merged; small regions stay one request.
 
 ## Commands
 
@@ -101,6 +105,9 @@ its own data. Production data lives only on the Mac mini.
   - Development only (`DJANGO_DEBUG=1`): the header and login page have one-click logins for every
     account (`accounts.views.dev_login_as`, which returns 404 unless `DEBUG`), to test as each person.
 - `listings/scrapers/`
+  - A `Source` row can be turned off in the admin (`is_enabled`); `run_all` skips disabled sources. A
+    source's `name` is editable there and sticks — `runner._source_for` sets `name` only when the row is
+    first created (platform stays code-driven). `key` and `platform` are read-only in the admin.
   - `registry.py` lists `SOURCES`, one config dict per site. Adding an AppFolio or Nesthub property
     manager is one entry.
   - `base.py` holds `Fetcher` (polite delays), the `Scraper` base, `RefreshBlocked`, and the
@@ -262,6 +269,7 @@ reapply that line or save the summary by hand.
 - `git mv` fails on untracked files. Use `mv`.
 - Zillow shows a home's *value* on off-market pages. The refresh code checks for `FOR_RENT` and
   treats anything else as removed.
-- Redfin's search API has no price history; its listing pages do (fetched slowly, see above).
+- Redfin's search API has no price history; its listing pages do (fetched slowly, see above). Its search
+  returns at most 350 homes per query and ignores `page_number`; `PRICE_BANDS` in `redfin.py` pages around it.
 - The CSS lives inline in `listings/templates/listings/base.html`.
 - `ATTACH` creates a file even on a `mode=ro` SQLite connection. The SQL console's authorizer blocks it.
