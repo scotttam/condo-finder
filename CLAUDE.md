@@ -21,7 +21,7 @@ how to continue it.
   `northstarproperties`; its Bend and Redmond listings drop out by city); #72 adds Ziprent (a new `ziprent`
   platform). **Open:** the Redfin 350-per-query cap (it was dropping the older half of Portland's rentals,
   e.g. 2980 SW Montgomery Dr) is now worked around with price-band sweeps, and `Source` gained an
-  `is_enabled` toggle with name edits that persist (admin). 747 tests pass.
+  `is_enabled` toggle with name edits that persist (admin). 747 tests pass. (PR #73)
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
