@@ -210,3 +210,30 @@ def test_scraper_passes_history_through_and_bumps_parser_version():
     duke = items["54003809"]
     assert duke.listed_at == date(2026, 8, 22) and len(duke.price_history) == 4
     assert duke.details_version == ZillowScraper.details_version == 2
+
+
+def test_warns_when_a_city_hits_the_page_cap(caplog):
+    import logging
+
+    from listings.scrapers.zillow import MAX_PAGES
+
+    page = json.loads(load_fixture("zillow_api_page.json"))
+    page["cat1"]["searchList"]["totalPages"] = MAX_PAGES  # Zillow at its ceiling: more may be hidden
+    fake = FakeFetcher({PORTLAND: load_fixture("zillow_search_page.html"), SEARCH_API: json.dumps(page)},
+                       default=load_fixture("zillow_detail.html"))
+    scraper = ZillowScraper(key="zillow", name="Zillow", fetcher=fake, city_slugs=["portland-or"], max_detail_fetches=0)
+    with caplog.at_level(logging.WARNING, logger="listings.scrapers.zillow"):
+        scraper.scrape()
+    assert any("page search cap" in r.message and "portland-or" in r.getMessage() for r in caplog.records)
+    # It paged all the way to the cap before giving up.
+    assert len([c for c in fake.calls if c[1] == SEARCH_API]) == MAX_PAGES
+
+
+def test_no_cap_warning_under_the_limit(caplog):
+    import logging
+
+    fake = fetcher()
+    scraper = ZillowScraper(key="zillow", name="Zillow", fetcher=fake, city_slugs=["portland-or"], max_detail_fetches=0)
+    with caplog.at_level(logging.WARNING, logger="listings.scrapers.zillow"):
+        scraper.scrape()
+    assert not any("page search cap" in r.message for r in caplog.records)

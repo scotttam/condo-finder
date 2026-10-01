@@ -21,7 +21,9 @@ how to continue it.
   `northstarproperties`; its Bend and Redmond listings drop out by city); #72 adds Ziprent (a new `ziprent`
   platform). **Open:** the Redfin 350-per-query cap (it was dropping the older half of Portland's rentals,
   e.g. 2980 SW Montgomery Dr) is now worked around with price-band sweeps, and `Source` gained an
-  `is_enabled` toggle with name edits that persist (admin). 747 tests pass. (PR #73)
+  `is_enabled` toggle with name edits that persist (admin). (PR #73) **Open:** a warning when a Zillow city
+  search hits its 20-page cap (audit found Zillow returns all distinct listings today, but Portland sits at
+  19 of 20 pages, so it's close). 749 tests pass. (PR #74)
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -267,6 +269,10 @@ reapply that line or save the summary by hand.
   treat `#` as a comment, so the comment is passed to the command as arguments. Explain the command in
   prose instead, and give each command its own code block when they run at different times.
 - `git mv` fails on untracked files. Use `mv`.
+- Zillow caps a search at `MAX_PAGES` (20) pages and its `totalResultCount` is inflated (it counts units
+  and map pins), but it does return every distinct listing within those pages — an ID-level audit on
+  2026-10-01 found no miss, unlike Redfin. `_search` logs a warning if a city hits the 20-page cap, the
+  point past which listings would be silently dropped and the search area would need splitting.
 - Zillow shows a home's *value* on off-market pages. The refresh code checks for `FOR_RENT` and
   treats anything else as removed.
 - Redfin's search API has no price history; its listing pages do (fetched slowly, see above). Its search
