@@ -91,6 +91,16 @@
   </aside>
 </div>
 
+{% if discoveries %}
+<section class="discoveries">
+  <h2>Worth exploring</h2>
+  <p class="muted small">Listings you haven't reviewed yet that fit what you've liked so far.</p>
+  <div class="discovery-grid">
+    {% for d in discoveries %}{% include "listings/_trend_discovery.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <section class="market">
   <h2>Market trends</h2>
   {% if report.market_read %}<div class="market-read">{{ report.market_read|linebreaks }}</div>{% endif %}

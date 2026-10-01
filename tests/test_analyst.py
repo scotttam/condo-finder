@@ -284,3 +284,60 @@ def test_run_daily_skips_when_not_configured(monkeypatch, owner):
     monkeypatch.setattr(analyst, "is_configured", lambda: False)
     monkeypatch.setattr(analyst, "start_reports", lambda groups, trigger: pytest.fail("should not start"))
     assert analyst.run_daily_if_due() is False
+
+
+def final2(picks, discoveries=None, market_read="Rents are softening.", summary="Two strong options."):
+    """A pass-2 payload that includes discoveries."""
+    return {"picks": picks, "discoveries": discoveries or [], "market_read": market_read, "summary": summary}
+
+
+def discovery(listing_id, **extra):
+    fields = dict(id=listing_id, headline="Under the radar", why="Like the ones you liked", outside_filters="")
+    fields.update(extra)
+    return fields
+
+
+def test_shortlist_pass_sees_untouched_near_misses_outside_the_filters():
+    match = candidate(price=3000)
+    near_miss = candidate(price=5800)  # over the $5,000 default max: a stretch option, not a candidate
+    assert near_miss.pk not in {l.pk for l in analyst.candidates(home_group())}
+    client = FakeClient(
+        message({"shortlist": [{"id": match.pk, "reason": "v"}], "discoveries": [{"id": near_miss.pk, "reason": "stretch"}]}),
+        message(final2([pick(match.pk)], [discovery(near_miss.pk, outside_filters="$800 over budget")])),
+    )
+    report = analyst.run_report(home_group(), client=client)
+    assert report.status == TrendReport.Status.DONE, report.error
+    pass1 = client.calls[0]["messages"][0]["content"]
+    assert "not_yet_reviewed" in pass1 and str(near_miss.pk) in pass1
+    assert [(d["listing_id"], d["outside_filters"]) for d in report.discoveries] == [(near_miss.pk, "$800 over budget")]
+
+
+def test_discoveries_are_saved_with_reasons_and_exclude_the_picks():
+    a, b, c = candidate(), candidate(), candidate()
+    client = FakeClient(
+        message({"shortlist": [{"id": a.pk, "reason": ""}],
+                 "discoveries": [{"id": b.pk, "reason": ""}, {"id": c.pk, "reason": ""}]}),
+        message(final2([pick(a.pk)],
+                       [discovery(a.pk), discovery(b.pk, why="Quiet street"), discovery(c.pk, outside_filters="1.5 bath")])),
+    )
+    report = analyst.run_report(home_group(), client=client)
+    assert [(d["listing_id"], d["why"], d["outside_filters"]) for d in report.discoveries] == [
+        (b.pk, "Quiet street", ""), (c.pk, "Like the ones you liked", "1.5 bath"),
+    ]
+    assert report.discoveries[0]["address"] == b.street and "photo_url" in report.discoveries[0]
+
+
+def test_discoveries_keep_untouched_and_drop_touched_listings():
+    untouched = candidate()
+    liked = candidate(status=Status.INTERESTED)
+    from tests.helpers import make_user
+    from listings.collab import set_vote
+    voted = candidate()
+    set_vote(voted, home_group(), make_user("voter@example.com", "Voter"), 1)
+    client = FakeClient(
+        message({"shortlist": [{"id": untouched.pk, "reason": ""}],
+                 "discoveries": [{"id": untouched.pk, "reason": ""}, {"id": liked.pk, "reason": ""}, {"id": voted.pk, "reason": ""}]}),
+        message(final2([pick(candidate().pk)], [discovery(untouched.pk), discovery(liked.pk), discovery(voted.pk)])),
+    )
+    report = analyst.run_report(home_group(), client=client)
+    assert [d["listing_id"] for d in report.discoveries] == [untouched.pk]  # liked and voted are excluded

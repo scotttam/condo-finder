@@ -334,6 +334,7 @@ class TrendReport(models.Model):
     # [{listing_id, rank, headline, why, concerns[], questions[], leverage, offer_low, offer_high,
     #   price_at_pick, address, photo_url}]
     picks = models.JSONField(default=list, blank=True)
+    discoveries = models.JSONField(default=list, blank=True)  # untouched listings worth exploring
     market_read = models.TextField(blank=True)
     summary = models.TextField(blank=True)
     changes = models.JSONField(default=dict, blank=True)  # vs the previous done report

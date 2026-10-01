@@ -319,7 +319,17 @@
     .sql-columns summary { font-weight:400; font-size:12px; color:var(--muted); }
     .sql-columns ul { padding-left:10px; font-size:13px; }
     .sql-insert { border:0; background:none; padding:0; color:var(--accent); cursor:pointer; font:inherit; font-size:14px; }
+    /* Trends discoveries */
+    .discoveries { margin-top:28px; }
+    .discovery-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-top:12px; }
+    .discovery { display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+    .discovery-photo { position:relative; aspect-ratio:3/2; background:#eee; }
+    .discovery-photo img { width:100%; height:100%; object-fit:cover; }
+    .discovery-photo .no-photo { display:flex; align-items:center; justify-content:center; height:100%; color:var(--muted); font-size:13px; }
+    .discovery-body { padding:12px; display:flex; flex-direction:column; gap:6px; }
+    .stretch-pill { display:inline-block; padding:1px 8px; border-radius:999px; background:#fef3c7; color:#92400e; font-size:12px; font-weight:600; white-space:nowrap; }
     @media (max-width: 800px) {
+      .discovery-grid { grid-template-columns:1fr; }
       .sql-layout { grid-template-columns:minmax(0, 1fr); }
       main { padding:12px; }
       header { flex-wrap:wrap; gap:6px 16px; padding:10px 12px; }

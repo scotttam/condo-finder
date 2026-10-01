@@ -1,9 +1,10 @@
 """The Trends analysis: Claude reads the current candidates, our comments and the market statistics,
 and picks the best options right now, with a negotiation angle for each.
 
-Two passes keep it affordable. Pass 1 sees compact facts for every candidate and returns a
-shortlist. Pass 2 sees the shortlist's full descriptions and returns the ranked picks and a read on
-the market. A report runs in a background thread, one at a time.
+Two passes keep it affordable. Pass 1 sees compact facts for every candidate (plus untouched
+near-misses just outside the filters) and returns a shortlist and a set of discovery candidates.
+Pass 2 sees their full descriptions and returns the ranked picks, five "discoveries" the household
+hasn't reviewed yet, and a read on the market. A report runs in a background thread, one at a time.
 """
 
 import json
@@ -33,6 +34,9 @@ FALLBACK_BETA = "server-side-fallback-2026-07-01"
 MAX_TOKENS = 32000
 SHORTLIST_SIZE = 25
 PICKS = 5
+DISCOVERIES = 5
+DISCOVERY_SHORTLIST = 12  # untouched ids pass 1 nominates for pass 2 to rank
+NEAR_MISS_LIMIT = 120  # untouched listings just outside the filters shown to pass 1
 DESCRIPTION_LIMIT = 4000
 STALE_AFTER = timedelta(minutes=30)  # a "running" report older than this was interrupted
 # USD per million tokens, Claude Opus 5.5
@@ -76,6 +80,37 @@ def passed_on(group, limit=40):
     )
     by_id = Listing.objects.prefetch_related("price_changes").in_bulk(ids)
     return _prepare([by_id[pk] for pk in ids if pk in by_id], group)
+
+
+def _untouched(listing):
+    """Nobody in the group has engaged with it: still New, no votes, no comments."""
+    return listing.group_status == Status.NEW and not listing.group_votes and not getattr(listing, "group_comments", [])
+
+
+def _relaxed_filter_data(group):
+    """The default filters, loosened a little so discoveries can surface near-misses."""
+    data = dict(default_filter_data(group))
+    data["min_baths"] = "1"       # allow 1-1.5 bath
+    data["min_parking"] = "0"     # don't require parking
+    data["parking_unknown"] = "on"
+    if data.get("max_price"):
+        data["max_price"] = str(int(int(data["max_price"]) * 1.2))  # up to 20% over budget
+    return data
+
+
+def near_misses(group, exclude_ids):
+    """Untouched active listings just outside the default filters (for discovery stretch), not already
+    in the candidate pool."""
+    form = ListingFilterForm(_relaxed_filter_data(group))
+    form.is_valid()
+    pool = (
+        apply_filters(Listing.objects.all(), form.cleaned_data, group)
+        .exclude(pk__in=exclude_ids)
+        .prefetch_related("price_changes", "source_listings__source")
+        .order_by("price", "pk")
+    )
+    reviewed = [l for l in _prepare(pool, group) if _untouched(l)]
+    return reviewed[:NEAR_MISS_LIMIT]
 
 
 def _yes_no(value):
@@ -148,8 +183,13 @@ for" above your own assumptions.
 Be concrete and honest. Name the specific facts behind each judgment, and say when something is \
 unknown and worth asking about rather than guessing."""
 
-SHORTLIST_TASK = f"""Pick the {SHORTLIST_SIZE} listings most worth a closer look right now, best first. Only use ids \
-from the candidates list. Give a few words on why for each."""
+SHORTLIST_TASK = f"""Pick the {SHORTLIST_SIZE} listings most worth a closer look right now, best first, for \
+"shortlist". Only use ids from the candidates list. Give a few words on why for each.
+
+Also fill "discoveries": up to {DISCOVERY_SHORTLIST} listings the household has NOT reviewed yet (status "new", \
+no votes, no comments) that they'd probably like, judging by what they liked, toured, commented on and wrote \
+they want. These may come from the candidates or the not_yet_reviewed list (near-misses just outside their \
+filters). Prefer ones unlike anything they rejected. Best first, with a few words on why."""
 
 PICKS_TASK = f"""From the shortlist, choose the top {PICKS} options right now, ranked. For each:
 - headline: one line on what makes it stand out.
@@ -161,7 +201,15 @@ similar listings and the market medians.
 - offer_low / offer_high: a monthly rent range worth proposing, in whole dollars, at or below the asking \
 price. Use the asking price for both if there's no leverage.
 
-Only pick ids from the shortlist, never one they rejected. Then write market_read: 2-4 short paragraphs \
+Only pick ids from the shortlist, never one they rejected.
+
+Then fill "discoveries": the {DISCOVERIES} best listings they have NOT reviewed yet and should take a look at, \
+ranked, chosen only from the discovery_candidates. For each give headline, why (2-3 sentences tying it to what \
+they've liked and said), and outside_filters: empty string if it meets their default filters, otherwise a short \
+note of what's stretched (e.g. "$300 over budget", "1.5 baths", "no parking listed"). Never repeat one of your \
+picks, and never one they rejected.
+
+Then write market_read: 2-4 short paragraphs \
 on how rents are moving, where the negotiating room is, and what that means for their timing. Finish \
 with summary: one sentence for the top of the page. Write plain text throughout, without Markdown."""
 
@@ -176,9 +224,18 @@ SHORTLIST_SCHEMA = {
                 "required": ["id", "reason"],
                 "additionalProperties": False,
             },
-        }
+        },
+        "discoveries": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"id": {"type": "integer"}, "reason": {"type": "string"}},
+                "required": ["id", "reason"],
+                "additionalProperties": False,
+            },
+        },
     },
-    "required": ["shortlist"],
+    "required": ["shortlist", "discoveries"],
     "additionalProperties": False,
 }
 
@@ -203,10 +260,24 @@ PICKS_SCHEMA = {
                 "additionalProperties": False,
             },
         },
+        "discoveries": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer"},
+                    "headline": {"type": "string"},
+                    "why": {"type": "string"},
+                    "outside_filters": {"type": "string"},
+                },
+                "required": ["id", "headline", "why", "outside_filters"],
+                "additionalProperties": False,
+            },
+        },
         "market_read": {"type": "string"},
         "summary": {"type": "string"},
     },
-    "required": ["picks", "market_read", "summary"],
+    "required": ["picks", "discoveries", "market_read", "summary"],
     "additionalProperties": False,
 }
 
@@ -226,14 +297,20 @@ def _context(stats, group):
     ]
 
 
-def _shortlist_prompt(stats, pool, group):
-    return "\n\n".join([*_context(stats, group), _section("candidates", [compact_facts(l) for l in pool]), SHORTLIST_TASK])
+def _shortlist_prompt(stats, pool, extras, group):
+    return "\n\n".join([
+        *_context(stats, group),
+        _section("candidates", [compact_facts(l) for l in pool]),
+        _section("not_yet_reviewed", [compact_facts(l) for l in extras]),
+        SHORTLIST_TASK,
+    ])
 
 
-def _picks_prompt(stats, shortlisted, rejected, previous, group):
+def _picks_prompt(stats, shortlisted, discovery_candidates, rejected, previous, group):
     parts = [
         *_context(stats, group),
         _section("shortlist", [full_facts(l) for l in shortlisted]),
+        _section("discovery_candidates", [full_facts(l) for l in discovery_candidates]),
         _section("rejected_by_us", [compact_facts(l) for l in rejected]),
     ]
     if previous:
@@ -319,6 +396,27 @@ def _clean_picks(raw, by_id):
     return picks
 
 
+def _clean_discoveries(raw, by_id, pick_ids):
+    discoveries, seen = [], set()
+    for item in raw:
+        listing = by_id.get(item.get("id"))
+        if listing is None or listing.pk in seen or listing.pk in pick_ids or not _untouched(listing):
+            continue
+        seen.add(listing.pk)
+        discoveries.append({
+            "listing_id": listing.pk,
+            "headline": item.get("headline", ""),
+            "why": item.get("why", ""),
+            "outside_filters": item.get("outside_filters", ""),
+            "price_at_pick": listing.price,
+            "address": f"{listing.street} #{listing.unit}" if listing.unit else listing.street,
+            "photo_url": listing.photo_url,
+        })
+        if len(discoveries) == DISCOVERIES:
+            break
+    return discoveries
+
+
 def diff_picks(previous_picks, picks, listings_by_id):
     """What changed since the previous report: new picks, dropped picks (and why, when we know),
     and price moves on picks that stayed."""
@@ -360,11 +458,12 @@ def run_report(group=None, trigger=TrendReport.Trigger.MANUAL, client=None, repo
             import anthropic
 
             client = anthropic.Anthropic()
-        by_id = {listing.pk: listing for listing in pool}
+        extras = near_misses(group, [l.pk for l in pool])
+        by_id = {listing.pk: listing for listing in [*pool, *extras]}
 
-        answer, message = _ask(client, _shortlist_prompt(stats, pool, group), SHORTLIST_SCHEMA, effort="medium")
+        answer, message = _ask(client, _shortlist_prompt(stats, pool, extras, group), SHORTLIST_SCHEMA, effort="medium")
         _add_usage(report, message)
-        shortlist = []
+        shortlist, discovery_ids = [], []
         for item in answer.get("shortlist", []):
             if item.get("id") in by_id and item["id"] not in shortlist:
                 shortlist.append(item["id"])
@@ -372,12 +471,20 @@ def run_report(group=None, trigger=TrendReport.Trigger.MANUAL, client=None, repo
         if not shortlist:
             raise AnalystError("Claude's shortlist didn't include any known listings.")
         report.shortlist = shortlist
+        for item in answer.get("discoveries", []):
+            # A shortlisted listing may still be a discovery if it doesn't become one of the picks.
+            if item.get("id") in by_id and item["id"] not in discovery_ids:
+                discovery_ids.append(item["id"])
+        discovery_ids = discovery_ids[:DISCOVERY_SHORTLIST]
 
         rejected = passed_on(group)
-        prompt = _picks_prompt(stats, [by_id[pk] for pk in shortlist], rejected, previous, group)
+        prompt = _picks_prompt(stats, [by_id[pk] for pk in shortlist], [by_id[pk] for pk in discovery_ids], rejected, previous, group)
         answer, message = _ask(client, prompt, PICKS_SCHEMA, effort="high")
         _add_usage(report, message)
         report.picks = _clean_picks(answer.get("picks", []), {pk: by_id[pk] for pk in shortlist})
+        report.discoveries = _clean_discoveries(
+            answer.get("discoveries", []), by_id, {p["listing_id"] for p in report.picks}
+        )
         report.market_read = answer.get("market_read", "")
         report.summary = answer.get("summary", "")
         if previous:
