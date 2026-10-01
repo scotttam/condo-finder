@@ -49,7 +49,14 @@ class VoteAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
-    list_display = ("name", "platform", "last_success_at", "last_count", "consecutive_failures")
+    list_display = ("name", "platform", "is_enabled", "last_success_at", "last_count", "consecutive_failures")
+    list_editable = ("is_enabled",)
+    # key and platform are code-driven (the registry); status fields are written by the scraper.
+    readonly_fields = ("key", "platform", "last_success_at", "last_count", "last_error", "last_error_at", "consecutive_failures")
+    fields = ("name", "is_enabled", "key", "platform", "last_success_at", "last_count", "last_error", "last_error_at", "consecutive_failures")
+
+    def has_add_permission(self, request):
+        return False  # sources come from the registry in code
 
 
 @admin.register(SourceRun)

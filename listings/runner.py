@@ -21,8 +21,11 @@ class EmptyScrape(Exception):
 
 
 def _source_for(config):
+    # platform stays code-driven; name is set once and then left alone so admin edits to it stick.
     source, _ = Source.objects.update_or_create(
-        key=config["key"], defaults={"name": config["name"], "platform": config["platform"]}
+        key=config["key"],
+        defaults={"platform": config["platform"]},
+        create_defaults={"name": config["name"], "platform": config["platform"]},
     )
     return source
 
@@ -93,7 +96,12 @@ def run_all(keys=None, geocode=True):
         log.info("Scrape already running; skipping")
         return []
     try:
-        runs = [run_source(config) for config in SOURCES if keys is None or config["key"] in keys]
+        disabled = set(Source.objects.filter(is_enabled=False).values_list("key", flat=True))
+        runs = [
+            run_source(config)
+            for config in SOURCES
+            if (keys is None or config["key"] in keys) and config["key"] not in disabled
+        ]
         # A detail fetch can fill in the size that makes a with/without-unit pair recognizable.
         try:
             merged = merge_unit_duplicates()

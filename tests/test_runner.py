@@ -84,3 +84,26 @@ def test_scrape_command(monkeypatch, capsys):
     monkeypatch.setattr("listings.management.commands.scrape.run_all", lambda keys, geocode: [fake_run])
     call_command("scrape", "--source", "pearl", "--no-geocode")
     assert "pearl: ok — 7 listings, 2 new" in capsys.readouterr().out
+
+
+def test_source_name_edit_survives_sync_but_platform_stays_code_driven():
+    source = runner._source_for({"key": "pearl", "name": "Pearl Property Management", "platform": "appfolio"})
+    source.name = "Pearl (renamed by hand)"
+    source.platform = "nesthub"  # a hand edit that should be overwritten from the registry
+    source.save()
+    runner._source_for({"key": "pearl", "name": "Pearl Property Management", "platform": "appfolio"})
+    source.refresh_from_db()
+    assert source.name == "Pearl (renamed by hand)"  # name edits stick
+    assert source.platform == "appfolio"  # platform stays code-driven
+
+
+def test_run_all_skips_disabled_sources(monkeypatch):
+    runner._source_for({"key": "pearl", "name": "Pearl", "platform": "appfolio"})
+    Source.objects.filter(key="pearl").update(is_enabled=False)
+    called = []
+    monkeypatch.setattr(runner, "run_source", lambda config: called.append(config["key"]) or config["key"])
+    monkeypatch.setattr(runner, "reextract_all", lambda: 0)
+    monkeypatch.setattr(runner, "geocode_pending", lambda: None)
+    monkeypatch.setattr(runner, "merge_unit_duplicates", lambda: [])
+    runner.run_all(keys=["pearl", "living-room"])
+    assert "pearl" not in called and "living-room" in called

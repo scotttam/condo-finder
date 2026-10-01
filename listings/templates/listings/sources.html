@@ -12,8 +12,8 @@
 <table>
   <tr><th>Source</th><th>Platform</th><th>Last success</th><th>Listings</th><th>Failures in a row</th><th>Last error</th></tr>
   {% for source in sources %}
-  <tr>
-    <td>{{ source.name }}</td>
+  <tr{% if not source.is_enabled %} class="muted"{% endif %}>
+    <td>{{ source.name }}{% if not source.is_enabled %} <span class="offmarket">disabled</span>{% endif %}</td>
     <td>{{ source.platform }}</td>
     <td>{{ source.last_success_at|naturaltime|default:"never" }}</td>
     <td>{{ source.last_count|default_if_none:"–" }}</td>

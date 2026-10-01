@@ -38,3 +38,15 @@ def test_scrape_now_when_running(client, monkeypatch):
 def test_sources_page_links_staff_to_sql_console(client):
     link = BeautifulSoup(client.get("/sources/").content, "html.parser").find("a", string="SQL console")
     assert link["href"] == "/sql/"
+
+
+def test_disabled_source_is_marked_on_the_sources_page(client):
+    from bs4 import BeautifulSoup
+
+    client.get("/sources/")  # populates Source rows from the registry
+    assert Source.objects.filter(key="pearl").update(is_enabled=False) == 1
+    soup = BeautifulSoup(client.get("/sources/").content, "html.parser")
+    row = next(tr for tr in soup.find_all("tr") if "Pearl Property Management" in tr.get_text())
+    assert row.find("span", string="disabled") is not None
+    other = next(tr for tr in soup.find_all("tr") if "Mainlander" in tr.get_text())
+    assert other.find("span", string="disabled") is None

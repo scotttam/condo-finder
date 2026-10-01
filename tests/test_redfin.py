@@ -130,3 +130,52 @@ def test_registry_paces_redfin_listing_pages_gently():
 
     redfin = next(config for config in SOURCES if config["key"] == "redfin")
     assert (redfin["request_delay"], redfin["max_detail_fetches"], redfin["skip_details_if_on"]) == (20, 10, "zillow")
+
+
+class BandFetcher:
+    """Fakes Redfin search: an unbounded query is truncated at the cap; price bands hold the rest."""
+
+    def __init__(self, num_matched, newest, by_band):
+        self.num_matched = num_matched
+        self.newest = newest
+        self.by_band = by_band  # {(min_price, max_price): [homes]}
+        self.calls = []
+
+    def get_json(self, url, params=None):
+        params = params or {}
+        self.calls.append(params)
+        if "min_price" in params or "max_price" in params:
+            homes = self.by_band.get((params.get("min_price"), params.get("max_price")), [])
+        else:
+            homes = self.newest
+        return {"homes": homes, "numMatchedHomes": self.num_matched}
+
+
+def _home(rental_id, street, price):
+    return {
+        "homeData": {"url": f"/OR/Portland/{rental_id}/home/{rental_id}", "propertyType": 3,
+                     "addressInfo": {"formattedStreetLine": street, "city": "Portland", "state": "OR", "zip": "97201"}},
+        "rentalExtension": {"rentalId": rental_id, "rentPriceRange": {"min": price},
+                            "bedRange": {"min": 2}, "bathRange": {"min": 2.0}, "sqftRange": {"min": 1200}},
+    }
+
+
+def test_truncated_region_is_swept_by_price_band():
+    from listings.scrapers.redfin import PRICE_BANDS, RESULT_CAP
+
+    newest = [_home("new1", "1 New St", 2600)]
+    tail = _home("old1", "2980 SW Montgomery Dr", 6499)  # past the cap, only reachable via a band
+    fetcher = BandFetcher(num_matched=RESULT_CAP + 100, newest=newest, by_band={(5000, None): [tail]})
+    scraper = RedfinScraper(key="redfin", name="Redfin", fetcher=fetcher, region_ids=[30772], max_detail_fetches=0)
+    addresses = {item.address for item in scraper.scrape()}
+    assert "2980 SW Montgomery Dr, Portland, OR 97201" in addresses
+    bands_queried = [(p.get("min_price"), p.get("max_price")) for p in fetcher.calls if "min_price" in p or "max_price" in p]
+    assert bands_queried == PRICE_BANDS
+
+
+def test_small_region_is_a_single_query_with_no_bands():
+    fetcher = BandFetcher(num_matched=40, newest=[_home("a", "1 Small St", 2500)], by_band={})
+    scraper = RedfinScraper(key="redfin", name="Redfin", fetcher=fetcher, region_ids=[30772], max_detail_fetches=0)
+    scraper.scrape()
+    assert len(fetcher.calls) == 1
+    assert "min_price" not in fetcher.calls[0] and "max_price" not in fetcher.calls[0]
