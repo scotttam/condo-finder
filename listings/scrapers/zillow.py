@@ -164,6 +164,7 @@ class ZillowScraper(Scraper):
         page_url = SEARCH_PAGE.format(slug=slug)
         query = parse_query_state(self.fetcher.get(page_url))
         items = []
+        total_pages = 1
         for page in range(1, MAX_PAGES + 1):
             body = {
                 "searchQueryState": {
@@ -185,4 +186,12 @@ class ZillowScraper(Scraper):
             items.extend(results)
             if page >= total_pages:
                 break
+        # Zillow caps a search at MAX_PAGES (~20) pages regardless of how many listings match. While a
+        # city stays under that we get them all; at the cap it may be hiding the tail (like Redfin's
+        # 350 cap), and the search area would need splitting. Surface it instead of silently missing.
+        if total_pages >= MAX_PAGES:
+            log.warning(
+                "Zillow %s hit the %d-page search cap; listings beyond it are not fetched. "
+                "Split this city's search area if it keeps hitting the cap.", slug, MAX_PAGES
+            )
         return items
