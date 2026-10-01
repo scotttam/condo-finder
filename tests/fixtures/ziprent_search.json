@@ -1,0 +1,150 @@
+{
+ "status": "ok",
+ "code": 200,
+ "request": {},
+ "response": [
+  {
+   "property": {
+    "id": 60700,
+    "rent": "2100",
+    "bedrooms": "2",
+    "bathrooms": "1",
+    "parsed_address": {
+     "street_address": "2478 NW Savier St",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97210"
+    },
+    "unit_type": "5",
+    "latitude": "45.53455430",
+    "longitude": "-122.70244340",
+    "is_test_property": false,
+    "is_for_sale": false,
+    "display_status": "Onboarding",
+    "photos": [
+     {
+      "fs_name": "ef556c7b01886d83ca24b014c56f5541.jpeg"
+     },
+     {
+      "fs_name": "bb8c6f224fd55c28d870c004a5ffd4b6.jpeg"
+     }
+    ]
+   }
+  },
+  {
+   "property": {
+    "id": 63427,
+    "rent": "1401",
+    "bedrooms": "1",
+    "bathrooms": "1",
+    "parsed_address": {
+     "street_address": "1542 NE 68th Ave",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97213"
+    },
+    "unit_type": null,
+    "latitude": "45.53447660",
+    "longitude": "-122.59304020",
+    "is_test_property": false,
+    "is_for_sale": false,
+    "display_status": "Onboarding",
+    "photos": [
+     {
+      "fs_name": "954d40cc428799b4277de8bceebf9b33.jpeg"
+     },
+     {
+      "fs_name": "be6b8c6f74b4dbb1fbaea9ad74230211.jpeg"
+     }
+    ]
+   }
+  },
+  {
+   "property": {
+    "id": 33730,
+    "rent": "2750",
+    "bedrooms": "3",
+    "bathrooms": "3",
+    "parsed_address": {
+     "street_address": "2285 Northeast Sheffield Ave",
+     "city": "Beaverton",
+     "state": "OR",
+     "zip": "97006"
+    },
+    "unit_type": null,
+    "latitude": "45.53615740",
+    "longitude": "-122.88986250",
+    "is_test_property": false,
+    "is_for_sale": false,
+    "display_status": "Leased (Pending Move-out)",
+    "photos": [
+     {
+      "fs_name": "34322e27965b8d2c97748fa684f92c05.jpeg"
+     },
+     {
+      "fs_name": "b729a0161dc9101eb6183bd0e553cbf0.jpeg"
+     }
+    ]
+   }
+  },
+  {
+   "property": {
+    "id": 64725,
+    "rent": "3700",
+    "bedrooms": "3",
+    "bathrooms": "1.5",
+    "parsed_address": {
+     "street_address": "1121 Halcyon Drive",
+     "city": "San Leandro",
+     "state": "CA",
+     "zip": "94578"
+    },
+    "unit_type": null,
+    "latitude": "37.70164110",
+    "longitude": "-122.13120410",
+    "is_test_property": false,
+    "is_for_sale": false,
+    "display_status": "Pending Lease Signing",
+    "photos": [
+     {
+      "fs_name": "dd8de10128b1b72966e1b332e49eb70b.jpeg"
+     },
+     {
+      "fs_name": "e7af8cdf143e5ef526164d91f70a43dd.jpeg"
+     }
+    ]
+   }
+  },
+  {
+   "property": null
+  },
+  {
+   "property": {
+    "id": 999999,
+    "rent": "2100",
+    "bedrooms": "2",
+    "bathrooms": "1",
+    "parsed_address": {
+     "street_address": "2478 NW Savier St",
+     "city": "Portland",
+     "state": "OR",
+     "zip": "97210"
+    },
+    "unit_type": "5",
+    "latitude": "45.53455430",
+    "longitude": "-122.70244340",
+    "is_test_property": true,
+    "is_for_sale": false,
+    "display_status": "Onboarding",
+    "photos": [
+     {
+      "fs_name": "ef556c7b01886d83ca24b014c56f5541.jpeg"
+     },
+     {
+      "fs_name": "bb8c6f224fd55c28d870c004a5ffd4b6.jpeg"
+     }
+    ]
+   }
+  }
+ ]
+}

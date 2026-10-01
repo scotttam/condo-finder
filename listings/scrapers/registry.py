@@ -4,6 +4,7 @@ from .nesthub import NesthubScraper
 from .redfin import RedfinScraper
 from .rentengine import RentEngineScraper
 from .zillow import ZillowScraper
+from .ziprent import ZiprentScraper
 
 PLATFORMS = {
     "appfolio": AppFolioScraper,
@@ -12,6 +13,7 @@ PLATFORMS = {
     "zillow": ZillowScraper,
     "craigslist": CraigslistScraper,
     "rentengine": RentEngineScraper,
+    "ziprent": ZiprentScraper,
 }
 
 # To add a property manager, append one entry. AppFolio needs its <subdomain>.appfolio.com;
@@ -30,6 +32,8 @@ SOURCES = [
     # RentEngine: `slug` is the company's embed name (rentengine.io/c/<slug>); loaded in headless Chromium.
     {"key": "chroma", "name": "Chroma Property Management", "platform": "rentengine", "slug": "chromapm",
      "request_delay": 2, "max_detail_fetches": 30},
+    # Ziprent: one search request returns every listing nationwide; ours are kept by city.
+    {"key": "ziprent", "name": "Ziprent", "platform": "ziprent", "request_delay": 2, "max_detail_fetches": 20},
     # Redfin city region ids: Portland 30772, Lake Oswego 30777, Beaverton 1432.
     {"key": "redfin", "name": "Redfin", "platform": "redfin", "region_ids": [30772, 30777, 1432],
      # Listing pages are behind AWS bot protection that blocks fast fetching: go slowly, and only
