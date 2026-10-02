@@ -22,14 +22,23 @@
   </div>
   <form class="trends-run" method="post" action="{% url 'trends_run' %}">
     {% csrf_token %}
-    <button type="submit"{% if not configured or running or runs_left < 1 %} disabled{% endif %}>{% if report %}↻ Re-run now{% else %}Run the analysis{% endif %}</button>
-    <div class="muted small">{% if configured %}{{ runs_left }} of {{ runs_per_day }} re-runs left today · runs daily after the morning scrape{% endif %}</div>
+    <button type="submit"{% if not trends_enabled or not configured or running or runs_left < 1 %} disabled{% endif %}>{% if report %}↻ Re-run now{% else %}Run the analysis{% endif %}</button>
+    <div class="muted small">{% if not trends_enabled %}Paused to save cost{% elif configured %}{{ runs_left }} of {{ runs_per_day }} re-runs left today · runs daily after the morning scrape{% endif %}</div>
   </form>
 </div>
 
 {% if running %}{% include "listings/_trend_status.html" %}{% endif %}
 
-{% if not configured %}
+{% if not trends_enabled %}
+<div class="panel notice">
+  <strong>The Trends analysis is paused.</strong>
+  It's turned off to save cost (each run is about $1). To turn it back on, set <code>TRENDS_ENABLED=1</code> in the
+  <code>.env</code> file and restart the app (<code>./deploy/install.sh</code> on the Mac mini). Past reports and the
+  market charts below still work.
+</div>
+{% endif %}
+
+{% if trends_enabled and not configured %}
 <div class="panel notice">
   <strong>Connect Claude to turn on the analysis.</strong>
   Create an API key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>,

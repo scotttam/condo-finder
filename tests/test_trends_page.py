@@ -232,3 +232,19 @@ def test_discoveries_section_renders_untouched_finds(client):
 def test_no_discoveries_section_without_discoveries(client):
     done_report([pick_for(listing(), 1)])
     assert "Worth exploring" not in page(client)
+
+
+def test_paused_notice_and_disabled_button_when_trends_disabled(client, settings):
+    settings.TRENDS_ENABLED = False
+    done_report([pick_for(listing(), 1)])
+    content = page(client)
+    assert "The Trends analysis is paused" in content
+    assert re.search(r'<button type="submit"[^>]*disabled', content)
+    assert "Connect Claude to turn on the analysis" not in content  # paused notice replaces it
+
+
+def test_rerun_does_nothing_when_trends_disabled(client, settings, monkeypatch):
+    settings.TRENDS_ENABLED = False
+    monkeypatch.setattr(analyst, "start_report", lambda *a, **k: pytest.fail("should not start"))
+    content = client.post("/trends/run/", follow=True).content.decode()
+    assert "paused" in content

@@ -353,6 +353,7 @@ def trends_page(request):
         "charts": _trend_charts(weekly),
         "priorities": SearchPriorities.get(request.group),
         "configured": analyst.is_configured(),
+        "trends_enabled": settings.TRENDS_ENABLED,
         "running": analyst.is_running(group),
         "runs_left": analyst.manual_runs_left(group),
         "runs_per_day": settings.TRENDS_MANUAL_RUNS_PER_DAY,
@@ -374,7 +375,9 @@ def _trend_changes(report):
 @require_POST
 def trends_run(request):
     group = request.group
-    if not analyst.is_configured():
+    if not settings.TRENDS_ENABLED:
+        messages.info(request, "The Trends analysis is paused to save cost. Set TRENDS_ENABLED=1 in .env to turn it back on.")
+    elif not analyst.is_configured():
         messages.error(request, "Add ANTHROPIC_API_KEY to .env and restart the app to run the analysis.")
     elif analyst.manual_runs_left(group) <= 0:
         limit = settings.TRENDS_MANUAL_RUNS_PER_DAY
