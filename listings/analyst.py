@@ -537,7 +537,7 @@ def _launch(groups, trigger, first):
 def start_reports(groups, trigger):
     """Starts reports for these groups in the background, one at a time. False if one is already running."""
     groups = list(groups)
-    if not groups or not _lock.acquire(blocking=False):
+    if not groups or not settings.TRENDS_ENABLED or not _lock.acquire(blocking=False):
         return False
     try:
         if _fresh_running().exists():
@@ -580,8 +580,8 @@ def due_today():
 
 
 def run_daily_if_due():
-    """Starts today's automatic reports, one per group with members, if an API key is set."""
-    if not is_configured():
+    """Starts today's automatic reports, one per group with members, if enabled and an API key is set."""
+    if not settings.TRENDS_ENABLED or not is_configured():
         return False
     groups = due_today()
     return start_reports(groups, TrendReport.Trigger.AUTO) if groups else False

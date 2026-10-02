@@ -341,3 +341,16 @@ def test_discoveries_keep_untouched_and_drop_touched_listings():
     )
     report = analyst.run_report(home_group(), client=client)
     assert [d["listing_id"] for d in report.discoveries] == [untouched.pk]  # liked and voted are excluded
+
+
+def test_start_reports_is_blocked_when_trends_disabled(settings):
+    settings.TRENDS_ENABLED = False
+    candidate()
+    assert analyst.start_report(home_group(), TrendReport.Trigger.MANUAL) is False
+    assert not TrendReport.objects.exists()
+
+
+def test_daily_run_is_skipped_when_trends_disabled(settings, monkeypatch):
+    settings.TRENDS_ENABLED = False
+    monkeypatch.setattr(analyst, "due_today", lambda: pytest.fail("should not compute due groups when disabled"))
+    assert analyst.run_daily_if_due() is False

@@ -14,17 +14,14 @@ how to continue it.
 
 ## Current state (updated 2026-09-30)
 
-- **Merged to `main` through PR #71.** The accounts stack (#59–#68: logins, search groups, per-group
+- **Merged to `main` through PR #75.** The accounts stack (#59–#68: logins, search groups, per-group
   status/comments/votes/default filters/Trends/Feed, invites, HTTPS via Tailscale Funnel; plan:
-  `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`) was deployed on 2026-09-30. #70 adds
-  the staff-only read-only SQL console at `/sql/`; #71 adds North Star Property Management (AppFolio
-  `northstarproperties`; its Bend and Redmond listings drop out by city); #72 adds Ziprent (a new `ziprent`
-  platform). **Open:** the Redfin 350-per-query cap (it was dropping the older half of Portland's rentals,
-  e.g. 2980 SW Montgomery Dr) is now worked around with price-band sweeps, and `Source` gained an
-  `is_enabled` toggle with name edits that persist (admin). (PR #73) **Open:** a warning when a Zillow city
-  search hits its 20-page cap (audit found Zillow returns all distinct listings today, but Portland sits at
-  19 of 20 pages, so it's close). (PR #74) **Open:** the Trends page gains a "Worth exploring" section —
-  five untouched listings matched to the group's taste (may stretch just outside the filters). 754 tests pass. (PR #75)
+  `docs/superpowers/plans/2026-09-30-accounts-and-collaboration.md`) was deployed on 2026-09-30. Since then:
+  #70 SQL console at `/sql/`; #71 North Star and #72 Ziprent sources; #73 Redfin price-band paging (its
+  350-per-query cap was dropping the older half of Portland's rentals) plus an `is_enabled`/editable-name
+  `Source` admin; #74 a warning when a Zillow city hits its 20-page cap; #75 the Trends "Worth exploring"
+  section (five untouched taste-matched listings). **Open:** pause the Trends analysis with `TRENDS_ENABLED=0`
+  (each run costs ~$1). 758 tests pass. (PR #76)
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -180,7 +177,9 @@ its own data. Production data lives only on the Mac mini.
   - Each run is saved as a `TrendReport` with its group, usage and cost. Each group has its own
     reports and re-run cap (`TRENDS_MANUAL_RUNS_PER_DAY`). The scheduler's daily run, after the first
     scrape of the day, makes one report per group a member logged in to within 14 days, one after another in one background
-    thread (about $0.50 each). One report runs at a time across all groups.
+    thread (about $1 each). One report runs at a time across all groups. `TRENDS_ENABLED=0` in `.env` pauses
+    all runs (daily and manual); `start_reports` refuses and the page shows a paused notice. Past reports and
+    the market charts still show.
   - Tests use a `FakeClient` (`tests/test_analyst.py`) and never call the API. A real run costs
     about $0.50.
 - `listings/views.py`:

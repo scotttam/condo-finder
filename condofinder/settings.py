@@ -153,5 +153,7 @@ NOMINATIM_EMAIL = os.environ.get("NOMINATIM_EMAIL", "")
 OFF_MARKET_AFTER_MISSES = 3
 INVITE_DAYS = 7
 TRENDS_MANUAL_RUNS_PER_DAY = int(os.environ.get("TRENDS_MANUAL_RUNS_PER_DAY", "5"))
+# Set TRENDS_ENABLED=0 in .env to pause the Trends analysis (daily and manual) — each run costs ~$1.
+TRENDS_ENABLED = os.environ.get("TRENDS_ENABLED", "1") == "1"
 SQL_CONSOLE_TIMEOUT_SECONDS = 5
 SQL_CONSOLE_MAX_ROWS = 1000
