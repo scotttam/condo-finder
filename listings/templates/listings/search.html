@@ -10,7 +10,7 @@
 
 <form id="search-filters" class="search-panel" method="get" action="{% url 'search' %}"
       hx-get="{% url 'search' %}" hx-target="#results" hx-select="#results" hx-select-oob="#filter-count" hx-swap="outerHTML"
-      hx-push-url="true" hx-trigger="change, input delay:400ms" hx-sync="this:replace" hx-indicator="#results">
+      hx-push-url="true" hx-trigger="change, input delay:400ms" hx-sync="this:queue last" hx-indicator="#results">
   <input type="hidden" name="north" value="{{ form.north.value|default_if_none:'' }}">
   <input type="hidden" name="south" value="{{ form.south.value|default_if_none:'' }}">
   <input type="hidden" name="east" value="{{ form.east.value|default_if_none:'' }}">
@@ -117,15 +117,19 @@
 {% endblock %}
 {% block scripts %}
 <script>
-  const searchForm = document.getElementById("search-filters");
-  document.addEventListener("click", event => {
-    const header = event.target.closest("a[data-sort]");
-    if (header && searchForm) {  // sort through the form so the URL, the Sort menu and the results agree
-      event.preventDefault();
-      searchForm.elements.sort.value = header.dataset.sort;
-      htmx.trigger(searchForm, "change");
-    }
-    if (event.target.closest("[data-filters-toggle]")) document.body.classList.toggle("filters-open");
-  });
+  // htmx re-runs this script when Back restores a page from its history cache; listen only once.
+  if (!window.searchPageReady) {
+    window.searchPageReady = true;
+    document.addEventListener("click", event => {
+      const searchForm = document.getElementById("search-filters");
+      const header = event.target.closest("a[data-sort]");
+      if (header && searchForm) {  // sort through the form so the URL, the Sort menu and the results agree
+        event.preventDefault();
+        searchForm.elements.sort.value = header.dataset.sort;
+        htmx.trigger(searchForm, "change");
+      }
+      if (event.target.closest("[data-filters-toggle]")) document.body.classList.toggle("filters-open");
+    });
+  }
 </script>
 {% endblock %}

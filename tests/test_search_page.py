@@ -106,3 +106,12 @@ def test_search_only_and_shared_filters_render_in_the_panel(client):
     assert re.search(r'<select name="wd"[^>]*>.*?<option value="no" selected>No</option>', content, re.S)
     assert re.search(r'<input type="checkbox" name="zips" value="97209"[^>]*checked', content)
     assert 'name="max_sqft" value="1500"' in content
+
+
+def test_phone_layout_has_a_filters_drawer_and_compact_cards(client):
+    good("fits")
+    content = page(client)
+    assert re.search(r'<button type="button" class="filters-toggle" data-filters-toggle', content)
+    assert '<button type="button" class="filters-done" data-filters-toggle>Show results</button>' in content
+    assert '<td class="m-card"><a class="m-card-link"' in content.replace("\n", "")
+    assert "@media (max-width: 700px)" in content
