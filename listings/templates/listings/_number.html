@@ -1,0 +1,2 @@
+{# One labeled number input: field (bound), optional step. #}
+<label class="field">{{ field.label }} <input type="number" name="{{ field.html_name }}" value="{{ field.value|default_if_none:'' }}" min="0" step="{{ step|default:1 }}" inputmode="numeric"></label>

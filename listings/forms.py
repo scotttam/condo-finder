@@ -163,6 +163,14 @@ class ListingFilterForm(forms.Form):
             return []
         return [str(v) for v in value] if isinstance(value, (list, tuple)) else [str(value)]
 
+    def active_count(self):
+        """How many filters are set (Search's "Filters (n)"). Sort isn't a filter; the map area counts once."""
+        data = getattr(self, "cleaned_data", {})
+        area = ("north", "south", "east", "west")
+        count = sum(1 for name, value in data.items()
+                    if name not in ("sort", *area) and value not in (None, "", [], False, "any"))
+        return count + all(data.get(side) is not None for side in area)
+
     def _menu(self, name, choices):
         """Options for a select. A value from elsewhere (a Search link on the home page, say) is added, so the
         menu shows it and the next change doesn't drop it."""
