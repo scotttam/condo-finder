@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
@@ -22,11 +23,12 @@ from .runner import is_running, run_all_in_background, sync_sources
 from .scrapers.base import RefreshBlocked, Scraper
 from .scrapers.registry import PLATFORMS, SOURCES, build_scraper
 from .scheduler import next_run_time
+from .search_views import query_string
 
 PAGE_SIZE = 50
 FEED_PAGE_SIZE = 100
 VIEWS = ("map", "list")
-NON_FILTER_PARAMS = {"view", "page"}
+NON_FILTER_PARAMS = {"view", "page", "cols", "saved"}
 
 
 def listing_list(request):
@@ -43,8 +45,12 @@ def listing_list(request):
         request.GET.get("page")
     )
     listings = collab.decorate(page_obj.object_list, request.group, request.user)
+    search_only = form.search_only_values()
     return render(request, "listings/list.html", {
         "form": form,
+        "search_only": search_only,
+        "search_only_count": len({name for name, _ in search_only}),
+        "search_url": f"{reverse('search')}?{query_string(form.data, view=None, page=None)}",
         "filter_defaults": default_filter_data(request.group),
         "view": view,
         "page_obj": page_obj,

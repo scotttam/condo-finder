@@ -18,7 +18,7 @@
     </details>
   </div>
   {% endif %}
-  <details class="saved-list"{% if not current_saved and saved_searches %} open{% endif %}>
+  <details class="saved-list"{% if not current_saved %} open{% endif %}>
     <summary>Saved searches ({{ saved_searches|length }})</summary>
     <ul>
       {% for saved in saved_searches %}<li><a href="{{ saved.get_absolute_url }}">{{ saved.name }}</a> <span class="muted">by {{ saved.by }}</span></li>
