@@ -5,6 +5,7 @@ from django.db.models import (Case, Count, DateField, ExpressionWrapper, F, Floa
 from django.db.models.functions import Cast, Coalesce, Least, TruncDate
 from django.utils import timezone
 
+from . import search_index
 from .forms import PRICE_SLIDER_MAX
 from .models import PriceChange, SourceListing, Status, Vote
 
@@ -85,6 +86,7 @@ def _feature_q(field, choice):
 def apply_filters(queryset, data, group):
     if not data.get("show_inactive") and not data.get("gone_within"):
         queryset = queryset.filter(is_active=True)
+    queryset = search_index.filter_listings(queryset, data.get("q"))
     if data.get("min_beds") is not None:
         queryset = queryset.filter(beds__gte=data["min_beds"])
     if data.get("min_baths") is not None:
@@ -249,7 +251,13 @@ SORTS = {
 
 
 def _sort(queryset, data, group):
-    sort = data.get("sort") or "price"
+    """A chosen sort; with none, best match when there are keywords to rank by, else price."""
+    sort = data.get("sort") or ""
+    if not sort:
+        keywords = search_index.parse(data.get("q"))
+        if keywords and keywords.include:
+            return queryset.order_by(search_index.rank_expr(keywords).asc(), "pk")
+        sort = "price"
     descending = sort.startswith("-")
     key = sort.lstrip("-")
     if key == "newest":

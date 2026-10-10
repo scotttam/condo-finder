@@ -23,8 +23,8 @@ how to continue it.
   section (five untouched taste-matched listings). **Open:** pause the Trends analysis with `TRENDS_ENABLED=0`
   (each run costs ~$1). (PR #76)
 - **Open: Advanced search stack** (spec `docs/superpowers/specs/2026-10-10-advanced-search-decisions.md`, plan
-  `docs/superpowers/plans/2026-10-10-advanced-search.md`): PR 1/5 new filters in the shared filter engine.
-  847 tests pass.
+  `docs/superpowers/plans/2026-10-10-advanced-search.md`): #78 (1/5) new filters in the shared filter engine;
+  PR 2/5 keyword search. 891 tests pass.
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -207,6 +207,12 @@ its own data. Production data lives only on the Mac mini.
   It also holds the Search page's filters (size/price/time ranges, tri-state features including `parking`,
   ZIP and neighborhood pick lists, sites, photo, map). `SEARCH_ONLY_FIELDS` lists the ones the home page has no
   control for; `home_menus` keeps the home drawer's short menus and adds a value set elsewhere so it isn't dropped.
+- `listings/search_index.py`: keyword search. `listing_search` is an FTS5 table (external content on
+  `listings_listing`) kept in sync by triggers from migration 0023, so even `QuerySet.update` is covered.
+  `parse()` turns Google-style input (phrases, `-exclude`, `OR`, `prefix*`) into FTS5 built only from quoted
+  terms; OR binds tighter than AND. A blank sort means best match (bm25) when there are keywords: one MATCH ranks
+  every hit and the ORDER BY looks each up in that JSON (a correlated MATCH per row took seconds).
+  `highlights()` wraps matches in `<mark>` after escaping.
 - `listings/filters.py`: `apply_filters` runs every filter; `dom_expr()`/`first_day_expr()` mirror
   `Listing.days_on_market` in SQL; `SORTS` holds every sort (ties break by pk); price movement uses
   `_with_price_range` (peak/low during the current rental listing).
@@ -276,6 +282,8 @@ reapply that line or save the summary by hand.
 
 ## Gotchas
 
+- The SQL console hides `listing_search_*` (FTS5's shadow tables). To rebuild the keyword index by hand:
+  `INSERT INTO listing_search(listing_search) VALUES ('rebuild')`.
 - `max_price` equal to `PRICE_SLIDER_MAX` (8000) means no maximum (the home slider's top); any other value filters.
 - Group state (status, comments, votes) isn't on `Listing`. Use `collab.decorate()` before rendering
   listings, and pass the group to `apply_filters`.

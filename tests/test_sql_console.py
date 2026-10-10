@@ -160,3 +160,9 @@ def test_pragmas_that_change_settings_are_refused(db_file, sql):
 @pytest.mark.parametrize("sql", ["PRAGMA index_list(t)", "PRAGMA table_xinfo(t)", "PRAGMA quick_check", "PRAGMA hard_heap_limit"])
 def test_read_pragmas_still_work(db_file, sql):
     assert run(db_file, sql).error == ""
+
+
+def test_schema_hides_the_keyword_index_internals():
+    names = {table.name for table in sql_console.schema()}
+    assert "listing_search" in names
+    assert not any(name.startswith("listing_search_") for name in names)
