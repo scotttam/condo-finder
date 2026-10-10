@@ -100,6 +100,9 @@ class Listing(models.Model):
     available = models.CharField(max_length=100, blank=True)
     # The sentence stating a move-in special ("4 weeks free", "$500 off first month"), blank if none.
     special_offer = models.CharField(max_length=200, blank=True)
+    # Rent after the move-in special, spread over a 12-month lease; the price when there's no special or it
+    # doesn't say how much. Kept by save() so the Search page can filter and sort on it.
+    effective_price = models.IntegerField(null=True, blank=True)
     photo_url = models.URLField(max_length=500, blank=True)
     overrides = models.JSONField(
         default=dict,
@@ -119,6 +122,13 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.address
+
+    def save(self, *args, **kwargs):
+        self.effective_price = self.effective_rent or self.price
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and {"price", "special_offer"} & set(update_fields):
+            kwargs["update_fields"] = {*update_fields, "effective_price"}
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("listing_detail", args=[self.pk])

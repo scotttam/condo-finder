@@ -4,8 +4,9 @@ from decimal import Decimal
 import pytest
 
 from listings.filters import apply_filters
-from listings.forms import ListingFilterForm
+from listings.forms import PRICE_SLIDER_MAX, ListingFilterForm
 from listings.models import Listing, PropertyType
+from listings.specials import effective_rent
 from tests.helpers import home_group, make_listing
 
 pytestmark = pytest.mark.django_db
@@ -83,3 +84,82 @@ def test_home_drawer_selects_show_a_search_only_value(client):
     select = re.search(r'<select name="wd".*?</select>', content, re.S).group(0)
     assert '<option value="no" selected>No</option>' in select
     assert '<option value="unknown"' not in select
+
+
+def test_size_ranges_exclude_unknowns():
+    listing("small", beds=1, baths=Decimal("1"), sqft=600)
+    listing("mid", beds=2, baths=Decimal("2"), sqft=1100)
+    listing("big", beds=4, baths=Decimal("3"), sqft=2400)
+    listing("no-sqft", sqft=None)
+    assert found(min_beds=2, max_beds=3) == {"mid", "no-sqft"}
+    assert found(max_baths="1.5") == {"small"}
+    assert found(min_sqft=800, max_sqft=2000) == {"mid"}
+
+
+def test_parking_range_with_and_without_unknown():
+    listing("one", parking_spaces=1)
+    listing("two", parking_spaces=2)
+    listing("three", parking_spaces=3)
+    listing("unknown", parking_spaces=None)
+    assert found(min_parking=1, max_parking=2) == {"one", "two"}
+    assert found(max_parking=1, parking_unknown="on") == {"one", "unknown"}
+
+
+def test_price_per_sqft_range():
+    listing("cheap", price=2000, sqft=1000)   # $2.00
+    listing("dear", price=4000, sqft=1000)    # $4.00
+    listing("no-sqft", price=3000, sqft=None)
+    assert found(min_ppsf="2.5") == {"dear"}
+    assert found(max_ppsf="2.5") == {"cheap"}
+
+
+def test_typed_max_price_above_the_slider_top_filters():
+    listing("ok", price=8500)
+    listing("too-dear", price=9500)
+    assert found(max_price=9000) == {"ok"}
+    assert found(max_price=PRICE_SLIDER_MAX) == {"ok", "too-dear"}  # the home slider's top still means no max
+
+
+def test_effective_price_follows_the_special_and_the_price():
+    offer = "Get 4 weeks free on a 12-month lease."
+    special = listing("special", price=3000, special_offer=offer)
+    plain = listing("plain", price=3000)
+    assert special.effective_price == effective_rent(3000, offer) < 3000
+    assert plain.effective_price == 3000
+    special.price = 3200
+    special.save(update_fields=["price", "updated_at"])  # how ingest saves a new price
+    special.refresh_from_db()
+    assert special.effective_price == effective_rent(3200, offer)
+    special.special_offer = ""
+    special.save(update_fields=["special_offer", "updated_at"])
+    special.refresh_from_db()
+    assert special.effective_price == 3200
+
+
+def test_effective_rent_range():
+    listing("special", price=3000, special_offer="Get 4 weeks free on a 12-month lease.")
+    listing("plain", price=3000)
+    assert found(max_effective=2900) == {"special"}
+    assert found(min_effective=2900) == {"plain"}
+
+
+@pytest.mark.django_db(transaction=True)
+def test_migration_fills_in_effective_price():
+    from django.db import connection
+    from django.db.migrations.executor import MigrationExecutor
+
+    def migrate(target):
+        MigrationExecutor(connection).migrate(target)
+        return MigrationExecutor(connection).loader.project_state(target).apps
+
+    apps = migrate([("listings", "0021_trendreport_discoveries")])
+    Old = apps.get_model("listings", "Listing")
+    old = Old.objects.create(address_key="k", address="1 A St", street="1 A St", city="Portland", price=3000,
+                             special_offer="Get 4 weeks free on a 12-month lease.")
+    try:
+        apps = migrate([("listings", "0022_listing_effective_price")])
+        assert apps.get_model("listings", "Listing").objects.get(pk=old.pk).effective_price == effective_rent(
+            3000, "Get 4 weeks free on a 12-month lease.")
+    finally:
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())

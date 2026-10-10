@@ -70,6 +70,15 @@ class ListingFilterForm(forms.Form):
     parking_unknown = forms.BooleanField(required=False, label="Include unknown parking")
     min_price = forms.IntegerField(required=False, min_value=0, label="Min price")
     max_price = forms.IntegerField(required=False, min_value=0, label="Max price")
+    max_beds = forms.IntegerField(required=False, min_value=0, label="Max beds")
+    max_baths = forms.DecimalField(required=False, min_value=0, decimal_places=1, label="Max baths")
+    max_parking = forms.IntegerField(required=False, min_value=0, label="Max parking")
+    min_sqft = forms.IntegerField(required=False, min_value=0, label="Min sqft")
+    max_sqft = forms.IntegerField(required=False, min_value=0, label="Max sqft")
+    min_ppsf = forms.DecimalField(required=False, min_value=0, decimal_places=2, label="Min $/sqft")
+    max_ppsf = forms.DecimalField(required=False, min_value=0, decimal_places=2, label="Max $/sqft")
+    min_effective = forms.IntegerField(required=False, min_value=0, label="Min effective rent")
+    max_effective = forms.IntegerField(required=False, min_value=0, label="Max effective rent")
     cities = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     quadrants = forms.MultipleChoiceField(
         required=False, choices=Quadrant.choices, widget=forms.CheckboxSelectMultiple, label="Portland quadrant"

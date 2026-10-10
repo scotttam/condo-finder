@@ -13,6 +13,16 @@ PARKING_Q = {
 }
 PARKING_Q["yes_or_unknown"] = PARKING_Q["yes"] | PARKING_Q["unknown"]
 
+RANGE_LOOKUPS = [
+    ("max_beds", "beds__lte"), ("max_baths", "baths__lte"),
+    ("min_sqft", "sqft__gte"), ("max_sqft", "sqft__lte"),
+    ("min_effective", "effective_price__gte"), ("max_effective", "effective_price__lte"),
+]
+
+
+def ppsf_expr():
+    return ExpressionWrapper(Cast("price", FloatField()) / F("sqft"), output_field=FloatField())
+
 
 def _feature_q(field, choice):
     """Yes / No / Unknown / Yes or unknown (and furnished's older Hide / Only) as a Q; None means Any."""
@@ -33,15 +43,29 @@ def apply_filters(queryset, data, group):
         queryset = queryset.filter(beds__gte=data["min_beds"])
     if data.get("min_baths") is not None:
         queryset = queryset.filter(baths__gte=data["min_baths"])
+    parking = Q()
     if data.get("min_parking") is not None:
-        parking = Q(parking_spaces__gte=data["min_parking"])
+        parking &= Q(parking_spaces__gte=data["min_parking"])
+    if data.get("max_parking") is not None:
+        parking &= Q(parking_spaces__lte=data["max_parking"])
+    if parking:
         if data.get("parking_unknown"):
             parking |= Q(parking_spaces__isnull=True)
         queryset = queryset.filter(parking)
     if data.get("min_price") is not None:
         queryset = queryset.filter(price__gte=data["min_price"])
-    if data.get("max_price") is not None and data["max_price"] < PRICE_SLIDER_MAX:  # slider top = no max
+    # The home slider's top value means "no maximum"; a typed value above it (on Search) still filters.
+    if data.get("max_price") is not None and data["max_price"] != PRICE_SLIDER_MAX:
         queryset = queryset.filter(price__lte=data["max_price"])
+    for name, lookup in RANGE_LOOKUPS:
+        if data.get(name) is not None:
+            queryset = queryset.filter(**{lookup: data[name]})
+    if data.get("min_ppsf") is not None or data.get("max_ppsf") is not None:
+        queryset = queryset.alias(ppsf_value=ppsf_expr())
+        if data.get("min_ppsf") is not None:
+            queryset = queryset.filter(ppsf_value__gte=float(data["min_ppsf"]))
+        if data.get("max_ppsf") is not None:
+            queryset = queryset.filter(ppsf_value__lte=float(data["max_ppsf"]))
     bounds = [data.get(side) for side in ("north", "south", "east", "west")]
     if all(value is not None for value in bounds):
         north, south, east, west = bounds
@@ -105,6 +129,5 @@ def _sort(queryset, sort):
     if sort == "newest":
         return queryset.order_by("-first_seen_at")
     if sort == "ppsf":
-        per_sqft = ExpressionWrapper(Cast("price", FloatField()) / F("sqft"), output_field=FloatField())
-        return queryset.annotate(ppsf=per_sqft).order_by(F("ppsf").asc(nulls_last=True), "price")
+        return queryset.annotate(ppsf=ppsf_expr()).order_by(F("ppsf").asc(nulls_last=True), "price")
     return queryset.order_by(F("price").asc(nulls_last=True))
