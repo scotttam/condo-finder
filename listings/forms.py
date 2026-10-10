@@ -17,7 +17,15 @@ PARKING_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+")]
 FURNISHED_CHOICES = [*FEATURE_CHOICES, ("hide", "No or unknown"), ("only", "Furnished only")]
 VOTE_FILTER_CHOICES = [("any", "Any"), ("everyone_likes", "Everyone 👍"), ("someone_likes", "Someone 👍"),
                        ("disagree", "We disagree"), ("unvoted", "No votes yet")]
-SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
+SORT_FIELDS = {  # sort key -> label; each sorts both ways ("price" ascending, "-price" descending)
+    "price": "Price", "effective": "Effective rent", "ppsf": "$/sqft", "beds": "Beds", "baths": "Baths",
+    "sqft": "Sqft", "parking": "Parking", "dom": "Days on market", "drop": "Price drop", "address": "Address",
+    "area": "Area", "zip": "ZIP", "type": "Type", "sites": "Sites", "listed": "Listed", "first_seen": "First seen",
+    "last_seen": "Last seen", "status": "Status", "votes": "Votes",
+}
+SORT_CHOICES = [("newest", "Newest")] + [
+    choice for key, label in SORT_FIELDS.items() for choice in ((key, f"{label} ↑"), (f"-{key}", f"{label} ↓"))
+]
 SHORT_FEATURE_MENU = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
 # The home page's drawer keeps its short menus. Search shows every choice.
 HOME_MENUS = {
@@ -29,6 +37,21 @@ HOME_MENUS = {
 }
 SEARCH_MENU_FIELDS = ("wd", "ac", "outdoor", "furnished", "parking", "votes")
 SEARCH_MENU_SKIP = {"furnished": {"only"}}  # an alias of "yes"
+# Filters the home page has no control for. It keeps them as hidden inputs and shows a chip.
+SEARCH_ONLY_FIELDS = (
+    "max_beds", "max_baths", "max_parking", "min_sqft", "max_sqft", "min_ppsf", "max_ppsf", "min_effective",
+    "max_effective", "parking", "min_dom", "max_dom", "new_within", "gone_within", "listed_from", "listed_to",
+    "min_drop_amount", "min_drop_percent", "min_price_changes", "price_raised", "zips", "neighborhoods",
+    "min_sites", "has_photo", "has_location",
+)
+
+
+class OpenMultipleChoiceField(forms.MultipleChoiceField):
+    """A pick list built from the data. A value that's no longer listed still filters, so an old link or
+    saved search keeps working."""
+
+    def valid_value(self, value):
+        return bool(value) and len(value) <= 100
 
 
 def app_default_filters():
@@ -84,6 +107,11 @@ class ListingFilterForm(forms.Form):
         required=False, choices=Quadrant.choices, widget=forms.CheckboxSelectMultiple, label="Portland quadrant"
     )
     neighborhood = forms.CharField(required=False)
+    zips = OpenMultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple, label="ZIP codes")
+    neighborhoods = OpenMultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple, label="Neighborhoods")
+    min_sites = forms.IntegerField(required=False, min_value=1, label="Listed on at least (sites)")
+    has_photo = forms.BooleanField(required=False, label="Has a photo")
+    has_location = forms.BooleanField(required=False, label="On the map")
     sources = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     types = forms.MultipleChoiceField(required=False, choices=PropertyType.choices, widget=forms.CheckboxSelectMultiple)
     statuses = forms.MultipleChoiceField(required=False, choices=Status.choices, widget=forms.CheckboxSelectMultiple)
@@ -117,6 +145,22 @@ class ListingFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["cities"].choices = [(city, city) for city in settings.TARGET_CITIES]
         self.fields["sources"].choices = list(Source.objects.order_by("name").values_list("key", "name"))
+        active = Listing.objects.filter(is_active=True)
+        for name, column in (("zips", "zip_code"), ("neighborhoods", "neighborhood")):
+            values = set(active.exclude(**{column: ""}).values_list(column, flat=True).distinct())
+            values |= {value for value in self.raw_values(name) if value}
+            self.fields[name].choices = [(value, value) for value in sorted(values)]
+
+    def raw_values(self, name):
+        """The submitted values for a field as a list of strings (the data may be a QueryDict or a dict)."""
+        if not self.is_bound:
+            return []
+        if hasattr(self.data, "getlist"):
+            return self.data.getlist(name)
+        value = self.data.get(name)
+        if value in (None, ""):
+            return []
+        return [str(v) for v in value] if isinstance(value, (list, tuple)) else [str(value)]
 
     def _menu(self, name, choices):
         """Options for a select. A value from elsewhere (a Search link on the home page, say) is added, so the

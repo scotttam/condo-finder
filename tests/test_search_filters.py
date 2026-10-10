@@ -6,10 +6,11 @@ import pytest
 from django.utils import timezone
 
 from listings.filters import apply_filters, dom_expr
-from listings.forms import PRICE_SLIDER_MAX, ListingFilterForm
-from listings.models import Listing, PriceChange, PropertyType
+from listings.collab import set_vote
+from listings.forms import PRICE_SLIDER_MAX, SORT_CHOICES, ListingFilterForm
+from listings.models import Listing, PriceChange, PropertyType, SourceListing, Status, Vote
 from listings.specials import effective_rent
-from tests.helpers import home_group, make_listing
+from tests.helpers import home_group, make_listing, make_source, make_user
 
 pytestmark = pytest.mark.django_db
 
@@ -239,3 +240,79 @@ def test_price_movement_ignores_an_earlier_rental_listing():
     row.save()
     assert found(min_drop_amount=100) == set()
     assert found(min_price_changes=1) == set()
+
+
+def test_zips_and_neighborhoods_are_ored_within_and_anded_across():
+    listing("pearl-09", zip_code="97209", neighborhood="Pearl")
+    listing("nw-10", zip_code="97210", neighborhood="Northwest")
+    listing("pearl-10", zip_code="97210", neighborhood="Pearl")
+    listing("se", zip_code="97214", neighborhood="Buckman")
+    assert found(zips=["97209", "97210"]) == {"pearl-09", "nw-10", "pearl-10"}
+    assert found(zips=["97210"], neighborhoods=["Pearl", "Buckman"]) == {"pearl-10"}
+
+
+def test_zip_and_neighborhood_choices_come_from_active_listings():
+    listing("a", zip_code="97209", neighborhood="Pearl")
+    listing("gone", zip_code="97201", neighborhood="Goose Hollow", is_active=False)
+    form = ListingFilterForm({})
+    assert [value for value, _ in form.fields["zips"].choices] == ["97209"]
+    assert [value for value, _ in form.fields["neighborhoods"].choices] == ["Pearl"]
+
+
+def test_a_zip_no_longer_listed_still_filters_and_stays_picked():
+    listing("a", zip_code="97209")
+    form = ListingFilterForm({"zips": ["97299"]})
+    assert form.is_valid(), form.errors
+    assert ("97299", "97299") in form.fields["zips"].choices
+    assert found(zips=["97299"]) == set()
+
+
+def test_listed_on_n_sites_photo_and_location():
+    pearl, zillow = make_source("pearl"), make_source("zillow")
+    both = listing("both", photo_url="https://example.com/p.jpg", latitude=45.5, longitude=-122.6)
+    one = listing("one")
+    SourceListing.objects.create(listing=both, source=pearl, external_id="p1", url="https://p.example/1")
+    SourceListing.objects.create(listing=both, source=zillow, external_id="z1", url="https://z.example/1")
+    SourceListing.objects.create(listing=one, source=zillow, external_id="z2", url="https://z.example/2", is_active=False)
+    assert found(min_sites=2) == {"both"}
+    assert found(has_photo="on") == {"both"}
+    assert found(has_location="on") == {"both"}
+
+
+@pytest.mark.parametrize("sort", [value for value, _ in SORT_CHOICES])
+def test_every_sort_runs(sort):
+    listing("a", price=2500)
+    listing("b", price=3500, sqft=None)
+    form = ListingFilterForm({"sort": sort})
+    assert form.is_valid(), form.errors
+    assert sorted(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True)) == ["a", "b"]
+
+
+def ordered(sort):
+    form = ListingFilterForm({"sort": sort})
+    assert form.is_valid(), form.errors
+    return list(apply_filters(Listing.objects.all(), form.cleaned_data, home_group()).values_list("address_key", flat=True))
+
+
+def test_sort_by_status_follows_the_search_stages():
+    listing("rejected", status=Status.REJECTED)  # no statuses filter here, so rejected is included
+    listing("new")
+    listing("toured", status=Status.TOURED)
+    assert ordered("status") == ["new", "toured", "rejected"]
+    assert ordered("-status") == ["rejected", "toured", "new"]
+
+
+def test_sort_by_votes_and_area():
+    sam, alex = make_user("s@example.com", "S"), make_user("a@example.com", "A")
+    liked, mixed, plain = listing("liked", city="Portland"), listing("mixed", city="Beaverton"), listing("plain", city="Lake Oswego")
+    set_vote(liked, home_group(), sam, Vote.Value.UP)
+    set_vote(liked, home_group(), alex, Vote.Value.UP)
+    set_vote(mixed, home_group(), sam, Vote.Value.UP)
+    set_vote(mixed, home_group(), alex, Vote.Value.DOWN)
+    assert ordered("-votes") == ["liked", "mixed", "plain"]
+    assert ordered("area") == ["mixed", "plain", "liked"]
+
+
+def test_ties_break_by_id_so_pages_dont_repeat():
+    rows = [listing(f"same-{n}", price=3000) for n in range(3)]
+    assert ordered("price") == [row.address_key for row in rows]

@@ -6,7 +6,7 @@ from django.db.models.functions import Cast, Coalesce, Least, TruncDate
 from django.utils import timezone
 
 from .forms import PRICE_SLIDER_MAX
-from .models import PriceChange, Vote
+from .models import PriceChange, SourceListing, Status, Vote
 
 FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space", "furnished": "is_furnished"}
 
@@ -64,6 +64,12 @@ def price_change_count():
     return Coalesce(Subquery(changes, output_field=IntegerField()), 0)
 
 
+def active_site_count():
+    sites = (SourceListing.objects.filter(listing=OuterRef("pk"), is_active=True)
+             .order_by().values("listing").annotate(n=Count("pk")).values("n"))
+    return Coalesce(Subquery(sites, output_field=IntegerField()), 0)
+
+
 def _feature_q(field, choice):
     """Yes / No / Unknown / Yes or unknown (and furnished's older Hide / Only) as a Q; None means Any."""
     return {
@@ -116,6 +122,16 @@ def apply_filters(queryset, data, group):
         queryset = queryset.filter(quadrant__in=data["quadrants"])
     if data.get("neighborhood"):
         queryset = queryset.filter(neighborhood__icontains=data["neighborhood"])
+    if data.get("zips"):
+        queryset = queryset.filter(zip_code__in=data["zips"])
+    if data.get("neighborhoods"):
+        queryset = queryset.filter(neighborhood__in=data["neighborhoods"])
+    if data.get("min_sites"):
+        queryset = queryset.alias(site_count=active_site_count()).filter(site_count__gte=data["min_sites"])
+    if data.get("has_photo"):
+        queryset = queryset.exclude(photo_url="")
+    if data.get("has_location"):
+        queryset = queryset.filter(latitude__isnull=False, longitude__isnull=False)
     if data.get("sources"):
         queryset = queryset.filter(source_listings__source__key__in=data["sources"]).distinct()
     if data.get("types"):
@@ -163,7 +179,7 @@ def apply_filters(queryset, data, group):
             queryset = queryset.filter(listed_day__gte=data["listed_from"])
         if data.get("listed_to"):
             queryset = queryset.filter(listed_day__lte=data["listed_to"])
-    return _sort(queryset, data.get("sort") or "price")
+    return _sort(queryset, data, group)
 
 
 def _vote_count(group, value):
@@ -186,11 +202,60 @@ def _filter_votes(queryset, choice, group):
     return queryset
 
 
-def _sort(queryset, sort):
-    if sort == "-price":
-        return queryset.order_by(F("price").desc(nulls_last=True))
-    if sort == "newest":
-        return queryset.order_by("-first_seen_at")
-    if sort == "ppsf":
-        return queryset.annotate(ppsf=ppsf_expr()).order_by(F("ppsf").asc(nulls_last=True), "price")
-    return queryset.order_by(F("price").asc(nulls_last=True))
+def _fields(*names):
+    return lambda queryset, group: (queryset, [F(name) for name in names])
+
+
+def _sort_drop(queryset, group):
+    queryset = _with_price_range(queryset)
+    return queryset, [Coalesce(F("peak_price") - F("price"), 0)]
+
+
+def _sort_status(queryset, group):
+    from .collab import status_expr
+
+    queryset = queryset.alias(sort_status=status_expr(group))
+    stages = Case(*[When(sort_status=value, then=Value(rank)) for rank, value in enumerate(Status.values)],
+                  output_field=IntegerField())
+    return queryset, [stages]
+
+
+def _sort_votes(queryset, group):
+    up, down = _vote_count(group, Vote.Value.UP), _vote_count(group, Vote.Value.DOWN)
+    return queryset, [up - down, up]
+
+
+SORTS = {
+    "price": _fields("price"),
+    "effective": _fields("effective_price"),
+    "ppsf": lambda queryset, group: (queryset, [ppsf_expr(), F("price")]),
+    "beds": _fields("beds", "baths"),
+    "baths": _fields("baths", "beds"),
+    "sqft": _fields("sqft"),
+    "parking": _fields("parking_spaces"),
+    "dom": lambda queryset, group: (queryset, [dom_expr()]),
+    "drop": _sort_drop,
+    "address": _fields("street", "unit"),
+    "area": _fields("city", "quadrant", "neighborhood"),
+    "zip": _fields("zip_code"),
+    "type": _fields("property_type"),
+    "sites": lambda queryset, group: (queryset, [active_site_count()]),
+    "listed": lambda queryset, group: (queryset, [first_day_expr()]),
+    "first_seen": _fields("first_seen_at"),
+    "last_seen": _fields("last_seen_at"),
+    "status": _sort_status,
+    "votes": _sort_votes,
+}
+
+
+def _sort(queryset, data, group):
+    sort = data.get("sort") or "price"
+    descending = sort.startswith("-")
+    key = sort.lstrip("-")
+    if key == "newest":
+        key, descending = "first_seen", True
+    if key not in SORTS:
+        key, descending = "price", False
+    queryset, expressions = SORTS[key](queryset, group)
+    order = [e.desc(nulls_last=True) if descending else e.asc(nulls_last=True) for e in expressions]
+    return queryset.order_by(*order, "pk")  # pk breaks ties, so pages never repeat or skip a listing

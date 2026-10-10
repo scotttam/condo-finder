@@ -1,5 +1,6 @@
 from datetime import date
 
+from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -56,7 +57,6 @@ def listing_list(request):
     })
 
 
-MULTI_VALUE_FILTERS = ("cities", "quadrants", "sources", "types", "statuses")
 AREA_FILTERS = ("north", "south", "east", "west")  # "Search this area" isn't a default
 
 
@@ -67,8 +67,8 @@ def save_default_filters(request):
     if not form.is_valid():
         return HttpResponseBadRequest("invalid filters")
     request.group.default_filters = {
-        name: request.POST.getlist(name) if name in MULTI_VALUE_FILTERS else request.POST.get(name, "")
-        for name in form.fields
+        name: request.POST.getlist(name) if isinstance(field, forms.MultipleChoiceField) else request.POST.get(name, "")
+        for name, field in form.fields.items()
         if name not in AREA_FILTERS
     }
     request.group.save(update_fields=["default_filters"])

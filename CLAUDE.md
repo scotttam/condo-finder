@@ -21,7 +21,10 @@ how to continue it.
   350-per-query cap was dropping the older half of Portland's rentals) plus an `is_enabled`/editable-name
   `Source` admin; #74 a warning when a Zillow city hits its 20-page cap; #75 the Trends "Worth exploring"
   section (five untouched taste-matched listings). **Open:** pause the Trends analysis with `TRENDS_ENABLED=0`
-  (each run costs ~$1). 758 tests pass. (PR #76)
+  (each run costs ~$1). (PR #76)
+- **Open: Advanced search stack** (spec `docs/superpowers/specs/2026-10-10-advanced-search-decisions.md`, plan
+  `docs/superpowers/plans/2026-10-10-advanced-search.md`): PR 1/5 new filters in the shared filter engine.
+  847 tests pass.
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -152,6 +155,8 @@ its own data. Production data lives only on the Mac mini.
   value; `Listing.special_offer` holds the sentence. Unlike features, it's re-read from the listing's
   current text on every update, so it clears when a site drops it (admin override `special_offer: ""`
   silences a false match). `effective_rent` spreads the offer over a 12-month lease.
+  `Listing.effective_price` stores it (the price when there's no valued special); `Listing.save()` keeps it
+  current, even with `update_fields`.
 - `listings/extract.py` and `parsing.py` parse parking, W/D, AC, outdoor space, furnished and property
   type from listing text. `is_furnished` stays unknown when a listing is offered either way ("furnished
   or unfurnished", "furnished if desired") or when the phrase is about the building ("Furnished
@@ -199,6 +204,12 @@ its own data. Production data lives only on the Mac mini.
   $2,000 minimum, apartments and rejected hidden, Votes: Any) is where a new group starts;
   `default_filter_data(group)` lays the group's saved defaults (`SearchGroup.default_filters`, set by
   "Save as our defaults") over them. The owners' group got the old hard-coded defaults as its saved copy.
+  It also holds the Search page's filters (size/price/time ranges, tri-state features including `parking`,
+  ZIP and neighborhood pick lists, sites, photo, map). `SEARCH_ONLY_FIELDS` lists the ones the home page has no
+  control for; `home_menus` keeps the home drawer's short menus and adds a value set elsewhere so it isn't dropped.
+- `listings/filters.py`: `apply_filters` runs every filter; `dom_expr()`/`first_day_expr()` mirror
+  `Listing.days_on_market` in SQL; `SORTS` holds every sort (ties break by pk); price movement uses
+  `_with_price_range` (peak/low during the current rental listing).
 - `deploy/`: `install.sh`, the launchd plist template, `launchd-restart.sh` (waits for bootout
   before bootstrapping) and `gunicorn.conf.py`.
 - Design docs: `docs/superpowers/specs/` and `plans/`. Architecture diagrams: `docs/architecture.html`.
@@ -265,6 +276,7 @@ reapply that line or save the summary by hand.
 
 ## Gotchas
 
+- `max_price` equal to `PRICE_SLIDER_MAX` (8000) means no maximum (the home slider's top); any other value filters.
 - Group state (status, comments, votes) isn't on `Listing`. Use `collab.decorate()` before rendering
   listings, and pass the group to `apply_filters`.
 - Data migrations that need the owners' group take the oldest `SearchGroup`.
