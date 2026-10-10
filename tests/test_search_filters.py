@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from listings.filters import apply_filters, dom_expr
 from listings.forms import PRICE_SLIDER_MAX, ListingFilterForm
-from listings.models import Listing, PropertyType
+from listings.models import Listing, PriceChange, PropertyType
 from listings.specials import effective_rent
 from tests.helpers import home_group, make_listing
 
@@ -204,3 +204,38 @@ def test_listed_date_range_uses_the_listings_start():
     listing("seen-in-oct", first_seen_at=timezone.make_aware(datetime(2026, 10, 3, 12)))
     assert found(listed_from="2026-09-01", listed_to="2026-09-30") == {"listed-in-sept"}
     assert found(listed_from="2026-10-01") == {"seen-in-oct"}
+
+
+def with_history(key, prices, **fields):
+    """A listing whose history ran through prices (first is the listing price), ending at the last one."""
+    row = listing(key, price=prices[-1], **fields)
+    for n, price in enumerate(prices):
+        PriceChange.objects.create(listing=row, price=price, seen_at=days_ago(len(prices) - n),
+                                   event="Listed for rent" if n == 0 else "Price change")
+    return row
+
+
+def test_drop_by_amount_and_percent():
+    with_history("small-cut", [3000, 2950])      # $50, 1.7%
+    with_history("big-cut", [3000, 2700])        # $300, 10%
+    with_history("never-cut", [3000])
+    assert found(min_drop_amount=100) == {"big-cut"}
+    assert found(min_drop_percent=5) == {"big-cut"}
+    assert found(min_drop_amount=25, min_drop_percent=1) == {"small-cut", "big-cut"}
+
+
+def test_number_of_price_changes_and_price_went_up():
+    with_history("twice", [3000, 2900, 2800])
+    with_history("raised", [3000, 2800, 2950])
+    with_history("once", [3000, 3100])
+    with_history("never", [3000])
+    assert found(min_price_changes=2) == {"twice", "raised"}
+    assert found(price_raised="on") == {"raised", "once"}
+
+
+def test_price_movement_ignores_an_earlier_rental_listing():
+    row = with_history("relisted", [3500, 2800])
+    row.listed_at = timezone.localdate()  # a new listing started today, after both entries
+    row.save()
+    assert found(min_drop_amount=100) == set()
+    assert found(min_price_changes=1) == set()

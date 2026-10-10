@@ -1,12 +1,12 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
-from django.db.models import (Case, Count, DateField, ExpressionWrapper, F, FloatField, Func, IntegerField, Max, OuterRef, Q,
+from django.db.models import (Case, Count, DateField, ExpressionWrapper, F, FloatField, Func, IntegerField, Max, Min, OuterRef, Q,
                               Subquery, Value, When)
 from django.db.models.functions import Cast, Coalesce, Least, TruncDate
 from django.utils import timezone
 
 from .forms import PRICE_SLIDER_MAX
-from .models import Vote
+from .models import PriceChange, Vote
 
 FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space", "furnished": "is_furnished"}
 
@@ -44,6 +44,24 @@ def dom_expr():
     end = Case(When(is_active=True, then=Value(timezone.localdate())), default=TruncDate("last_seen_at"),
                output_field=DateField())
     return Cast(JulianDay(end) - JulianDay(first_day_expr()), IntegerField())
+
+
+def _with_price_range(queryset):
+    """Annotates peak_price and low_price during the current rental listing (all history when the listed date
+    is unknown). Safe to call twice."""
+    if "peak_price" in queryset.query.annotations:
+        return queryset
+    in_current_listing = Q(listed_at__isnull=True) | Q(price_changes__seen_at__date__gte=F("listed_at"))
+    return queryset.annotate(peak_price=Max("price_changes__price", filter=in_current_listing),
+                             low_price=Min("price_changes__price", filter=in_current_listing))
+
+
+def price_change_count():
+    """How many times a site changed the price during the current rental listing."""
+    since = Coalesce(OuterRef("listed_at"), Value(date(1900, 1, 1)), output_field=DateField())
+    changes = (PriceChange.objects.filter(listing=OuterRef("pk"), event="Price change", seen_at__date__gte=since)
+               .order_by().values("listing").annotate(n=Count("pk")).values("n"))
+    return Coalesce(Subquery(changes, output_field=IntegerField()), 0)
 
 
 def _feature_q(field, choice):
@@ -111,11 +129,17 @@ def apply_filters(queryset, data, group):
     if data.get("specials"):
         queryset = queryset.exclude(special_offer="")
     if data.get("price_reduced"):
-        # Peak price during the current rental listing (all history when the listed date is unknown).
-        in_current_listing = Q(listed_at__isnull=True) | Q(price_changes__seen_at__date__gte=F("listed_at"))
-        queryset = queryset.annotate(peak_price=Max("price_changes__price", filter=in_current_listing)).filter(
-            peak_price__gt=F("price")
-        )
+        queryset = _with_price_range(queryset).filter(peak_price__gt=F("price"))
+    if data.get("min_drop_amount"):
+        queryset = _with_price_range(queryset).filter(peak_price__gte=F("price") + data["min_drop_amount"])
+    if data.get("min_drop_percent"):
+        drop_x100 = ExpressionWrapper((F("peak_price") - F("price")) * 100, output_field=IntegerField())
+        queryset = (_with_price_range(queryset).alias(drop_x100=drop_x100)
+                    .filter(drop_x100__gte=F("peak_price") * data["min_drop_percent"]))
+    if data.get("price_raised"):
+        queryset = _with_price_range(queryset).filter(low_price__lt=F("price"))
+    if data.get("min_price_changes"):
+        queryset = queryset.alias(change_count=price_change_count()).filter(change_count__gte=data["min_price_changes"])
     for key, field in FEATURE_FIELDS.items():
         condition = _feature_q(field, data.get(key))
         if condition is not None:
