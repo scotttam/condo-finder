@@ -1,9 +1,12 @@
+import csv
+import io
 import re
 from decimal import Decimal
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from listings.models import FeedEvent, Vote
 from tests.helpers import make_listing
 
 pytestmark = pytest.mark.django_db
@@ -115,3 +118,77 @@ def test_phone_layout_has_a_filters_drawer_and_compact_cards(client):
     assert '<button type="button" class="filters-done" data-filters-toggle>Show results</button>' in content
     assert '<td class="m-card"><a class="m-card-link"' in content.replace("\n", "")
     assert "@media (max-width: 700px)" in content
+
+
+def test_column_choices_are_saved_per_person_and_follow_them(client, owner, member_client):
+    good("fits", zip_code="97209")
+    response = client.post("/search/columns/", {"cols": ["address", "price", "zip"], "query": "q=&sort=-price&page=2"},
+                           HTTP_HX_REQUEST="true")
+    assert response["HX-Redirect"] == "/search/?q=&sort=-price"
+    owner.profile.refresh_from_db()
+    assert owner.profile.search_columns == ["address", "price", "zip"]
+    content = page(client, "?q=")
+    assert re.search(r'<td class="col-zip">\s*97209\s*</td>', content) and '<td class="col-sqft">' not in content
+    assert '<td class="col-sqft">' in member_client.get("/search/?q=").content.decode()  # Alex still has the defaults
+
+
+def test_reset_brings_back_the_default_columns(client, owner):
+    client.post("/search/columns/", {"cols": ["address"], "query": ""})
+    client.post("/search/columns/", {"reset": "1", "query": ""})
+    owner.profile.refresh_from_db()
+    assert owner.profile.search_columns == []
+
+
+def test_columns_in_a_link_win_and_are_kept_while_filtering(client):
+    good("fits", zip_code="97209")
+    content = page(client, "?q=&cols=address,zip")
+    assert re.search(r'<td class="col-zip">\s*97209\s*</td>', content) and '<td class="col-price">' not in content
+    assert '<input type="hidden" name="cols" value="address,zip">' in content
+    assert "Keep these columns" in content
+
+
+def test_unknown_columns_are_ignored(client):
+    good("fits")
+    assert '<td class="col-price">' in page(client, "?q=&cols=nonsense")
+
+
+def test_csv_exports_every_match_with_the_same_filters(client):
+    for n in range(105):
+        good(f"fits-{n:03}", price=3000 + n)
+    good("one-bed", beds=1)
+    response = client.get("/search/csv/?min_beds=2&sort=price")
+    assert response["Content-Type"] == "text/csv; charset=utf-8"
+    assert response["Content-Disposition"].startswith('attachment; filename="search-')
+    rows = list(csv.reader(io.StringIO(response.content.decode())))
+    assert rows[0][:3] == ["Address", "Unit", "City"] and rows[0][-1] == "Link"
+    assert len(rows) == 106  # header + every match, not just a page
+    assert rows[1][rows[0].index("Price")] == "3000"
+    assert "/listing/" in rows[1][-1] and rows[1][-1].startswith("http")
+
+
+def test_search_page_links_to_its_csv(client):
+    good("fits")
+    content = page(client, "?q=balcony")
+    assert re.search(r'<a class="csv-link" href="/search/csv/\?[^"]*q=balcony', content)
+
+
+def test_rows_have_a_status_menu_and_vote_buttons(client):
+    row = good("fits")
+    content = page(client, "?q=")
+    assert re.search(rf'<form id="status-menu-{row.pk}" class="status-menu"[^>]*hx-trigger="change"', content)
+    assert f'<form class="votes" id="votes-{row.pk}"' in content
+
+
+def test_changing_status_from_the_menu_saves_and_tells_the_group(client):
+    row = good("fits")
+    response = client.post(f"/listing/{row.pk}/status/", {"status": "toured", "variant": "menu"}, HTTP_HX_REQUEST="true")
+    html = response.content.decode()
+    assert f'<form id="status-menu-{row.pk}"' in html and '<option value="toured" selected>Toured</option>' in html
+    assert FeedEvent.objects.filter(listing=row, kind=FeedEvent.Kind.STATUS).exists()
+
+
+def test_voting_from_a_row(client):
+    row = good("fits")
+    client.post(f"/listing/{row.pk}/vote/", {"value": "up"}, HTTP_HX_REQUEST="true")
+    assert Vote.objects.filter(listing=row).count() == 1
+    assert re.search(r'class="vote mine" aria-pressed="true"[^>]*>👍 1', page(client, "?q="))

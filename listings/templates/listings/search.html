@@ -15,6 +15,7 @@
   <input type="hidden" name="south" value="{{ form.south.value|default_if_none:'' }}">
   <input type="hidden" name="east" value="{{ form.east.value|default_if_none:'' }}">
   <input type="hidden" name="west" value="{{ form.west.value|default_if_none:'' }}">
+  {% if cols_param %}<input type="hidden" name="cols" value="{{ cols_param }}">{% endif %}
 
   <div class="search-keywords">
     <label class="panel-title" for="search-q">Keywords</label>
@@ -94,7 +95,28 @@
   <div class="results-bar">
     <p class="muted">{{ page_obj.paginator.count|intcomma }} listing{{ page_obj.paginator.count|pluralize }}
       {% if page_obj.paginator.num_pages > 1 %}· showing {{ page_obj.start_index }}–{{ page_obj.end_index }}{% endif %}</p>
+    <div class="results-controls">
+      <a class="csv-link" href="{% url 'search_csv' %}?{{ query }}" download>Download CSV</a>
+      <details class="chip columns-menu">
+        <summary>Columns</summary>
+        <form class="chip-panel" method="post" action="{% url 'search_columns' %}" hx-post="{% url 'search_columns' %}" hx-trigger="change, submit">
+          {% csrf_token %}
+          <input type="hidden" name="query" value="{{ query }}">
+          <div class="check-list columns">
+            {% for column in all_columns %}<label><input type="checkbox" name="cols" value="{{ column.key }}"{% if column.key in column_keys %} checked{% endif %}> {{ column.label }}</label>{% endfor %}
+          </div>
+          <button type="submit" name="reset" value="1" class="link">Back to the default columns</button>
+        </form>
+      </details>
+    </div>
   </div>
+  {% if cols_param %}
+  <form class="panel notice" method="post" action="{% url 'search_columns' %}">
+    {% csrf_token %}<input type="hidden" name="query" value="{{ query }}">
+    {% for key in column_keys %}<input type="hidden" name="cols" value="{{ key }}">{% endfor %}
+    This link chose its own columns. <button type="submit" class="link">Keep these columns as mine</button>
+  </form>
+  {% endif %}
   <div class="table-wrap">
   <table class="listing-table search-table">
     <thead><tr>
@@ -129,6 +151,9 @@
         htmx.trigger(searchForm, "change");
       }
       if (event.target.closest("[data-filters-toggle]")) document.body.classList.toggle("filters-open");
+      if (!event.target.closest("details.columns-menu")) {
+        document.querySelectorAll("details.columns-menu[open]").forEach(menu => menu.open = false);
+      }
     });
   }
 </script>

@@ -5,6 +5,8 @@ from . import collab_views, search_views, sql_views, views
 urlpatterns = [
     path("", views.listing_list, name="listing_list"),
     path("search/", search_views.search_page, name="search"),
+    path("search/columns/", search_views.save_columns, name="search_columns"),
+    path("search/csv/", search_views.search_csv, name="search_csv"),
     path("listing/<int:pk>/", views.listing_detail, name="listing_detail"),
     path("listing/<int:pk>/vote/", collab_views.vote, name="vote"),
     path("listing/<int:pk>/comments/", collab_views.comment_list, name="comment_list"),

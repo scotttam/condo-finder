@@ -286,7 +286,8 @@ def set_status(request, pk):
     collab.set_status(listing, request.group, request.user, status)
     collab.decorate([listing], request.group, request.user)
     if request.headers.get("HX-Request"):
-        template = "listings/_status_pills.html" if request.POST.get("variant") == "pills" else "listings/_status.html"
+        templates = {"pills": "listings/_status_pills.html", "menu": "listings/_status_menu.html"}
+        template = templates.get(request.POST.get("variant"), "listings/_status.html")
         return render(request, template, {"listing": listing})
     referer = request.META.get("HTTP_REFERER", "")
     if url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}):
