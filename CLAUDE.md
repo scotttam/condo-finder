@@ -24,7 +24,7 @@ how to continue it.
   (each run costs ~$1). (PR #76)
 - **Open: Advanced search stack** (spec `docs/superpowers/specs/2026-10-10-advanced-search-decisions.md`, plan
   `docs/superpowers/plans/2026-10-10-advanced-search.md`): #78 (1/5) new filters in the shared filter engine;
-  #79 (2/5) keyword search; PR 3/5 the Search page. 906 tests pass.
+  #79 (2/5) keyword search; #80 (3/5) the Search page; PR 4/5 columns, CSV, inline status and votes. 916 tests pass.
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -214,6 +214,9 @@ its own data. Production data lives only on the Mac mini.
   band); the form uses `hx-sync="this:queue last"` because clicking a header blurs the keyword box, and
   `replace` aborted that request (htmx logs aborts as console errors). Below 700px rows become cards
   (`td.m-card`) and the panel a drawer. `search_columns.py` is the column registry.
+  Columns: `Profile.search_columns` (empty = defaults); `?cols=a,b` in a link wins and is kept while filtering.
+  CSV (`/search/csv/`) exports every match with fixed `CSV_FIELDS`; `csv_cell` stops spreadsheet formulas. Rows
+  have the status menu (`set_status` variant `menu`) and vote buttons.
 - `listings/search_index.py`: keyword search. `listing_search` is an FTS5 table (external content on
   `listings_listing`) kept in sync by triggers from migration 0023, so even `QuerySet.update` is covered.
   `parse()` turns Google-style input (phrases, `-exclude`, `OR`, `prefix*`) into FTS5 built only from quoted

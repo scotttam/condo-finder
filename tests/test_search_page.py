@@ -6,6 +6,7 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from listings.models import FeedEvent, Vote
 from tests.helpers import make_listing
 
 pytestmark = pytest.mark.django_db
@@ -169,3 +170,25 @@ def test_search_page_links_to_its_csv(client):
     good("fits")
     content = page(client, "?q=balcony")
     assert re.search(r'<a class="csv-link" href="/search/csv/\?[^"]*q=balcony', content)
+
+
+def test_rows_have_a_status_menu_and_vote_buttons(client):
+    row = good("fits")
+    content = page(client, "?q=")
+    assert re.search(rf'<form id="status-menu-{row.pk}" class="status-menu"[^>]*hx-trigger="change"', content)
+    assert f'<form class="votes" id="votes-{row.pk}"' in content
+
+
+def test_changing_status_from_the_menu_saves_and_tells_the_group(client):
+    row = good("fits")
+    response = client.post(f"/listing/{row.pk}/status/", {"status": "toured", "variant": "menu"}, HTTP_HX_REQUEST="true")
+    html = response.content.decode()
+    assert f'<form id="status-menu-{row.pk}"' in html and '<option value="toured" selected>Toured</option>' in html
+    assert FeedEvent.objects.filter(listing=row, kind=FeedEvent.Kind.STATUS).exists()
+
+
+def test_voting_from_a_row(client):
+    row = good("fits")
+    client.post(f"/listing/{row.pk}/vote/", {"value": "up"}, HTTP_HX_REQUEST="true")
+    assert Vote.objects.filter(listing=row).count() == 1
+    assert re.search(r'class="vote mine" aria-pressed="true"[^>]*>👍 1', page(client, "?q="))

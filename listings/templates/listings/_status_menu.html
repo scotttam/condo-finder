@@ -1,0 +1,10 @@
+{# The group's status as a compact menu for table rows. Saves on change; set_status swaps this form back in. #}
+<form id="status-menu-{{ listing.pk }}" class="status-menu" method="post" action="{% url 'set_status' listing.pk %}"
+      hx-post="{% url 'set_status' listing.pk %}" hx-trigger="change" hx-target="this" hx-swap="outerHTML">
+  {% csrf_token %}
+  <input type="hidden" name="variant" value="menu">
+  <select name="status" aria-label="Status" class="status-{{ listing.group_status }}">
+    {% for value, label in listing.STATUS_CHOICES %}<option value="{{ value }}"{% if listing.group_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <noscript><button type="submit">Save</button></noscript>
+</form>

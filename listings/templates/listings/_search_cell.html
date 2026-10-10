@@ -14,8 +14,8 @@
 {% elif column == "parking" %}{% if listing.parking_spaces is not None %}{{ listing.parking_spaces }}{% elif listing.has_parking %}Yes (spaces ?){% elif listing.has_parking is False %}None{% else %}?{% endif %}
 {% elif column == "features" %}{% include "listings/_feature.html" with label="W/D" value=listing.has_washer_dryer %}{% include "listings/_feature.html" with label="AC" value=listing.has_ac %}{% include "listings/_feature.html" with label="Outdoor" value=listing.has_outdoor_space %}{% include "listings/_furnished.html" %}
 {% elif column == "dom" %}{{ listing.days_on_market }}d
-{% elif column == "status" %}<span class="status status-{{ listing.group_status }}">{{ listing.group_status_label }}</span>
-{% elif column == "votes" %}{% if listing.up_count %}👍 {{ listing.up_count }}{% endif %} {% if listing.down_count %}👎 {{ listing.down_count }}{% endif %}
+{% elif column == "status" %}{% include "listings/_status_menu.html" %}
+{% elif column == "votes" %}{% include "listings/_votes.html" %}
 {% elif column == "effective" %}{% if listing.effective_rent %}${{ listing.effective_rent|intcomma }}{% else %}–{% endif %}
 {% elif column == "drop" %}{% if listing.price_drop %}${{ listing.price_drop|intcomma }} ({{ listing.price_drop_percent }}%){% else %}–{% endif %}
 {% elif column == "special" %}{% if listing.special_offer %}{% include "listings/_special.html" %}{% else %}–{% endif %}
