@@ -354,3 +354,12 @@ def test_daily_run_is_skipped_when_trends_disabled(settings, monkeypatch):
     settings.TRENDS_ENABLED = False
     monkeypatch.setattr(analyst, "due_today", lambda: pytest.fail("should not compute due groups when disabled"))
     assert analyst.run_daily_if_due() is False
+
+
+def test_near_misses_keep_no_maximum_when_the_defaults_have_none():
+    from listings.analyst import _relaxed_filter_data
+    from listings.forms import PRICE_SLIDER_MAX
+
+    group = home_group()
+    group.default_filters = {**group.default_filters, "max_price": str(PRICE_SLIDER_MAX)}  # the slider's "no max"
+    assert _relaxed_filter_data(group)["max_price"] == str(PRICE_SLIDER_MAX)

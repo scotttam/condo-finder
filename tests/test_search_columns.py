@@ -32,3 +32,15 @@ def test_csv_cells_never_start_a_formula():
     assert csv_cell("=HYPERLINK(\"x\")") == "'=HYPERLINK(\"x\")"
     assert csv_cell("+1") == "'+1" and csv_cell("-1") == "'-1" and csv_cell("@sum") == "'@sum"
     assert csv_cell("821 NW 11th") == "821 NW 11th" and csv_cell(3000) == 3000 and csv_cell(None) == ""
+
+
+def test_csv_dates_are_local_days():
+    from datetime import datetime, timezone as dt_timezone
+    from types import SimpleNamespace
+
+    from listings.search_columns import CSV_FIELDS
+
+    evening = datetime(2026, 10, 3, 4, 30, tzinfo=dt_timezone.utc)  # 9:30 pm Oct 2 in Portland
+    row = SimpleNamespace(first_seen_at=evening, last_seen_at=evening)
+    values = {label: value(row) for label, value in CSV_FIELDS if label in ("First seen", "Last seen")}
+    assert {str(v) for v in values.values()} == {"2026-10-02"}

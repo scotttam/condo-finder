@@ -44,3 +44,11 @@ def test_cols_and_saved_in_a_link_dont_count_as_filters_on_home(client):
     good("one-bed", beds=1)
     keys = {listing.address_key for listing in client.get("/?cols=address&saved=3").context["listings"]}
     assert keys == {"fits"}  # still the defaults
+
+
+def test_a_bad_value_on_the_home_page_skips_only_that_filter(client):
+    good("three-bed", beds=3)
+    good("one-bed", beds=1)
+    good("gone", beds=3, is_active=False)
+    keys = {listing.address_key for listing in client.get("/?min_beds=3&min_sqft=abc").context["listings"]}
+    assert keys == {"three-bed"}

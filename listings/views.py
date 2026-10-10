@@ -39,8 +39,8 @@ def listing_list(request):
     has_filters = any(key not in NON_FILTER_PARAMS for key in request.GET)
     form = ListingFilterForm(request.GET if has_filters else default_filter_data(request.group))
     queryset = Listing.objects.all()
-    if form.is_valid():
-        queryset = apply_filters(queryset, form.cleaned_data, request.group)
+    form.is_valid()  # a bad value (say from a Search link) drops that one filter: cleaned_data keeps the rest
+    queryset = apply_filters(queryset, form.cleaned_data, request.group)
     page_obj = Paginator(queryset.prefetch_related("source_listings__source", "price_changes"), PAGE_SIZE).get_page(
         request.GET.get("page")
     )

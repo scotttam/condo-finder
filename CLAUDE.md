@@ -26,7 +26,7 @@ how to continue it.
   plan `docs/superpowers/plans/2026-10-10-advanced-search.md`): new filters, keyword search (FTS5), the `/search/`
   page, columns/CSV/inline status and votes, group saved searches and the home page's "more filters from Search"
   chip. After merging, deploy: migrations listings 0022–0024 and accounts 0007; 0023 builds the keyword index for
-  every listing. 927 tests pass.
+  every listing. 930 tests pass.
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
