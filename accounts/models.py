@@ -28,6 +28,7 @@ class Profile(models.Model):
     display_name = models.CharField(max_length=60)
     joined_at = models.DateTimeField(default=timezone.now)
     feed_seen_at = models.DateTimeField(null=True, blank=True)  # the Feed's unread line, synced across devices
+    search_columns = models.JSONField(default=list, blank=True)  # the Search table's columns; empty = the defaults
 
     class Meta:
         ordering = ["joined_at", "pk"]

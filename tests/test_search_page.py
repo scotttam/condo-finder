@@ -115,3 +115,35 @@ def test_phone_layout_has_a_filters_drawer_and_compact_cards(client):
     assert '<button type="button" class="filters-done" data-filters-toggle>Show results</button>' in content
     assert '<td class="m-card"><a class="m-card-link"' in content.replace("\n", "")
     assert "@media (max-width: 700px)" in content
+
+
+def test_column_choices_are_saved_per_person_and_follow_them(client, owner, member_client):
+    good("fits", zip_code="97209")
+    response = client.post("/search/columns/", {"cols": ["address", "price", "zip"], "query": "q=&sort=-price&page=2"},
+                           HTTP_HX_REQUEST="true")
+    assert response["HX-Redirect"] == "/search/?q=&sort=-price"
+    owner.profile.refresh_from_db()
+    assert owner.profile.search_columns == ["address", "price", "zip"]
+    content = page(client, "?q=")
+    assert re.search(r'<td class="col-zip">\s*97209\s*</td>', content) and '<td class="col-sqft">' not in content
+    assert '<td class="col-sqft">' in member_client.get("/search/?q=").content.decode()  # Alex still has the defaults
+
+
+def test_reset_brings_back_the_default_columns(client, owner):
+    client.post("/search/columns/", {"cols": ["address"], "query": ""})
+    client.post("/search/columns/", {"reset": "1", "query": ""})
+    owner.profile.refresh_from_db()
+    assert owner.profile.search_columns == []
+
+
+def test_columns_in_a_link_win_and_are_kept_while_filtering(client):
+    good("fits", zip_code="97209")
+    content = page(client, "?q=&cols=address,zip")
+    assert re.search(r'<td class="col-zip">\s*97209\s*</td>', content) and '<td class="col-price">' not in content
+    assert '<input type="hidden" name="cols" value="address,zip">' in content
+    assert "Keep these columns" in content
+
+
+def test_unknown_columns_are_ignored(client):
+    good("fits")
+    assert '<td class="col-price">' in page(client, "?q=&cols=nonsense")
