@@ -1,0 +1,135 @@
+{% extends "listings/base.html" %}
+{% load humanize %}
+{% block title %}Search · Condo Finder{% endblock %}
+{% block content %}
+<div class="search-head">
+  <h1>Search</h1>
+  <a class="clear-all" href="{{ clear_url }}">Clear all</a>
+  <button type="button" class="filters-toggle" data-filters-toggle aria-controls="search-filters">Filters <span id="filter-count">({{ filter_count }})</span></button>
+</div>
+
+<form id="search-filters" class="search-panel" method="get" action="{% url 'search' %}"
+      hx-get="{% url 'search' %}" hx-target="#results" hx-select="#results" hx-select-oob="#filter-count" hx-swap="outerHTML"
+      hx-push-url="true" hx-trigger="change, input delay:400ms" hx-sync="this:queue last" hx-indicator="#results">
+  <input type="hidden" name="north" value="{{ form.north.value|default_if_none:'' }}">
+  <input type="hidden" name="south" value="{{ form.south.value|default_if_none:'' }}">
+  <input type="hidden" name="east" value="{{ form.east.value|default_if_none:'' }}">
+  <input type="hidden" name="west" value="{{ form.west.value|default_if_none:'' }}">
+
+  <div class="search-keywords">
+    <label class="panel-title" for="search-q">Keywords</label>
+    <input id="search-q" type="search" name="q" value="{{ form.q.value|default_if_none:'' }}" autocomplete="off"
+           placeholder='e.g. "walk-in closet" balcony OR terrace -studio'>
+    <p class="muted small">"Quotes" for a phrase, -word to leave it out, OR between alternatives, word* for prefixes.</p>
+    <label class="field sort-field">Sort {% include "listings/_select.html" with name="sort" options=form.search_menus.sort %}</label>
+  </div>
+
+  <div class="search-groups">
+    <fieldset><legend>Price</legend>
+      {% include "listings/_range.html" with label="Rent" low=form.min_price high=form.max_price step=50 %}
+      {% include "listings/_range.html" with label="Effective" low=form.min_effective high=form.max_effective step=50 %}
+      {% include "listings/_range.html" with label="$/sqft" low=form.min_ppsf high=form.max_ppsf step="0.05" %}
+      {% include "listings/_number.html" with field=form.min_drop_amount step=25 %}
+      {% include "listings/_number.html" with field=form.min_drop_percent %}
+      {% include "listings/_number.html" with field=form.min_price_changes %}
+      <label class="inline">{{ form.price_reduced }} Price reduced</label>
+      <label class="inline">{{ form.price_raised }} Price went up</label>
+      <label class="inline">{{ form.specials }} Move-in specials only</label>
+    </fieldset>
+
+    <fieldset><legend>Size</legend>
+      {% include "listings/_range.html" with label="Beds" low=form.min_beds high=form.max_beds %}
+      {% include "listings/_range.html" with label="Baths" low=form.min_baths high=form.max_baths step="0.5" %}
+      {% include "listings/_range.html" with label="Sqft" low=form.min_sqft high=form.max_sqft step=50 %}
+      {% include "listings/_range.html" with label="Parking" low=form.min_parking high=form.max_parking %}
+      <label class="inline">{{ form.parking_unknown }} Include unknown parking</label>
+      <div class="panel-title">Type</div>
+      <div class="check-list">{% for option in form.types %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+    </fieldset>
+
+    <fieldset><legend>Features</legend>
+      <label class="field">In-unit W/D {% include "listings/_select.html" with name="wd" options=form.search_menus.wd %}</label>
+      <label class="field">AC {% include "listings/_select.html" with name="ac" options=form.search_menus.ac %}</label>
+      <label class="field">Outdoor space {% include "listings/_select.html" with name="outdoor" options=form.search_menus.outdoor %}</label>
+      <label class="field">Furnished {% include "listings/_select.html" with name="furnished" options=form.search_menus.furnished %}</label>
+      <label class="field">Has parking {% include "listings/_select.html" with name="parking" options=form.search_menus.parking %}</label>
+    </fieldset>
+
+    <fieldset><legend>Location</legend>
+      <div class="check-list">{% for option in form.cities %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+      <div class="panel-title">Portland quadrant</div>
+      <div class="check-list columns">{% for option in form.quadrants %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+      <div class="panel-title">Neighborhoods</div>
+      <div class="check-list scroll">{% for option in form.neighborhoods %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+      <label class="field">Name contains <input type="text" name="neighborhood" value="{{ form.neighborhood.value|default_if_none:'' }}" autocomplete="off"></label>
+      <div class="panel-title">ZIP codes</div>
+      <div class="check-list scroll columns">{% for option in form.zips %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+      <label class="inline">{{ form.has_location }} On the map only</label>
+    </fieldset>
+
+    <fieldset><legend>Time on market</legend>
+      {% include "listings/_range.html" with label="Days" low=form.min_dom high=form.max_dom %}
+      {% include "listings/_number.html" with field=form.new_within %}
+      {% include "listings/_number.html" with field=form.gone_within %}
+      <label class="field">Listed from <input type="date" name="listed_from" value="{{ form.listed_from.value|default_if_none:'' }}"></label>
+      <label class="field">Listed to <input type="date" name="listed_to" value="{{ form.listed_to.value|default_if_none:'' }}"></label>
+      <label class="inline">{{ form.show_inactive }} Show off-market</label>
+    </fieldset>
+
+    <fieldset><legend>Ours and sources</legend>
+      <div class="check-list">{% for option in form.statuses %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+      <label class="field">Votes {% include "listings/_select.html" with name="votes" options=form.search_menus.votes %}</label>
+      <div class="panel-title">Sources</div>
+      <div class="check-list columns">{% for option in form.sources %}<label>{{ option.tag }} {{ option.choice_label }}</label>{% endfor %}</div>
+      {% include "listings/_number.html" with field=form.min_sites %}
+      <label class="inline">{{ form.has_photo }} Has a photo</label>
+    </fieldset>
+  </div>
+  <button type="button" class="filters-done" data-filters-toggle>Show results</button>
+  <noscript><button type="submit">Search</button></noscript>
+</form>
+
+<section id="results">
+  {% if ignored %}<p class="panel notice error">Ignored {{ ignored|join:"; " }}</p>{% endif %}
+  <div class="results-bar">
+    <p class="muted">{{ page_obj.paginator.count|intcomma }} listing{{ page_obj.paginator.count|pluralize }}
+      {% if page_obj.paginator.num_pages > 1 %}· showing {{ page_obj.start_index }}–{{ page_obj.end_index }}{% endif %}</p>
+  </div>
+  <div class="table-wrap">
+  <table class="listing-table search-table">
+    <thead><tr>
+      {% for header in headers %}<th>{% if header.url %}<a href="{{ header.url }}" data-sort="{{ header.next_sort }}" class="sort-link{% if header.arrow %} sorted{% endif %}">{{ header.label }}{% if header.arrow %} {{ header.arrow }}{% endif %}</a>{% else %}{{ header.label }}{% endif %}</th>{% endfor %}
+    </tr></thead>
+    <tbody>
+    {% for listing in listings %}
+      <tr>
+        {% for key in column_keys %}<td class="col-{{ key }}">{% include "listings/_search_cell.html" with column=key %}</td>{% endfor %}
+        <td class="m-card">{% include "listings/_search_card.html" %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="{{ column_keys|length }}">No listings match. Try removing a filter, or <a href="{{ clear_url }}">clear them all</a>.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% include "listings/_pagination.html" %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  // htmx re-runs this script when Back restores a page from its history cache; listen only once.
+  if (!window.searchPageReady) {
+    window.searchPageReady = true;
+    document.addEventListener("click", event => {
+      const searchForm = document.getElementById("search-filters");
+      const header = event.target.closest("a[data-sort]");
+      if (header && searchForm) {  // sort through the form so the URL, the Sort menu and the results agree
+        event.preventDefault();
+        searchForm.elements.sort.value = header.dataset.sort;
+        htmx.trigger(searchForm, "change");
+      }
+      if (event.target.closest("[data-filters-toggle]")) document.body.classList.toggle("filters-open");
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% load humanize %}
+<a class="m-card-link" href="{{ listing.get_absolute_url }}">
+  {% if listing.photo_url %}<img src="{{ listing.photo_url }}" alt="" loading="lazy">{% else %}<span class="m-thumb"></span>{% endif %}
+  <span class="m-lines">
+    <span><strong>{% if listing.price %}${{ listing.price|intcomma }}{% else %}?{% endif %}</strong> · {{ listing.beds|default_if_none:"?" }} bd / {{ listing.baths|floatformat:"-1"|default:"?" }} ba{% if listing.sqft %} · {{ listing.sqft|intcomma }} sqft{% endif %}</span>
+    <span class="muted">{{ listing.street }}{% if listing.unit %} #{{ listing.unit }}{% endif %}{% if listing.location_label %} · {{ listing.location_label }}{% endif %}</span>
+  </span>
+  <span class="status status-{{ listing.group_status }}">{{ listing.group_status_label }}</span>
+</a>

@@ -1,0 +1,7 @@
+{# A min–max pair of number inputs: label, low and high (bound fields), optional step. #}
+<div class="range-row">
+  <span class="range-label">{{ label }}</span>
+  <input type="number" name="{{ low.html_name }}" value="{{ low.value|default_if_none:'' }}" min="0" step="{{ step|default:1 }}" inputmode="decimal" placeholder="Min" aria-label="Minimum {{ label|lower }}">
+  <span class="muted">–</span>
+  <input type="number" name="{{ high.html_name }}" value="{{ high.value|default_if_none:'' }}" min="0" step="{{ step|default:1 }}" inputmode="decimal" placeholder="Max" aria-label="Maximum {{ label|lower }}">
+</div>

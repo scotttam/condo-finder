@@ -1,9 +1,10 @@
 from django.urls import path
 
-from . import collab_views, sql_views, views
+from . import collab_views, search_views, sql_views, views
 
 urlpatterns = [
     path("", views.listing_list, name="listing_list"),
+    path("search/", search_views.search_page, name="search"),
     path("listing/<int:pk>/", views.listing_detail, name="listing_detail"),
     path("listing/<int:pk>/vote/", collab_views.vote, name="vote"),
     path("listing/<int:pk>/comments/", collab_views.comment_list, name="comment_list"),
