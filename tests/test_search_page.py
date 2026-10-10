@@ -1,3 +1,5 @@
+import csv
+import io
 import re
 from decimal import Decimal
 from urllib.parse import parse_qs, urlparse
@@ -147,3 +149,23 @@ def test_columns_in_a_link_win_and_are_kept_while_filtering(client):
 def test_unknown_columns_are_ignored(client):
     good("fits")
     assert '<td class="col-price">' in page(client, "?q=&cols=nonsense")
+
+
+def test_csv_exports_every_match_with_the_same_filters(client):
+    for n in range(105):
+        good(f"fits-{n:03}", price=3000 + n)
+    good("one-bed", beds=1)
+    response = client.get("/search/csv/?min_beds=2&sort=price")
+    assert response["Content-Type"] == "text/csv; charset=utf-8"
+    assert response["Content-Disposition"].startswith('attachment; filename="search-')
+    rows = list(csv.reader(io.StringIO(response.content.decode())))
+    assert rows[0][:3] == ["Address", "Unit", "City"] and rows[0][-1] == "Link"
+    assert len(rows) == 106  # header + every match, not just a page
+    assert rows[1][rows[0].index("Price")] == "3000"
+    assert "/listing/" in rows[1][-1] and rows[1][-1].startswith("http")
+
+
+def test_search_page_links_to_its_csv(client):
+    good("fits")
+    content = page(client, "?q=balcony")
+    assert re.search(r'<a class="csv-link" href="/search/csv/\?[^"]*q=balcony', content)

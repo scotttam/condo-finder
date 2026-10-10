@@ -96,6 +96,7 @@
     <p class="muted">{{ page_obj.paginator.count|intcomma }} listing{{ page_obj.paginator.count|pluralize }}
       {% if page_obj.paginator.num_pages > 1 %}· showing {{ page_obj.start_index }}–{{ page_obj.end_index }}{% endif %}</p>
     <div class="results-controls">
+      <a class="csv-link" href="{% url 'search_csv' %}?{{ query }}" download>Download CSV</a>
       <details class="chip columns-menu">
         <summary>Columns</summary>
         <form class="chip-panel" method="post" action="{% url 'search_columns' %}" hx-post="{% url 'search_columns' %}" hx-trigger="change, submit">

@@ -24,3 +24,11 @@ def test_headers_toggle_direction_and_show_an_arrow():
     assert (by_key["price"]["arrow"], by_key["price"]["next_sort"], by_key["price"]["url"]) == ("↑", "-price", "?sort=-price")
     assert (by_key["sqft"]["arrow"], by_key["sqft"]["next_sort"]) == ("", "sqft")
     assert {h["key"]: h for h in headers(["price"], "-price", url)}["price"]["next_sort"] == "price"
+
+
+def test_csv_cells_never_start_a_formula():
+    from listings.search_columns import csv_cell
+
+    assert csv_cell("=HYPERLINK(\"x\")") == "'=HYPERLINK(\"x\")"
+    assert csv_cell("+1") == "'+1" and csv_cell("-1") == "'-1" and csv_cell("@sum") == "'@sum"
+    assert csv_cell("821 NW 11th") == "821 NW 11th" and csv_cell(3000) == 3000 and csv_cell(None) == ""
