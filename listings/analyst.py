@@ -24,7 +24,7 @@ from accounts.models import SearchGroup, display_name
 from . import trend_stats
 from .collab import attach_comments, decorate
 from .filters import apply_filters
-from .forms import ListingFilterForm, default_filter_data
+from .forms import PRICE_SLIDER_MAX, ListingFilterForm, default_filter_data
 from .models import Listing, ListingState, SearchPriorities, Status, TrendReport, Vote
 
 log = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ def _relaxed_filter_data(group):
     data["min_baths"] = "1"       # allow 1-1.5 bath
     data["min_parking"] = "0"     # don't require parking
     data["parking_unknown"] = "on"
-    if data.get("max_price"):
+    if data.get("max_price") and int(data["max_price"]) != PRICE_SLIDER_MAX:  # the slider's top means no max
         data["max_price"] = str(int(int(data["max_price"]) * 1.2))  # up to 20% over budget
     return data
 

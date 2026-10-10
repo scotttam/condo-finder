@@ -408,3 +408,29 @@ class QueryRun(models.Model):
         keep = list(cls.objects.values_list("pk", flat=True)[: cls.KEEP])
         cls.objects.exclude(pk__in=keep).delete()
         return run
+
+
+class SavedSearch(models.Model):
+    """A named Search page query that everyone in a group sees. Stored as the page's URL query."""
+
+    group = models.ForeignKey("accounts.SearchGroup", on_delete=models.CASCADE, related_name="saved_searches")
+    name = models.CharField(max_length=100)
+    query = models.TextField()
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
+    created_by_name = models.CharField(max_length=60, blank=True)  # shown if the account is gone
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "pk"]
+        verbose_name_plural = "saved searches"
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def by(self):
+        return display_name(self.created_by) if self.created_by_id else (self.created_by_name or "Someone")
+
+    def get_absolute_url(self):
+        return f"{reverse('search')}?{self.query}{'&' if self.query else ''}saved={self.pk}"

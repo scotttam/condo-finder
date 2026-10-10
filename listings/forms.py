@@ -163,6 +163,10 @@ class ListingFilterForm(forms.Form):
             return []
         return [str(v) for v in value] if isinstance(value, (list, tuple)) else [str(value)]
 
+    def search_only_values(self):
+        """(name, value) for each Search-only filter in this form's data, for the home page's hidden inputs."""
+        return [(name, value) for name in SEARCH_ONLY_FIELDS for value in self.raw_values(name) if value not in ("", "any")]
+
     def active_count(self):
         """How many filters are set (Search's "Filters (n)"). Sort isn't a filter; the map area counts once."""
         data = getattr(self, "cleaned_data", {})

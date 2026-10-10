@@ -16,6 +16,7 @@
   <input type="hidden" name="east" value="{{ form.east.value|default_if_none:'' }}">
   <input type="hidden" name="west" value="{{ form.west.value|default_if_none:'' }}">
   {% if cols_param %}<input type="hidden" name="cols" value="{{ cols_param }}">{% endif %}
+  {% if current_saved %}<input type="hidden" name="saved" value="{{ current_saved.pk }}">{% endif %}
 
   <div class="search-keywords">
     <label class="panel-title" for="search-q">Keywords</label>
@@ -91,6 +92,7 @@
 </form>
 
 <section id="results">
+  {% include "listings/_saved_searches.html" %}
   {% if ignored %}<p class="panel notice error">Ignored {{ ignored|join:"; " }}</p>{% endif %}
   <div class="results-bar">
     <p class="muted">{{ page_obj.paginator.count|intcomma }} listing{{ page_obj.paginator.count|pluralize }}

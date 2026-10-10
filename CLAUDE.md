@@ -22,9 +22,11 @@ how to continue it.
   `Source` admin; #74 a warning when a Zillow city hits its 20-page cap; #75 the Trends "Worth exploring"
   section (five untouched taste-matched listings). **Open:** pause the Trends analysis with `TRENDS_ENABLED=0`
   (each run costs ~$1). (PR #76)
-- **Open: Advanced search stack** (spec `docs/superpowers/specs/2026-10-10-advanced-search-decisions.md`, plan
-  `docs/superpowers/plans/2026-10-10-advanced-search.md`): #78 (1/5) new filters in the shared filter engine;
-  #79 (2/5) keyword search; #80 (3/5) the Search page; PR 4/5 columns, CSV, inline status and votes. 916 tests pass.
+- **Open: Advanced search stack** #78–#82 (spec `docs/superpowers/specs/2026-10-10-advanced-search-decisions.md`,
+  plan `docs/superpowers/plans/2026-10-10-advanced-search.md`): new filters, keyword search (FTS5), the `/search/`
+  page, columns/CSV/inline status and votes, group saved searches and the home page's "more filters from Search"
+  chip. After merging, deploy: migrations listings 0022–0024 and accounts 0007; 0023 builds the keyword index for
+  every listing. 930 tests pass.
 - **New sources show up in the Sources filter only once their `Source` row exists:** open the Sources page
   (or wait for a scrape) after deploying one.
 - **Production:** the Mac mini, live since 2026-09-28. It runs gunicorn under launchd and scrapes at
@@ -217,6 +219,10 @@ its own data. Production data lives only on the Mac mini.
   Columns: `Profile.search_columns` (empty = defaults); `?cols=a,b` in a link wins and is kept while filtering.
   CSV (`/search/csv/`) exports every match with fixed `CSV_FIELDS`; `csv_cell` stops spreadsheet formulas. Rows
   have the status menu (`set_status` variant `menu`) and vote buttons.
+  Saved searches: `SavedSearch` per group, stored as the page's URL query (`clean_saved_query` drops `page`/`saved`,
+  and `cols` unless "with my columns" is ticked); any member renames, updates or deletes; other groups get 404.
+  The home page keeps Search-only filters (`SEARCH_ONLY_FIELDS`) as hidden inputs built from `form.data` (so
+  saved defaults keep them too) and shows "n more filters from Search"; `cols` and `saved` aren't home filters.
 - `listings/search_index.py`: keyword search. `listing_search` is an FTS5 table (external content on
   `listings_listing`) kept in sync by triggers from migration 0023, so even `QuerySet.update` is covered.
   `parse()` turns Google-style input (phrases, `-exclude`, `OR`, `prefix*`) into FTS5 built only from quoted

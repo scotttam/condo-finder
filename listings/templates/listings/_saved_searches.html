@@ -1,0 +1,34 @@
+{# The group's saved searches, and saving the search on screen. Inside #results so the query stays current. #}
+<div class="saved-searches panel">
+  {% if current_saved %}
+  <div class="saved-current">
+    <strong>Viewing “{{ current_saved.name }}”</strong> <span class="muted">by {{ current_saved.by }}</span>
+    <form method="post" action="{% url 'saved_search_update' current_saved.pk %}">
+      {% csrf_token %}<input type="hidden" name="query" value="{{ save_query }}"><input type="hidden" name="columns" value="{{ current_columns }}">
+      <label class="inline"><input type="checkbox" name="with_columns"{% if "cols=" in current_saved.query %} checked{% endif %}> with my columns</label>
+      <button type="submit" class="link">Update it to this search</button>
+    </form>
+    <details><summary class="link">Rename</summary>
+      <form class="inline-form" method="post" action="{% url 'saved_search_rename' current_saved.pk %}">{% csrf_token %}
+        <input type="text" name="name" value="{{ current_saved.name }}" maxlength="100" required><button type="submit">Rename</button></form>
+    </details>
+    <details><summary class="link danger">Delete…</summary>
+      <form method="post" action="{% url 'saved_search_delete' current_saved.pk %}">{% csrf_token %}
+        <button type="submit" class="link danger">Delete “{{ current_saved.name }}” for everyone</button></form>
+    </details>
+  </div>
+  {% endif %}
+  <details class="saved-list"{% if not current_saved %} open{% endif %}>
+    <summary>Saved searches ({{ saved_searches|length }})</summary>
+    <ul>
+      {% for saved in saved_searches %}<li><a href="{{ saved.get_absolute_url }}">{{ saved.name }}</a> <span class="muted">by {{ saved.by }}</span></li>
+      {% empty %}<li class="muted">None yet. Save this one for {{ request.group.name }}.</li>{% endfor %}
+    </ul>
+    <form class="inline-form" method="post" action="{% url 'saved_search_create' %}">
+      {% csrf_token %}<input type="hidden" name="query" value="{{ save_query }}"><input type="hidden" name="columns" value="{{ current_columns }}">
+      <input type="text" name="name" placeholder="Name this search" maxlength="100" required>
+      <label class="inline"><input type="checkbox" name="with_columns"> with my columns</label>
+      <button type="submit">Save</button>
+    </form>
+  </details>
+</div>

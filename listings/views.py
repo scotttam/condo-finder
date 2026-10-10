@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
@@ -22,11 +23,12 @@ from .runner import is_running, run_all_in_background, sync_sources
 from .scrapers.base import RefreshBlocked, Scraper
 from .scrapers.registry import PLATFORMS, SOURCES, build_scraper
 from .scheduler import next_run_time
+from .search_views import query_string
 
 PAGE_SIZE = 50
 FEED_PAGE_SIZE = 100
 VIEWS = ("map", "list")
-NON_FILTER_PARAMS = {"view", "page"}
+NON_FILTER_PARAMS = {"view", "page", "cols", "saved"}
 
 
 def listing_list(request):
@@ -37,14 +39,18 @@ def listing_list(request):
     has_filters = any(key not in NON_FILTER_PARAMS for key in request.GET)
     form = ListingFilterForm(request.GET if has_filters else default_filter_data(request.group))
     queryset = Listing.objects.all()
-    if form.is_valid():
-        queryset = apply_filters(queryset, form.cleaned_data, request.group)
+    form.is_valid()  # a bad value (say from a Search link) drops that one filter: cleaned_data keeps the rest
+    queryset = apply_filters(queryset, form.cleaned_data, request.group)
     page_obj = Paginator(queryset.prefetch_related("source_listings__source", "price_changes"), PAGE_SIZE).get_page(
         request.GET.get("page")
     )
     listings = collab.decorate(page_obj.object_list, request.group, request.user)
+    search_only = form.search_only_values()
     return render(request, "listings/list.html", {
         "form": form,
+        "search_only": search_only,
+        "search_only_count": len({name for name, _ in search_only}),
+        "search_url": f"{reverse('search')}?{query_string(form.data, view=None, page=None)}",
         "filter_defaults": default_filter_data(request.group),
         "view": view,
         "page_obj": page_obj,

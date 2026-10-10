@@ -260,6 +260,18 @@
   });
 
   filters.querySelector("[data-clear-area]").addEventListener("click", () => setArea(null));
+  // Filters set on the Search page ride along as hidden inputs. The chip opens them on Search as they are now,
+  // or drops them.
+  filters.querySelector("[data-search-chip] a")?.addEventListener("click", event => {
+    const query = new URLSearchParams(new FormData(filters));
+    query.delete("view");
+    event.currentTarget.href = `/search/?${query}`;
+  });
+  filters.querySelector("[data-clear-search-only]")?.addEventListener("click", () => {
+    filters.querySelectorAll("[data-search-only]").forEach(input => input.remove());
+    filters.querySelector("[data-search-chip]").remove();
+    htmx.trigger(filters, "change");
+  });
   filters.addEventListener("input", refreshFilterBar);
   filters.addEventListener("change", refreshFilterBar);
   refreshFilterBar();

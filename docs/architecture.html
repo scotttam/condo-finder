@@ -318,6 +318,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
   <p>A <code>Listing</code> is the apartment. A <code>SourceListing</code> is one site's ad for it. The same unit on Zillow, Redfin and Craigslist is one Listing with three SourceListings.</p>
   <p>The Trends page adds two standalone tables. <code>TrendReport</code> keeps each analysis: the ranked picks (with a snapshot of address, photo and price when picked), Claude's market read, the statistics it was given, token usage and cost, and what changed since the previous report. <code>SearchPriorities</code> holds each group's "What we're looking for". Both belong to a search group.</p>
   <p>People log in with an email. Each <code>Profile</code> puts one person in exactly one <code>SearchGroup</code> (a household), and an <code>Invite</code> is a single-use link into a new or existing group. Everything a group says about a listing lives in its own rows: <code>ListingState</code> (the shared status and who set it), <code>Comment</code> and <code>Vote</code>. Scraped data stays global.</p>
+  <p>The Search page adds <code>SavedSearch</code> (a group's named searches, each stored as the page's URL query, with who saved it) and <code>Profile.search_columns</code> (each person's table columns). <code>Listing.effective_price</code> is the rent after a move-in special, kept by <code>Listing.save()</code> so it can be filtered and sorted. Keyword search reads <code>listing_search</code>, an SQLite FTS5 index over each listing's title, description, address and neighborhood; database triggers keep it in step with every insert, update and delete.</p>
   <p>The SQL console adds two more standalone tables: <code>SavedQuery</code> (name and SQL) and <code>QueryRun</code> (the last 50 runs, with who ran them, row count, time and any error).</p>
   <figure class="wide">
     <div class="scroll">
@@ -363,7 +364,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="s" x="548" y="170">has_washer_dryer · has_ac</text>
       <text class="s" x="548" y="186">has_outdoor_space · is_furnished</text>
       <text class="s" x="548" y="202">property_type · special_offer</text>
-      <text class="s" x="548" y="218">description · photo_url</text>
+      <text class="s" x="548" y="218">effective_price · photo_url</text>
       <text class="s" x="548" y="240">status, votes: per group ↓</text>
       <text class="s" x="548" y="256" style="fill:var(--warm)">overrides (admin fixes)</text>
       <line class="edge" x1="476" y1="96" x2="534" y2="96" marker-end="url(#ch)"/>
@@ -391,11 +392,13 @@ td:first-child { white-space: nowrap; font-weight: 600; }
       <text class="t" x="28" y="356">SearchGroup</text>
       <text class="s" x="28" y="378">name · default_filters</text>
       <text class="s" x="28" y="394">TrendReport · priorities</text>
+      <text class="s" x="28" y="426">SavedSearch</text>
       <text class="s" x="28" y="410">one household</text>
       <rect class="box web" x="16" y="456" width="190" height="84" rx="8"/>
       <text class="t" x="28" y="478">Profile</text>
       <text class="s" x="28" y="500">user · display_name</text>
       <text class="s" x="28" y="516">feed_seen_at</text>
+      <text class="s" x="28" y="532">search_columns</text>
       <line class="edge" x1="111" y1="454" x2="111" y2="436" marker-end="url(#ch)"/>
       <text class="lbl" x="119" y="449">one group each</text>
       <rect class="box web" x="266" y="456" width="210" height="84" rx="8"/>
@@ -437,6 +440,7 @@ td:first-child { white-space: nowrap; font-weight: 600; }
     <thead><tr><th>Page</th><th>What it does</th><th>How it talks to the server</th></tr></thead>
     <tbody>
       <tr><td>Listings</td><td>Filter bar, list or table beside the map, "Search this area"</td><td>Any filter change sends a GET. HTMX swaps in <code>#results</code> and updates the URL.</td></tr>
+      <tr><td>Search</td><td>Every filter in one panel (keywords with "phrases", -exclude, OR and prefix*; price, size, features, location, time on market, status, votes, sources), a sortable table with a Columns menu, CSV, inline status and votes, and the group's saved searches</td><td>Any change sends a GET about 400 ms later. HTMX swaps in <code>#results</code> and updates the URL, so Back and shared links work. Column choices, status, votes and saved searches POST. Below 700 px rows become cards and the filters a drawer. The home page keeps Search-only filters as hidden inputs and shows "n more filters from Search".</td></tr>
       <tr><td>Log in</td><td>Email and password</td><td>The only page, with invite links, open without a login. An HTMX request after the session ends gets <code>HX-Redirect</code> to it.</td></tr>
       <tr><td>Listing</td><td>Price and stats, sources, map, the group's status and votes, comment thread, price history</td><td>Status pills and votes POST on click. The comment thread polls every 30 s (not while you edit one). History edits and "Refresh from sites" are staff-only.</td></tr>
       <tr><td>Trends</td><td>Claude's top 5 picks with negotiating angles, 5 "Worth exploring" untouched finds, market charts, "What we're looking for", older reports</td><td>Re-run POSTs start a background analysis; a banner polls every 4 s and reloads when it's done. Pick-card status pills and the priorities box save as you use them.</td></tr>

@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+from django.utils import timezone
+
 
 @dataclass(frozen=True)
 class Column:
@@ -74,7 +76,7 @@ CSV_FIELDS = [
     ("Furnished", lambda l: _known(l.is_furnished)), ("Type", lambda l: l.get_property_type_display()),
     ("Special", lambda l: l.special_offer), ("Price drop", lambda l: l.price_drop or ""),
     ("Days on market", lambda l: l.days_on_market), ("Listed", lambda l: l.listed_at or ""),
-    ("First seen", lambda l: l.first_seen_at.date()), ("Last seen", lambda l: l.last_seen_at.date()),
+    ("First seen", lambda l: timezone.localdate(l.first_seen_at)), ("Last seen", lambda l: timezone.localdate(l.last_seen_at)),
     ("Active", lambda l: _known(l.is_active)), ("Status", lambda l: l.group_status_label),
     ("Up votes", lambda l: l.up_count), ("Down votes", lambda l: l.down_count),
     ("Sources", lambda l: ", ".join(sl.source.name for sl in l.source_listings.all() if sl.is_active)),
