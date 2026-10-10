@@ -3,19 +3,32 @@ from datetime import datetime, time
 from django import forms
 from django.conf import settings
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from .models import Listing, PropertyType, Quadrant, SavedQuery, Source, Status
 
-FEATURE_CHOICES = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
+FEATURE_CHOICES = [("any", "Any"), ("yes", "Yes"), ("no", "No"), ("unknown", "Unknown"), ("yes_or_unknown", "Yes or unknown")]
 PRICE_SLIDER_MAX = 8000  # the slider's top value means "no maximum"
 PRICE_SLIDER_STEP = 100
 BED_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
 BATH_CHOICES = [("", "Any"), ("1", "1+"), ("1.5", "1.5+"), ("2", "2+"), ("3", "3+")]
 PARKING_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+")]
-FURNISHED_CHOICES = [("any", "Any"), ("hide", "Hide furnished"), ("only", "Furnished only")]
+# Furnished also keeps the home page's older values: "hide" (no or unknown) and "only" (an alias of yes).
+FURNISHED_CHOICES = [*FEATURE_CHOICES, ("hide", "No or unknown"), ("only", "Furnished only")]
 VOTE_FILTER_CHOICES = [("any", "Any"), ("everyone_likes", "Everyone 👍"), ("someone_likes", "Someone 👍"),
                        ("disagree", "We disagree"), ("unvoted", "No votes yet")]
 SORT_CHOICES = [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")]
+SHORT_FEATURE_MENU = [("any", "Any"), ("yes_or_unknown", "Yes or unknown"), ("yes", "Yes")]
+# The home page's drawer keeps its short menus. Search shows every choice.
+HOME_MENUS = {
+    "wd": SHORT_FEATURE_MENU,
+    "ac": SHORT_FEATURE_MENU,
+    "outdoor": SHORT_FEATURE_MENU,
+    "furnished": [("any", "Any"), ("hide", "Hide furnished"), ("only", "Furnished only")],
+    "sort": [("price", "Price ↑"), ("-price", "Price ↓"), ("newest", "Newest"), ("ppsf", "$/sqft ↑")],
+}
+SEARCH_MENU_FIELDS = ("wd", "ac", "outdoor", "furnished", "parking", "votes")
+SEARCH_MENU_SKIP = {"furnished": {"only"}}  # an alias of "yes"
 
 
 def app_default_filters():
@@ -70,6 +83,7 @@ class ListingFilterForm(forms.Form):
     ac = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="AC")
     outdoor = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Outdoor space")
     furnished = forms.ChoiceField(required=False, choices=FURNISHED_CHOICES, label="Furnished")
+    parking = forms.ChoiceField(required=False, choices=FEATURE_CHOICES, label="Has parking")
     price_reduced = forms.BooleanField(required=False, label="Price reduced")
     specials = forms.BooleanField(required=False, label="Move-in specials only")
     show_inactive = forms.BooleanField(required=False, label="Show off-market")
@@ -84,6 +98,25 @@ class ListingFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["cities"].choices = [(city, city) for city in settings.TARGET_CITIES]
         self.fields["sources"].choices = list(Source.objects.order_by("name").values_list("key", "name"))
+
+    def _menu(self, name, choices):
+        """Options for a select. A value from elsewhere (a Search link on the home page, say) is added, so the
+        menu shows it and the next change doesn't drop it."""
+        current = str(self[name].value() or "")
+        if current and current not in dict(choices):
+            choices = [*choices, (current, dict(self.fields[name].choices).get(current, current))]
+        return [{"value": value, "label": label, "selected": value == current} for value, label in choices]
+
+    @cached_property
+    def home_menus(self):
+        return {name: self._menu(name, choices) for name, choices in HOME_MENUS.items()}
+
+    @cached_property
+    def search_menus(self):
+        return {
+            name: self._menu(name, [(v, label) for v, label in self.fields[name].choices if v not in SEARCH_MENU_SKIP.get(name, ())])
+            for name in SEARCH_MENU_FIELDS
+        }
 
 
 HISTORY_EVENTS = ["Listed for rent", "Price change", "Listing removed", "Asked the landlord", "Note"]

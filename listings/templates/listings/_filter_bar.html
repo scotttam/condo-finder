@@ -83,10 +83,10 @@
           <label class="inline">{{ form.parking_unknown }} Include listings with unknown parking</label>
 
           <div class="panel-title">Features</div>
-          <label class="field">In-unit W/D {{ form.wd }}</label>
-          <label class="field">AC {{ form.ac }}</label>
-          <label class="field">Outdoor space {{ form.outdoor }}</label>
-          <label class="field">Furnished {{ form.furnished }}</label>
+          <label class="field">In-unit W/D {% include "listings/_select.html" with name="wd" options=form.home_menus.wd %}</label>
+          <label class="field">AC {% include "listings/_select.html" with name="ac" options=form.home_menus.ac %}</label>
+          <label class="field">Outdoor space {% include "listings/_select.html" with name="outdoor" options=form.home_menus.outdoor %}</label>
+          <label class="field">Furnished {% include "listings/_select.html" with name="furnished" options=form.home_menus.furnished %}</label>
 
           <div class="panel-title">Price</div>
           <label class="inline">{{ form.price_reduced }} Price reduced only</label>

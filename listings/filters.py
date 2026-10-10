@@ -4,7 +4,26 @@ from django.db.models.functions import Cast, Coalesce
 from .forms import PRICE_SLIDER_MAX
 from .models import Vote
 
-FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space"}
+FEATURE_FIELDS = {"wd": "has_washer_dryer", "ac": "has_ac", "outdoor": "has_outdoor_space", "furnished": "is_furnished"}
+
+PARKING_Q = {
+    "yes": Q(parking_spaces__gt=0) | Q(parking_spaces__isnull=True, has_parking=True),
+    "no": Q(parking_spaces=0) | Q(parking_spaces__isnull=True, has_parking=False),
+    "unknown": Q(parking_spaces__isnull=True, has_parking__isnull=True),
+}
+PARKING_Q["yes_or_unknown"] = PARKING_Q["yes"] | PARKING_Q["unknown"]
+
+
+def _feature_q(field, choice):
+    """Yes / No / Unknown / Yes or unknown (and furnished's older Hide / Only) as a Q; None means Any."""
+    return {
+        "yes": Q(**{field: True}),
+        "only": Q(**{field: True}),
+        "no": Q(**{field: False}),
+        "unknown": Q(**{f"{field}__isnull": True}),
+        "yes_or_unknown": ~Q(**{field: False}),  # negating a nullable column keeps the NULLs
+        "hide": ~Q(**{field: True}),
+    }.get(choice)
 
 
 def apply_filters(queryset, data, group):
@@ -43,10 +62,6 @@ def apply_filters(queryset, data, group):
         queryset = queryset.annotate(our_status=status_expr(group)).filter(our_status__in=data["statuses"])
     if data.get("votes") and data["votes"] != "any":
         queryset = _filter_votes(queryset, data["votes"], group)
-    if data.get("furnished") == "hide":
-        queryset = queryset.exclude(is_furnished=True)
-    elif data.get("furnished") == "only":
-        queryset = queryset.filter(is_furnished=True)
     if data.get("specials"):
         queryset = queryset.exclude(special_offer="")
     if data.get("price_reduced"):
@@ -56,10 +71,11 @@ def apply_filters(queryset, data, group):
             peak_price__gt=F("price")
         )
     for key, field in FEATURE_FIELDS.items():
-        if data.get(key) == "yes":
-            queryset = queryset.filter(**{field: True})
-        elif data.get(key) == "yes_or_unknown":
-            queryset = queryset.exclude(**{field: False})
+        condition = _feature_q(field, data.get(key))
+        if condition is not None:
+            queryset = queryset.filter(condition)
+    if data.get("parking") in PARKING_Q:
+        queryset = queryset.filter(PARKING_Q[data["parking"]])
     return _sort(queryset, data.get("sort") or "price")
 
 
