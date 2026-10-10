@@ -3,17 +3,20 @@
 import csv
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse, QueryDict
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from accounts.models import display_name
+
 from . import collab, search_columns, search_index
 from .filters import apply_filters
 from .forms import ListingFilterForm, default_filter_data
-from .models import Listing
+from .models import Listing, SavedSearch
 
 PAGE_SIZE = 100
 STATE_PARAMS = {"page", "cols", "saved"}  # not filters: a URL with only these starts from the group's defaults
@@ -98,7 +101,16 @@ def search_page(request):
         "prev_url": _url(form, page=page_obj.previous_page_number()) if page_obj.has_previous() else "",
         "next_url": _url(form, page=page_obj.next_page_number()) if page_obj.has_next() else "",
         "clear_url": f"{reverse('search')}?q=",
+        "saved_searches": SavedSearch.objects.filter(group=request.group).select_related("created_by__profile"),
+        "current_saved": _current_saved(request),
+        "current_columns": ",".join(keys),
+        "save_query": query_string(form.data, page=None, saved=None, cols=None),
     })
+
+
+def _current_saved(request):
+    pk = request.GET.get("saved", "")
+    return SavedSearch.objects.filter(pk=pk, group=request.group).first() if pk.isdigit() else None
 
 
 def _absolute(request, path):
@@ -116,3 +128,72 @@ def search_csv(request):
         writer.writerow([search_columns.csv_cell(value(listing)) for _, value in search_columns.CSV_FIELDS]
                         + [_absolute(request, listing.get_absolute_url())])
     return response
+
+
+SAVED_QUERY_LIMIT = 4000
+
+
+def clean_saved_query(raw, columns, with_columns):
+    """The query to store: the search without paging or saved-search state, with the person's columns only
+    when they asked to save them. None when it's too long to be a real search."""
+    query = QueryDict(raw or "", mutable=True)
+    for key in ("page", "saved", "cols"):
+        query.pop(key, None)
+    if with_columns:
+        query["cols"] = ",".join(search_columns.keys_from((columns or "").split(",")))
+    text = query.urlencode()
+    return None if len(text) > SAVED_QUERY_LIMIT else text
+
+
+def _own_saved(request, pk):
+    return get_object_or_404(SavedSearch, pk=pk, group=request.group)
+
+
+def _saved_query_or_error(request):
+    query = clean_saved_query(request.POST.get("query"), request.POST.get("columns"), request.POST.get("with_columns"))
+    if query is None:
+        messages.error(request, "That search is too long to save.")
+    return query
+
+
+@require_POST
+def saved_search_create(request):
+    name = request.POST.get("name", "").strip()[:100]
+    query = _saved_query_or_error(request)
+    if not name:
+        messages.error(request, "Give the search a name to save it.")
+    if not name or query is None:
+        return redirect(f"{reverse('search')}?{query_string(QueryDict(request.POST.get('query', '')))}")
+    saved = SavedSearch.objects.create(group=request.group, name=name, query=query, created_by=request.user,
+                                       created_by_name=display_name(request.user))
+    messages.success(request, f"Saved “{saved.name}” for {request.group.name}.")
+    return redirect(saved.get_absolute_url())
+
+
+@require_POST
+def saved_search_update(request, pk):
+    saved = _own_saved(request, pk)
+    query = _saved_query_or_error(request)
+    if query is not None:
+        saved.query = query
+        saved.save(update_fields=["query", "updated_at"])
+        messages.success(request, f"Updated “{saved.name}”.")
+    return redirect(saved.get_absolute_url())
+
+
+@require_POST
+def saved_search_rename(request, pk):
+    saved = _own_saved(request, pk)
+    name = request.POST.get("name", "").strip()[:100]
+    if name:
+        saved.name = name
+        saved.save(update_fields=["name", "updated_at"])
+    return redirect(saved.get_absolute_url())
+
+
+@require_POST
+def saved_search_delete(request, pk):
+    saved = _own_saved(request, pk)
+    saved.delete()
+    messages.success(request, f"Deleted “{saved.name}”.")
+    return redirect(f"{reverse('search')}?{saved.query}")
