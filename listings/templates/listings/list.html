@@ -11,11 +11,7 @@
       </p>
       <div class="results-controls">
       <label class="sort">Sort
-        <select name="sort" form="filters">
-          {% for value, label in form.fields.sort.choices %}
-          <option value="{{ value }}"{% if form.sort.value == value %} selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
+        {% include "listings/_select.html" with name="sort" options=form.home_menus.sort form_id="filters" %}
       </label>
       <nav class="view-toggle" aria-label="Results view">
         <a href="{{ map_url }}"{% if view == "map" %} class="active" aria-current="page"{% endif %}>Map</a>

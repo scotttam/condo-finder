@@ -79,3 +79,9 @@ def test_trends_candidates_use_the_groups_defaults():
     group.default_filters = app_default_filters() | {"min_price": "1000"}
     group.save()
     assert cheap.pk in {listing.pk for listing in analyst.candidates(group)}
+
+
+def test_save_as_our_defaults_keeps_every_pick_of_a_multi_pick_filter(client):
+    client.post("/filters/defaults/", {"zips": ["97209", "97210"], "neighborhoods": ["Pearl"], "max_price": "8000"})
+    saved = home_group().default_filters
+    assert saved["zips"] == ["97209", "97210"] and saved["neighborhoods"] == ["Pearl"]
