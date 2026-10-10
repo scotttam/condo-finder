@@ -39,7 +39,7 @@ SEARCH_MENU_FIELDS = ("wd", "ac", "outdoor", "furnished", "parking", "votes")
 SEARCH_MENU_SKIP = {"furnished": {"only"}}  # an alias of "yes"
 # Filters the home page has no control for. It keeps them as hidden inputs and shows a chip.
 SEARCH_ONLY_FIELDS = (
-    "max_beds", "max_baths", "max_parking", "min_sqft", "max_sqft", "min_ppsf", "max_ppsf", "min_effective",
+    "q", "max_beds", "max_baths", "max_parking", "min_sqft", "max_sqft", "min_ppsf", "max_ppsf", "min_effective",
     "max_effective", "parking", "min_dom", "max_dom", "new_within", "gone_within", "listed_from", "listed_to",
     "min_drop_amount", "min_drop_percent", "min_price_changes", "price_raised", "zips", "neighborhoods",
     "min_sites", "has_photo", "has_location",
@@ -87,6 +87,7 @@ class ListingFilterForm(forms.Form):
     price_slider_max = PRICE_SLIDER_MAX
     price_slider_step = PRICE_SLIDER_STEP
 
+    q = forms.CharField(required=False, max_length=300, label="Keywords")
     min_beds = forms.IntegerField(required=False, min_value=0, label="Min beds")
     min_baths = forms.DecimalField(required=False, min_value=0, decimal_places=1, label="Min baths")
     min_parking = forms.IntegerField(required=False, min_value=0, label="Min parking")
@@ -176,10 +177,12 @@ class ListingFilterForm(forms.Form):
 
     @cached_property
     def search_menus(self):
-        return {
+        menus = {
             name: self._menu(name, [(v, label) for v, label in self.fields[name].choices if v not in SEARCH_MENU_SKIP.get(name, ())])
             for name in SEARCH_MENU_FIELDS
         }
+        menus["sort"] = self._menu("sort", [("", "Best match"), *SORT_CHOICES])
+        return menus
 
 
 HISTORY_EVENTS = ["Listed for rent", "Price change", "Listing removed", "Asked the landlord", "Note"]

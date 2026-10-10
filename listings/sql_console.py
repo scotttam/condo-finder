@@ -117,7 +117,8 @@ def schema(connect=connect_readonly):
     conn = connect()
     try:
         names = [row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' "
+            "AND name NOT LIKE 'listing\\_search\\_%' ESCAPE '\\' ORDER BY name"
         )]
         return [
             Table(name, [(column[1], column[2].lower()) for column in conn.execute(
