@@ -1,9 +1,11 @@
 import re
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 
 import pytest
+from django.utils import timezone
 
-from listings.filters import apply_filters
+from listings.filters import apply_filters, dom_expr
 from listings.forms import PRICE_SLIDER_MAX, ListingFilterForm
 from listings.models import Listing, PropertyType
 from listings.specials import effective_rent
@@ -163,3 +165,42 @@ def test_migration_fills_in_effective_price():
     finally:
         executor = MigrationExecutor(connection)
         executor.migrate(executor.loader.graph.leaf_nodes())
+
+
+def days_ago(n, at=time(12)):
+    return timezone.make_aware(datetime.combine(timezone.localdate() - timedelta(days=n), at))
+
+
+def test_dom_in_sql_matches_the_python_property():
+    rows = [
+        listing("seen-10", first_seen_at=days_ago(10)),
+        listing("listed-earlier", first_seen_at=days_ago(5), listed_at=timezone.localdate() - timedelta(days=30)),
+        listing("listed-later", first_seen_at=days_ago(5), listed_at=timezone.localdate() - timedelta(days=2)),
+        listing("gone", first_seen_at=days_ago(20), last_seen_at=days_ago(3), is_active=False),
+        listing("late-evening", first_seen_at=days_ago(1, time(23, 30))),  # after 4pm Pacific: the next day in UTC
+    ]
+    in_sql = dict(Listing.objects.annotate(dom=dom_expr()).values_list("pk", "dom"))
+    assert in_sql == {row.pk: row.days_on_market for row in rows}
+
+
+def test_days_on_market_range():
+    listing("fresh", first_seen_at=days_ago(2))
+    listing("stale", first_seen_at=days_ago(60))
+    assert found(min_dom=30) == {"stale"}
+    assert found(max_dom=7) == {"fresh"}
+
+
+def test_new_within_and_gone_within():
+    listing("new", first_seen_at=days_ago(2))
+    listing("old", first_seen_at=days_ago(40))
+    listing("just-gone", first_seen_at=days_ago(40), last_seen_at=days_ago(1), is_active=False)
+    listing("long-gone", first_seen_at=days_ago(40), last_seen_at=days_ago(30), is_active=False)
+    assert found(new_within=7) == {"new"}
+    assert found(gone_within=7) == {"just-gone"}  # includes off-market listings without "Show off-market"
+
+
+def test_listed_date_range_uses_the_listings_start():
+    listing("listed-in-sept", first_seen_at=days_ago(1), listed_at=date(2026, 9, 10))
+    listing("seen-in-oct", first_seen_at=timezone.make_aware(datetime(2026, 10, 3, 12)))
+    assert found(listed_from="2026-09-01", listed_to="2026-09-30") == {"listed-in-sept"}
+    assert found(listed_from="2026-10-01") == {"seen-in-oct"}

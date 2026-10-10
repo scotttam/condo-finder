@@ -96,6 +96,12 @@ class ListingFilterForm(forms.Form):
     price_reduced = forms.BooleanField(required=False, label="Price reduced")
     specials = forms.BooleanField(required=False, label="Move-in specials only")
     show_inactive = forms.BooleanField(required=False, label="Show off-market")
+    min_dom = forms.IntegerField(required=False, min_value=0, label="Min days on market")
+    max_dom = forms.IntegerField(required=False, min_value=0, label="Max days on market")
+    new_within = forms.IntegerField(required=False, min_value=1, label="New in the last (days)")
+    gone_within = forms.IntegerField(required=False, min_value=1, label="Off-market in the last (days)")
+    listed_from = forms.DateField(required=False, label="Listed from")
+    listed_to = forms.DateField(required=False, label="Listed to")
     sort = forms.ChoiceField(required=False, choices=SORT_CHOICES)
     # "Search this area": the map's visible bounds, set by the map script.
     north = forms.FloatField(required=False, widget=forms.HiddenInput)

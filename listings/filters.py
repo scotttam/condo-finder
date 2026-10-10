@@ -1,5 +1,9 @@
-from django.db.models import Count, ExpressionWrapper, F, FloatField, IntegerField, Max, OuterRef, Q, Subquery
-from django.db.models.functions import Cast, Coalesce
+from datetime import timedelta
+
+from django.db.models import (Case, Count, DateField, ExpressionWrapper, F, FloatField, Func, IntegerField, Max, OuterRef, Q,
+                              Subquery, Value, When)
+from django.db.models.functions import Cast, Coalesce, Least, TruncDate
+from django.utils import timezone
 
 from .forms import PRICE_SLIDER_MAX
 from .models import Vote
@@ -24,6 +28,24 @@ def ppsf_expr():
     return ExpressionWrapper(Cast("price", FloatField()) / F("sqft"), output_field=FloatField())
 
 
+class JulianDay(Func):
+    function = "julianday"
+    output_field = FloatField()
+
+
+def first_day_expr():
+    """The day the current rental listing started: the site's listed date when it's before we first saw it."""
+    seen = TruncDate("first_seen_at")  # in the current time zone, like timezone.localdate()
+    return Least(Coalesce("listed_at", seen), seen)
+
+
+def dom_expr():
+    """Listing.days_on_market in SQL: to today, or to the last day seen once off-market."""
+    end = Case(When(is_active=True, then=Value(timezone.localdate())), default=TruncDate("last_seen_at"),
+               output_field=DateField())
+    return Cast(JulianDay(end) - JulianDay(first_day_expr()), IntegerField())
+
+
 def _feature_q(field, choice):
     """Yes / No / Unknown / Yes or unknown (and furnished's older Hide / Only) as a Q; None means Any."""
     return {
@@ -37,7 +59,7 @@ def _feature_q(field, choice):
 
 
 def apply_filters(queryset, data, group):
-    if not data.get("show_inactive"):
+    if not data.get("show_inactive") and not data.get("gone_within"):
         queryset = queryset.filter(is_active=True)
     if data.get("min_beds") is not None:
         queryset = queryset.filter(beds__gte=data["min_beds"])
@@ -100,6 +122,23 @@ def apply_filters(queryset, data, group):
             queryset = queryset.filter(condition)
     if data.get("parking") in PARKING_Q:
         queryset = queryset.filter(PARKING_Q[data["parking"]])
+    now = timezone.now()
+    if data.get("min_dom") is not None or data.get("max_dom") is not None:
+        queryset = queryset.alias(dom=dom_expr())
+        if data.get("min_dom") is not None:
+            queryset = queryset.filter(dom__gte=data["min_dom"])
+        if data.get("max_dom") is not None:
+            queryset = queryset.filter(dom__lte=data["max_dom"])
+    if data.get("new_within"):
+        queryset = queryset.filter(first_seen_at__gte=now - timedelta(days=data["new_within"]))
+    if data.get("gone_within"):
+        queryset = queryset.filter(is_active=False, last_seen_at__gte=now - timedelta(days=data["gone_within"]))
+    if data.get("listed_from") or data.get("listed_to"):
+        queryset = queryset.alias(listed_day=first_day_expr())
+        if data.get("listed_from"):
+            queryset = queryset.filter(listed_day__gte=data["listed_from"])
+        if data.get("listed_to"):
+            queryset = queryset.filter(listed_day__lte=data["listed_to"])
     return _sort(queryset, data.get("sort") or "price")
 
 
